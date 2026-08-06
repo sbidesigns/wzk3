@@ -86,6 +86,14 @@ export class RaceScene {
     this._currentItem = null; // { type, timer, duration }
     this._shieldMesh = null;
     this._shieldActive = false;
+    // === Weather System ===
+    this._weatherParticles = [];
+    this._weatherType = 'clear';
+    // === Exhaust Flames ===
+    this._exhaustLights = [];
+    this._exhaustCones = [];
+    // === Headlight Toggle ===
+    this._headlightsOn = true;
   }
 
   _setupInputListeners() {
@@ -115,6 +123,7 @@ export class RaceScene {
       case 'Escape': this._togglePause(); break;
       case 'KeyR': if (e.ctrlKey) { e.preventDefault(); } break;
       case 'KeyE': this._useItem(); break;
+      case 'KeyL': this._toggleHeadlights(); break;
     }
   }
 
@@ -151,6 +160,8 @@ export class RaceScene {
       this._createRearViewMirror();
       this._createShieldMesh();
       this._spawnInitialObstacles();
+      this._createWeatherSystem();
+      this._createExhaustFlames();
       if (this._vehicle) {
         this._camera.position.copy(this._vehicle.position).add(this._cameraOffset);
         this._camera.lookAt(this._vehicle.position);
@@ -834,14 +845,45 @@ export class RaceScene {
     ov.innerHTML = '<div style="padding:48px 60px;background:linear-gradient(145deg,rgba(26,26,46,0.95),rgba(13,13,20,0.98));border:1px solid rgba(0,229,255,0.15);border-radius:20px;text-align:center;box-shadow:0 0 80px rgba(0,229,255,0.08);">' +
       '<h2 style="font-size:42px;font-weight:900;color:#fff;margin:0 0 8px;font-family:Bebas Neue,sans-serif;letter-spacing:8px;text-shadow:0 0 30px rgba(0,229,255,0.5);">PAUSED</h2>' +
       '<p style="color:rgba(255,255,255,0.35);margin:0 0 32px;font-size:14px;letter-spacing:1px;">Press ESC or click to resume</p>' +
-      '<button id="pause-resume-btn" style="padding:14px 40px;background:linear-gradient(135deg,#00e5ff,#0088cc);border:none;border-radius:10px;color:#fff;font-size:15px;font-weight:600;cursor:pointer;letter-spacing:2px;box-shadow:0 0 20px rgba(0,229,255,0.3);">RESUME</button></div>';
+      '<div style="display:flex;flex-direction:column;gap:12px;align-items:center;">' +
+      '<button id="pause-resume-btn" style="padding:14px 40px;background:linear-gradient(135deg,#00e5ff,#0088cc);border:none;border-radius:10px;color:#fff;font-size:15px;font-weight:600;cursor:pointer;letter-spacing:2px;box-shadow:0 0 20px rgba(0,229,255,0.3);width:220px;">RESUME</button>' +
+      '<button id="pause-quit-btn" style="padding:12px 40px;background:transparent;border:1px solid rgba(255,255,255,0.15);border-radius:10px;color:rgba(255,255,255,0.5);font-size:13px;font-weight:500;cursor:pointer;letter-spacing:2px;width:220px;transition:all 0.2s;">QUIT TO MENU</button>' +
+      '</div></div>';
     document.body.appendChild(ov); this._pauseElement = ov;
     var btn = ov.querySelector('#pause-resume-btn');
     if (btn) btn.addEventListener('click', () => this._togglePause());
+    var quitBtn = ov.querySelector('#pause-quit-btn');
+    if (quitBtn) {
+      quitBtn.addEventListener('mouseenter', function() { this.style.borderColor = 'rgba(255,77,46,0.5)'; this.style.color = '#ff4d2e'; this.style.background = 'rgba(255,77,46,0.08)'; });
+      quitBtn.addEventListener('mouseleave', function() { this.style.borderColor = 'rgba(255,255,255,0.15)'; this.style.color = 'rgba(255,255,255,0.5)'; this.style.background = 'transparent'; });
+      quitBtn.addEventListener('click', () => this._quitToMenu());
+    }
     ov.addEventListener('click', (e) => { if (e.target === ov) this._togglePause(); });
   }
 
   _removePauseOverlay() { if (this._pauseElement) { this._pauseElement.remove(); this._pauseElement = null; } }
+
+  _quitToMenu() {
+    this._paused = false;
+    this._state.running = false;
+    this._removePauseOverlay();
+    this._removeInputListeners();
+    // Cleanup HUD
+    if (this._hudElement && this._hudElement.parentNode) this._hudElement.remove();
+    this._hudElement = null; this._hudRefs = {};
+    // Cleanup 3D scene
+    if (this._scene) { while(this._scene.children.length > 0) this._scene.remove(this._scene.children[0]); }
+    this._scene = null; this._camera = null; this._vehicle = null;
+    this._opponents = []; this._itemBoxes = []; this._boostPads = []; this._obstacles = [];
+    this._particlePool = []; this._trackMarkerMeshes = []; this._centerLineDashes = [];
+    // Hide canvas
+    var canvas = document.getElementById('game-canvas');
+    if (canvas) canvas.style.display = 'none';
+    // Navigate to main menu
+    if (window.__engine && window.__engine.router) {
+      window.__engine.router.navigate('main-menu');
+    }
+  }
 
   // ==================== BOOST ====================
 
@@ -981,6 +1023,10 @@ export class RaceScene {
     this._updateRearViewMirror();
     this._updateObstacles(dt);
     this._updateShieldVisual(dt);
+    this._updateWeather(dt);
+    this._updateEdgePulses(dt);
+    this._updateExhaustFlames(dt);
+    this._updateAudioSpeed();
   }
 
   // ==================== OPPONENT UPDATE (Cycle 42) ====================
@@ -1601,6 +1647,167 @@ export class RaceScene {
       this._shieldMesh.visible = true;
     } else {
       this._shieldMesh.visible = false;
+    }
+  }
+
+  // ==================== CLEANUP ====================
+
+  // ==================== WEATHER SYSTEM ====================
+
+  _createWeatherSystem() {
+    this._weatherParticles = [];
+    var count = 200;
+    for (var i = 0; i < count; i++) {
+      var isRain = i < 100;
+      var geo, mat;
+      if (isRain) {
+        geo = new THREE.CylinderGeometry(0.02, 0.02, 0.8, 4);
+        mat = new THREE.MeshBasicMaterial({ color: 0x99bbff, transparent: true, opacity: 0.6 });
+      } else {
+        geo = new THREE.SphereGeometry(0.06, 4, 4);
+        mat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.7 });
+      }
+      var mesh = new THREE.Mesh(geo, mat);
+      mesh.visible = false;
+      this._scene.add(mesh);
+      this._weatherParticles.push({
+        mesh: mesh, isRain: isRain,
+        x: (Math.random() - 0.5) * 60,
+        y: Math.random() * 40 - 5,
+        z: (Math.random() - 0.5) * this._trackLength,
+        speed: 0,
+        drift: (Math.random() - 0.5) * 0.5
+      });
+    }
+    this._weatherType = 'clear';
+  }
+
+  _setWeather(type) {
+    this._weatherType = type;
+    for (var i = 0; i < this._weatherParticles.length; i++) {
+      var p = this._weatherParticles[i];
+      if (type === 'rain' && p.isRain) {
+        p.mesh.visible = true;
+        p.speed = 30 + Math.random() * 15;
+      } else if (type === 'snow' && !p.isRain) {
+        p.mesh.visible = true;
+        p.speed = 2 + Math.random() * 3;
+      } else {
+        p.mesh.visible = false;
+      }
+    }
+  }
+
+  _updateWeather(dt) {
+    for (var i = 0; i < this._weatherParticles.length; i++) {
+      var p = this._weatherParticles[i];
+      if (!p.mesh.visible) continue;
+      if (this._weatherType === 'rain') {
+        p.y -= p.speed * dt;
+        p.mesh.position.set(p.x, p.y, p.z);
+        if (this._vehicle) p.mesh.position.z = p.z + this._vehicle.position.z * 0.8;
+        if (p.y < -5) { p.y = 35 + Math.random() * 5; p.x = (Math.random() - 0.5) * 60; }
+      } else if (this._weatherType === 'snow') {
+        p.y -= p.speed * dt;
+        p.x += p.drift * dt * 3;
+        p.mesh.position.set(p.x, p.y, p.z);
+        if (this._vehicle) p.mesh.position.z = p.z + this._vehicle.position.z * 0.8;
+        if (p.y < -5) { p.y = 35 + Math.random() * 5; p.x = (Math.random() - 0.5) * 60; }
+        if (Math.abs(p.x) > 30) p.drift = -p.drift;
+      }
+    }
+  }
+
+  // ==================== TRACK EDGE ANIMATED PULSES ====================
+
+  _updateEdgePulses(dt) {
+    if (this._trackEdges.length < 6) return;
+    var time = performance.now() * 0.001;
+    // Update glow strip opacities (indices 2-5) with traveling sine wave
+    for (var i = 2; i < Math.min(6, this._trackEdges.length); i++) {
+      var edge = this._trackEdges[i];
+      if (edge.material && edge.material.opacity !== undefined) {
+        var baseOpacity = (i < 4) ? 0.12 : 0.04;
+        edge.material.opacity = baseOpacity + Math.sin(time * 2 + i * 0.5) * baseOpacity * 0.8;
+      }
+    }
+  }
+
+  // ==================== DYNAMIC AUDIO SPEED ====================
+
+  _updateAudioSpeed() {
+    if (!window.__engine || !window.__engine.audio) return;
+    var audio = window.__engine.audio;
+    if (!audio || typeof audio.playbackRate === 'undefined') return;
+    var speed = this._state.speed || 0;
+    var rate;
+    if (this._boostActive) {
+      rate = 1.5;
+    } else if (speed > 150) {
+      rate = 1.0 + ((speed - 150) / 70) * 0.3; // 1.0-1.3
+    } else if (speed > 20) {
+      rate = 0.8 + ((speed - 20) / 130) * 0.2; // 0.8-1.0
+    } else {
+      rate = 0.8;
+    }
+    audio.playbackRate = Math.min(1.5, Math.max(0.8, rate));
+  }
+
+  // ==================== EXHAUST FLAME EFFECT ====================
+
+  _createExhaustFlames() {
+    this._exhaustLights = [];
+    this._exhaustCones = [];
+    // Two small orange/red point lights behind exhaust pipes
+    var lightPositions = [[-0.5, 0.3, -2.5], [0.5, 0.3, -2.5]];
+    for (var i = 0; i < 2; i++) {
+      var fl = new THREE.PointLight(0xff6622, 0, 8);
+      fl.position.set(lightPositions[i][0], lightPositions[i][1], lightPositions[i][2]);
+      if (this._vehicle) this._vehicle.add(fl);
+      this._exhaustLights.push(fl);
+      // Small cone mesh for flame shape
+      var coneGeo = new THREE.ConeGeometry(0.12, 0.6, 6);
+      var coneMat = new THREE.MeshBasicMaterial({ color: 0xff4400, transparent: true, opacity: 0 });
+      var cone = new THREE.Mesh(coneGeo, coneMat);
+      cone.rotation.x = -Math.PI / 2;
+      cone.position.set(lightPositions[i][0], lightPositions[i][1], lightPositions[i][2] - 0.3);
+      if (this._vehicle) this._vehicle.add(cone);
+      this._exhaustCones.push(cone);
+    }
+  }
+
+  _updateExhaustFlames(dt) {
+    var time = performance.now() * 0.001;
+    for (var i = 0; i < this._exhaustLights.length; i++) {
+      var light = this._exhaustLights[i];
+      var cone = this._exhaustCones[i];
+      if (this._boostActive) {
+        var pulse = 0.5 + Math.sin(time * 15 + i * 3) * 0.75 + 0.75;
+        light.intensity = Math.max(0, Math.min(2.0, pulse));
+        cone.material.opacity = 0.6 + Math.sin(time * 12 + i * 2) * 0.3;
+        cone.scale.set(1.2 + Math.sin(time * 10) * 0.3, 1.5 + Math.sin(time * 8 + i) * 0.5, 1.2 + Math.sin(time * 10) * 0.3);
+      } else if (this._keys.brake) {
+        light.intensity = 0.2;
+        cone.material.opacity = 0.15;
+        cone.scale.set(1, 1, 1);
+      } else {
+        var subtle = Math.max(0, Math.sin(time * 3 + i * 5) * 0.15);
+        light.intensity = this._state.speed > 20 ? subtle : 0;
+        cone.material.opacity = 0;
+        cone.scale.set(1, 1, 1);
+      }
+    }
+  }
+
+  // ==================== HEADLIGHT TOGGLE ====================
+
+  _toggleHeadlights() {
+    this._headlightsOn = !this._headlightsOn;
+    var targetIntensity = this._headlightsOn ? 3 : 0;
+    if (this._lights.spotLights) {
+      for (var i = 0; i < this._lights.spotLights.length; i++) {
+        this._lights.spotLights[i].intensity = targetIntensity;
+      }
     }
   }
 

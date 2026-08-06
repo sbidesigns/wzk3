@@ -113,6 +113,310 @@
   100% { opacity: 0; }
 }
 
+/* ==================== ITEM RARITY SYSTEM ==================== */
+.item-rarity-common {
+  border-color: rgba(160, 164, 176, 0.5);
+  box-shadow: 0 0 8px -2px rgba(160, 164, 176, 0.2);
+}
+
+.item-rarity-common::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  background: linear-gradient(135deg, rgba(160,164,176,0.1), transparent);
+  pointer-events: none;
+}
+
+.item-rarity-rare {
+  border-color: rgba(0, 229, 255, 0.5);
+  box-shadow: 0 0 12px -2px rgba(0, 229, 255, 0.3), inset 0 0 20px rgba(0, 229, 255, 0.05);
+}
+
+.item-rarity-rare::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  background: linear-gradient(135deg, rgba(0,229,255,0.12), transparent 60%);
+  pointer-events: none;
+}
+
+.item-rarity-epic {
+  border-color: rgba(255, 0, 255, 0.5);
+  box-shadow: 0 0 16px -2px rgba(255, 0, 255, 0.35), inset 0 0 24px rgba(255, 0, 255, 0.06);
+  animation: epicRarityGlow 2s ease-in-out infinite alternate;
+}
+
+.item-rarity-epic::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  background: linear-gradient(135deg, rgba(255,0,255,0.15), transparent 60%);
+  pointer-events: none;
+}
+
+@keyframes epicRarityGlow {
+  0% { box-shadow: 0 0 16px -2px rgba(255, 0, 255, 0.35), inset 0 0 24px rgba(255, 0, 255, 0.06); }
+  100% { box-shadow: 0 0 24px -2px rgba(255, 0, 255, 0.5), inset 0 0 30px rgba(255, 0, 255, 0.1); }
+}
+
+.item-rarity-legendary {
+  border-color: rgba(255, 210, 63, 0.6);
+  box-shadow: 0 0 20px -2px rgba(255, 210, 63, 0.4), 0 0 40px -4px rgba(255, 77, 46, 0.2), inset 0 0 28px rgba(255, 210, 63, 0.08);
+  animation: legendaryRarityGlow 1.5s ease-in-out infinite alternate;
+}
+
+.item-rarity-legendary::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  background: linear-gradient(135deg, rgba(255,210,63,0.18), rgba(255,77,46,0.08) 60%, transparent);
+  pointer-events: none;
+}
+
+@keyframes legendaryRarityGlow {
+  0% { box-shadow: 0 0 20px -2px rgba(255,210,63,0.4), 0 0 40px -4px rgba(255,77,46,0.2); }
+  100% { box-shadow: 0 0 30px -2px rgba(255,210,63,0.55), 0 0 50px -4px rgba(255,77,46,0.3); }
+}
+
+/* ==================== ITEM PICKUP ROULETTE / SLOT ANIMATION ==================== */
+.item-roulette-container {
+  position: relative;
+  width: 100%;
+  height: 80px;
+  overflow: hidden;
+  background: var(--surface-glass);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-m);
+  mask-image: linear-gradient(to right, transparent, black 20%, black 80%, transparent);
+  -webkit-mask-image: linear-gradient(to right, transparent, black 20%, black 80%, transparent);
+}
+
+.item-roulette-strip {
+  display: flex;
+  gap: var(--space-s);
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  animation: rouletteSpin 0.08s linear infinite;
+  will-change: transform;
+}
+
+.item-roulette-strip.stopping {
+  animation: rouletteSpinDecel 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes rouletteSpin {
+  from { transform: translateY(-50%) translateX(0); }
+  to { transform: translateY(-50%) translateX(-60px); }
+}
+
+@keyframes rouletteSpinDecel {
+  0% { animation-timing-function: linear; }
+  100% { transform: translateY(-50%) translateX(var(--roulette-stop-x, 0)); }
+}
+
+.item-roulette-icon {
+  flex-shrink: 0;
+  width: 56px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  background: var(--bg-tertiary);
+  border-radius: var(--radius-m);
+  border: 1px solid var(--border-subtle);
+}
+
+/* ==================== ITEM TYPE-SPECIFIC PICKUP FLASH COLORS ==================== */
+.pickup-flash-boost {
+  background: radial-gradient(ellipse at center, rgba(0,255,136,0.25) 0%, transparent 70%);
+  animation: pickupFlashGreen 0.5s ease-out forwards;
+}
+
+@keyframes pickupFlashGreen {
+  0% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+.pickup-flash-shield {
+  background: radial-gradient(ellipse at center, rgba(68,136,255,0.25) 0%, transparent 70%);
+  animation: pickupFlashBlue 0.5s ease-out forwards;
+}
+
+@keyframes pickupFlashBlue {
+  0% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+.pickup-flash-missile {
+  background: radial-gradient(ellipse at center, rgba(255,77,46,0.25) 0%, transparent 70%);
+  animation: pickupFlashRed 0.5s ease-out forwards;
+}
+
+@keyframes pickupFlashRed {
+  0% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+.pickup-flash-speed {
+  background: radial-gradient(ellipse at center, rgba(255,210,63,0.25) 0%, transparent 70%);
+  animation: pickupFlashGold 0.5s ease-out forwards;
+}
+
+@keyframes pickupFlashGold {
+  0% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+/* ==================== ITEM SLOT HUD ENHANCED STATES ==================== */
+.item-slot-ready {
+  animation: slotReadyPulse 1.8s ease-in-out infinite;
+}
+
+@keyframes slotReadyPulse {
+  0%, 100% { box-shadow: 0 0 10px rgba(0,229,255,0.3), inset 0 0 12px rgba(0,229,255,0.05); }
+  50% { box-shadow: 0 0 20px rgba(0,229,255,0.5), inset 0 0 18px rgba(0,229,255,0.1); }
+}
+
+.item-slot-active {
+  border-color: var(--accent-secondary) !important;
+  box-shadow: 0 0 24px rgba(0,229,255,0.6), inset 0 0 20px rgba(0,229,255,0.1) !important;
+  animation: slotActiveGlow 0.4s ease-in-out infinite alternate;
+}
+
+@keyframes slotActiveGlow {
+  0% { transform: scale(1); box-shadow: 0 0 24px rgba(0,229,255,0.6), inset 0 0 20px rgba(0,229,255,0.1); }
+  100% { transform: scale(1.06); box-shadow: 0 0 32px rgba(0,229,255,0.8), inset 0 0 24px rgba(0,229,255,0.15); }
+}
+
+.item-slot-cooldown {
+  opacity: 0.35;
+  filter: saturate(0.3) brightness(0.7);
+  border-color: var(--border-subtle) !important;
+  box-shadow: none !important;
+}
+
+/* ==================== SHIELD BREAK SHATTER ANIMATION ==================== */
+.shield-shatter-overlay {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: calc(var(--z-hud) + 8);
+  opacity: 0;
+}
+
+.shield-shatter-overlay.active {
+  animation: shieldShatter 0.6s ease-out forwards;
+}
+
+.shield-shard {
+  position: absolute;
+  width: 30px;
+  height: 30px;
+  background: linear-gradient(135deg, rgba(68,136,255,0.6), rgba(0,229,255,0.4));
+  clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+  animation: shardFly 0.6s ease-out forwards;
+  opacity: 0;
+}
+
+.shield-shatter-overlay.active .shield-shard {
+  opacity: 1;
+}
+
+@keyframes shieldShatter {
+  0% { opacity: 1; }
+  30% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+@keyframes shardFly {
+  0% { transform: translate(0, 0) scale(1) rotate(0deg); opacity: 1; }
+  100% { transform: translate(var(--shard-x, 80px), var(--shard-y, -60px)) scale(0) rotate(180deg); opacity: 0; }
+}
+
+/* ==================== OBSTACLE WARNING PULSE ANIMATION ==================== */
+.hud-obstacle-warn.pulsing {
+  animation: obstacleWarningPulse 0.4s ease-in-out infinite alternate;
+}
+
+@keyframes obstacleWarningPulse {
+  0% {
+    color: #ff4d2e;
+    text-shadow: 0 0 20px rgba(255,77,46,0.6);
+    transform: translate(-50%, -80px) scale(1);
+  }
+  100% {
+    color: #ff8c00;
+    text-shadow: 0 0 40px rgba(255,140,0,0.9), 0 0 60px rgba(255,77,46,0.4);
+    transform: translate(-50%, -80px) scale(1.08);
+  }
+}
+
+/* ==================== CLAIM BUTTON HOVER SWEEP + LIFT (BATTLE PASS) ==================== */
+.bp-claim-btn {
+  position: relative;
+  overflow: hidden;
+  transition: all var(--duration-fast) var(--ease-out-expo);
+}
+
+.bp-claim-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 60%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+  transition: left 0.5s ease;
+  pointer-events: none;
+}
+
+.bp-claim-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px -4px rgba(0,229,255,0.4);
+  border-color: var(--accent-secondary) !important;
+}
+
+.bp-claim-btn:hover::before {
+  left: 120%;
+}
+
+.bp-claim-btn:active {
+  transform: translateY(0) scale(0.97);
+}
+
+/* ==================== RESPONSIVE ==================== */
+@media (max-width: 768px) {
+  .item-roulette-container {
+    height: 64px;
+  }
+  .item-roulette-icon {
+    width: 44px;
+    height: 44px;
+    font-size: 22px;
+  }
+  .shield-shard {
+    width: 20px;
+    height: 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .item-roulette-container {
+    height: 52px;
+  }
+  .item-roulette-icon {
+    width: 36px;
+    height: 36px;
+    font-size: 18px;
+  }
+}
+
 /* ==================== REDUCED MOTION ==================== */
 @media (prefers-reduced-motion: reduce) {
   .hud-notification.item-pickup { animation: none; }
@@ -120,4 +424,15 @@
   .hud-speed-boost-indicator.active { animation: none; }
   .hud-position-change { animation: none; }
   .hud-lap-flash { animation: none; }
+  .item-rarity-epic { animation: none; }
+  .item-rarity-legendary { animation: none; }
+  .item-roulette-strip { animation-duration: 0.5s !important; }
+  .pickup-flash-boost, .pickup-flash-shield, .pickup-flash-missile, .pickup-flash-speed { animation: none; opacity: 0; }
+  .item-slot-ready { animation: none; }
+  .item-slot-active { animation: none; }
+  .shield-shatter-overlay.active { animation: none; }
+  .shield-shard { animation: none; }
+  .hud-obstacle-warn.pulsing { animation: none; }
+  .bp-claim-btn::before { display: none; }
+  .bp-claim-btn:hover { transform: none; }
 }

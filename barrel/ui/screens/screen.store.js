@@ -74,7 +74,7 @@ export async function mount(root, payload, ctx) {
   `;
 
   // Render battle pass tiers
-  const track = root.querySelector('#battle-pass-track');
+  const track = body.querySelector('#battle-pass-track');
   const tiers = season.battlePass.tiers;
   let tiersHtml = '';
   for (let i = 1; i <= tiers; i++) {

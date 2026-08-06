@@ -531,3 +531,171 @@
     font-size: 24px;
   }
 }
+
+/* ============================================
+   TUTORIAL ENHANCEMENTS (NEON CYBERPUNK)
+   ============================================ */
+
+/* Highlight layer — animated dashed border (marching ants) */
+.tutorial-highlight-layer.visible::before {
+  border-style: dashed;
+  border-color: var(--accent-secondary, #00e5ff);
+  animation: highlightPulse 1.5s ease-in-out infinite,
+             marchingAnts 0.6s linear infinite;
+}
+
+@keyframes marchingAnts {
+  0% { stroke-dashoffset: 0; border-color: var(--accent-secondary, #00e5ff); }
+  50% { border-color: var(--accent-tertiary, #ffd23f); }
+  100% { stroke-dashoffset: 24px; border-color: var(--accent-secondary, #00e5ff); }
+}
+
+/* Step card enhanced hover with glow */
+.tutorial-step-card {
+  transition: box-shadow var(--duration-base) var(--ease-out-expo),
+              border-color var(--duration-base) var(--ease-out-expo);
+}
+
+.tutorial-step-card:hover {
+  border-color: rgba(0, 229, 255, 0.25);
+  box-shadow:
+    0 30px 60px rgba(0, 0, 0, 0.4),
+    0 0 40px rgba(0, 229, 255, 0.06) inset,
+    0 0 20px -4px rgba(0, 229, 255, 0.15);
+}
+
+/* Keybind key enhanced with 3D press effect */
+.keybind-row kbd {
+  position: relative;
+  display: inline-block;
+  padding: 6px 12px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.1), rgba(255,255,255,0.04));
+  border: 1px solid rgba(255,255,255,0.15);
+  border-bottom: 3px solid rgba(255,255,255,0.08);
+  border-radius: var(--radius-s);
+  transition: all var(--duration-fast) var(--ease-out-expo);
+ color: var(--text-primary, #fff);
+}
+
+.keybind-row kbd:active,
+.keybind-row kbd.pressed {
+  border-bottom-width: 1px;
+  transform: translateY(2px);
+  background: linear-gradient(180deg, rgba(0, 229, 255, 0.15), rgba(0, 229, 255, 0.05));
+  border-color: rgba(0, 229, 255, 0.4);
+  box-shadow: 0 0 12px rgba(0, 229, 255, 0.3);
+}
+
+/* Progress dot enhanced with pulse for active step */
+.progress-dot.active {
+  animation: dotActivePulse 1.5s ease-in-out infinite;
+}
+
+@keyframes dotActivePulse {
+  0%, 100% {
+    box-shadow: 0 0 8px rgba(255, 107, 53, 0.4);
+    transform: scale(1.2);
+  }
+  50% {
+    box-shadow: 0 0 18px rgba(255, 107, 53, 0.7), 0 0 4px rgba(255, 107, 53, 0.9);
+    transform: scale(1.35);
+  }
+}
+
+/* Completion screen rewards card hover lift + glow */
+.reward-item {
+  transition: all var(--duration-fast) var(--ease-out-expo);
+}
+
+.reward-item:hover {
+  transform: translateY(-3px);
+  border-color: rgba(255, 210, 63, 0.5);
+  box-shadow: 0 8px 24px -4px rgba(255, 210, 63, 0.3),
+              inset 0 0 16px rgba(255, 210, 63, 0.05);
+}
+
+/* Navigation button enhanced sweep hover */
+.tutorial-btn {
+  position: relative;
+  overflow: hidden;
+}
+
+.tutorial-btn::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 60%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+  transition: left 0.5s ease;
+  pointer-events: none;
+}
+
+.tutorial-btn:hover::after {
+  left: 130%;
+}
+
+/* Tutorial backdrop enhanced with subtle animated gradient */
+.tutorial-backdrop {
+  background: rgba(5, 6, 10, 0.85);
+}
+
+.tutorial-backdrop::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse at 30% 20%,
+    rgba(0, 229, 255, 0.03) 0%,
+    transparent 50%
+  ),
+  radial-gradient(
+    ellipse at 70% 80%,
+    rgba(255, 0, 255, 0.03) 0%,
+    transparent 50%
+  );
+  animation: backdropGradientShift 8s ease-in-out infinite alternate;
+  pointer-events: none;
+}
+
+@keyframes backdropGradientShift {
+  0% { opacity: 0.5; transform: scale(1); }
+  100% { opacity: 1; transform: scale(1.1); }
+}
+
+/* Responsive for new additions */
+@media (max-width: 768px) {
+  .keybind-row kbd {
+    padding: 4px 8px;
+    font-size: 10px;
+  }
+}
+
+/* Reduced Motion for new additions */
+@media (prefers-reduced-motion: reduce) {
+  .tutorial-highlight-layer.visible::before {
+    animation: none;
+  }
+  .tutorial-step-card:hover {
+    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4),
+                0 0 60px rgba(255, 107, 53, 0.05) inset;
+  }
+  .keybind-row kbd:active,
+  .keybind-row kbd.pressed {
+    transform: none;
+  }
+  .progress-dot.active {
+    animation: none;
+  }
+  .reward-item:hover {
+    transform: none;
+  }
+  .tutorial-btn::after {
+    display: none;
+  }
+  .tutorial-backdrop::after {
+    animation: none;
+    opacity: 0;
+  }
+}

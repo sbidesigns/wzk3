@@ -510,3 +510,173 @@
     display: none !important; /* Always hidden on mobile */
   }
 }
+
+/* ============================================
+   RACE ENVIRONMENT ENHANCEMENTS (NEON CYBERPUNK)
+   ============================================ */
+
+/* Biome indicator enhanced with gradient accent line on top */
+.biome-indicator {
+  position: relative;
+  overflow: hidden;
+}
+
+.biome-indicator::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--accent-primary, #ff4d2e), var(--accent-secondary, #00e5ff), var(--accent-tertiary, #ffd23f));
+  opacity: 0.7;
+  animation: biomeAccentPulse 3s ease-in-out infinite alternate;
+}
+
+@keyframes biomeAccentPulse {
+  0% { opacity: 0.5; }
+  100% { opacity: 1; }
+}
+
+/* Time-of-day display enhanced with icon glow per time period */
+.time-icon.dawn {
+  box-shadow: 0 0 12px rgba(255, 136, 68, 0.6), 0 0 24px rgba(255, 170, 100, 0.3);
+  animation: timeGlowDawn 3s ease-in-out infinite alternate;
+}
+
+@keyframes timeGlowDawn {
+  0% { box-shadow: 0 0 12px rgba(255, 136, 68, 0.6); }
+  100% { box-shadow: 0 0 20px rgba(255, 170, 100, 0.8); }
+}
+
+.time-icon.day {
+  box-shadow: 0 0 12px rgba(255, 255, 200, 0.6), 0 0 24px rgba(255, 238, 187, 0.3);
+  animation: timeGlowDay 2.5s ease-in-out infinite alternate;
+}
+
+@keyframes timeGlowDay {
+  0% { box-shadow: 0 0 12px rgba(255, 255, 200, 0.6); }
+  100% { box-shadow: 0 0 20px rgba(255, 255, 238, 0.9); }
+}
+
+.time-icon.dusk {
+  box-shadow: 0 0 12px rgba(255, 102, 68, 0.6), 0 0 24px rgba(255, 68, 34, 0.3);
+  animation: timeGlowDusk 3.5s ease-in-out infinite alternate;
+}
+
+@keyframes timeGlowDusk {
+  0% { box-shadow: 0 0 12px rgba(255, 102, 68, 0.6); }
+  100% { box-shadow: 0 0 22px rgba(255, 68, 34, 0.8); }
+}
+
+.time-icon.night {
+  box-shadow: 0 0 12px rgba(102, 136, 204, 0.6), 0 0 24px rgba(51, 68, 102, 0.3);
+  animation: timeGlowNight 4s ease-in-out infinite alternate;
+}
+
+@keyframes timeGlowNight {
+  0% { box-shadow: 0 0 12px rgba(102, 136, 204, 0.6); }
+  100% { box-shadow: 0 0 20px rgba(102, 136, 204, 0.9); }
+}
+
+/* Weather effect enhanced with more particle density/speed per type */
+.rain-effect.heavy {
+  background: 
+    repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent 1px,
+      rgba(150, 200, 255, 0.05) 1px,
+      rgba(150, 200, 255, 0.05) 2px
+    );
+  animation: rainFall 0.18s linear infinite;
+}
+
+.snow-effect.heavy .snowflake {
+  --fall-duration: 3s;
+}
+
+.neonstorm-effect.intense {
+  animation: neonStormFlash 2.5s ease-in-out infinite;
+}
+
+/* Segment info panel enhanced with glassmorphism + hover lift */
+.segment-info-panel {
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  transition: transform var(--duration-fast) var(--ease-out-expo),
+              box-shadow var(--duration-fast) var(--ease-out-expo);
+}
+
+.segment-info-panel.visible:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 32px -8px rgba(0, 229, 255, 0.2);
+  border-color: rgba(0, 229, 255, 0.4);
+}
+
+/* Scenery loader enhanced with shimmer animation */
+.scenery-loader-bar {
+  position: relative;
+  overflow: hidden;
+}
+
+.scenery-loader-bar::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -50%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  animation: sceneryLoaderShimmer 1.5s ease-in-out infinite;
+}
+
+@keyframes sceneryLoaderShimmer {
+  0% { left: -50%; }
+  100% { left: 150%; }
+}
+
+/* Environment transition enhanced with cross-fade gradient overlay */
+.environment-transition.crossfade {
+  background: linear-gradient(
+    135deg,
+    rgba(0, 229, 255, 0.15) 0%,
+    rgba(255, 0, 255, 0.1) 30%,
+    rgba(255, 210, 63, 0.1) 60%,
+    rgba(0, 255, 136, 0.1) 100%
+  );
+  animation: envCrossfade 1.2s ease-in-out forwards;
+}
+
+@keyframes envCrossfade {
+  0% { opacity: 0; }
+  30% { opacity: 1; }
+  70% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+/* ============================================
+   RESPONSIVE — NEW ENHANCEMENTS
+   ============================================ */
+
+@media (max-width: 768px) {
+  .biome-indicator::before {
+    height: 1.5px;
+  }
+  .segment-info-panel.visible:hover {
+    transform: none;
+  }
+}
+
+/* ============================================
+   REDUCED MOTION — NEW ENHANCEMENTS
+   ============================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  .biome-indicator::before { animation: none; }
+  .time-icon.dawn, .time-icon.day, .time-icon.dusk, .time-icon.night { animation: none; }
+  .rain-effect.heavy { animation-duration: 0.5s; }
+  .scenery-loader-bar::after { animation: none; }
+  .segment-info-panel.visible:hover { transform: none; }
+  .environment-transition.crossfade { animation: none; }
+}

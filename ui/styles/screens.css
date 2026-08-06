@@ -780,6 +780,292 @@
   color: var(--accent-tertiary);
 }
 
+/* ============================================ */
+/* BATTLE PASS TIER ENHANCED HOVER               */
+/* ============================================ */
+
+.battle-pass-tier {
+  position: relative;
+  overflow: hidden;
+}
+
+.battle-pass-tier::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 3px;
+  height: 100%;
+  background: var(--accent-secondary);
+  opacity: 0;
+  transform: scaleY(0);
+  transform-origin: center;
+  transition: all var(--duration-base) var(--ease-out-expo);
+  border-radius: 0 2px 2px 0;
+  pointer-events: none;
+}
+
+.battle-pass-tier:hover::after {
+  opacity: 1;
+  transform: scaleY(1);
+}
+
+.battle-pass-tier:hover {
+  box-shadow: 0 0 20px -4px rgba(0, 229, 255, 0.25);
+  background: var(--surface-glass-hover);
+}
+
+/* Shimmer fill for unlocked tiers */
+.battle-pass-tier.unlocked::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(61, 220, 132, 0.08), transparent);
+ transform: translateX(-100%);
+ animation: bpShimmerFill 3s ease-in-out infinite;
+ pointer-events: none;
+  border-radius: inherit;
+}
+
+@keyframes bpShimmerFill {
+ 0% { transform: translateX(-100%); }
+ 50%, 100% { transform: translateX(200%); }
+}
+
+/* Animated border gradient for current tier */
+.battle-pass-tier.current {
+  position: relative;
+  background: var(--surface-glass);
+}
+
+.battle-pass-tier.current::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  background: conic-gradient(from var(--bp-angle, 0deg), var(--accent-primary), var(--accent-secondary), var(--accent-tertiary), var(--accent-primary));
+  z-index: -1;
+  opacity: 0.5;
+  animation: bpBorderSpin 4s linear infinite;
+ pointer-events: none;
+}
+
+@keyframes bpBorderSpin {
+  0% { --bp-angle: 0deg; }
+  100% { --bp-angle: 360deg; }
+}
+
+@property --bp-angle {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
+}
+
+/* Reward text glow on hover */
+.battle-pass-tier-reward {
+  transition: all var(--duration-fast) var(--ease-out-expo);
+}
+
+.battle-pass-tier:hover .battle-pass-tier-reward {
+  text-shadow: 0 0 12px rgba(255, 210, 63, 0.6);
+  color: var(--accent-tertiary);
+}
+
+/* Battle pass claim button sweep hover */
+.bp-tier-claim-btn {
+  position: relative;
+  overflow: hidden;
+}
+
+.bp-tier-claim-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 60%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.12), transparent);
+  transition: left 0.5s ease;
+  pointer-events: none;
+}
+
+.bp-tier-claim-btn:hover::before {
+  left: 130%;
+}
+
+.bp-tier-claim-btn:hover {
+  box-shadow: 0 4px 16px -2px rgba(0, 229, 255, 0.4);
+  border-color: var(--accent-secondary) !important;
+}
+
+/* ============================================ */
+/* STORE ENHANCED                                */
+/* ============================================ */
+
+.store-layout {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: var(--space-l);
+}
+
+@media (max-width: 768px) {
+  .store-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+.store-featured-card {
+  position: relative;
+  overflow: hidden;
+  transition: all var(--duration-base) var(--ease-out-expo);
+}
+
+.store-featured-card:hover {
+  transform: translateY(-6px) perspective(600px) rotateX(2deg);
+  box-shadow:
+    0 20px 50px -12px rgba(0, 0, 0, 0.5),
+    0 0 30px -8px rgba(0, 229, 255, 0.25);
+ border-color: var(--accent-secondary);
+}
+
+.store-daily-item {
+  transition: all var(--duration-fast) var(--ease-out-expo);
+}
+
+.store-daily-item:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px -4px rgba(255, 210, 63, 0.3);
+  border-color: var(--accent-tertiary);
+}
+
+.store-tab {
+  position: relative;
+  transition: all var(--duration-fast) var(--ease-out-expo);
+}
+
+.store-tab::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 50%;
+  width: 0;
+  height: 2px;
+  background: var(--accent-secondary);
+  border-radius: 1px;
+  transition: all var(--duration-fast) var(--ease-out-expo);
+  transform: translateX(-50%);
+  box-shadow: 0 0 8px rgba(0, 229, 255, 0.5);
+}
+
+.store-tab:hover::after {
+  width: 60%;
+}
+
+.store-tab.active::after {
+  width: 80%;
+}
+
+.store-tab.active {
+  color: var(--accent-secondary) !important;
+  text-shadow: 0 0 12px rgba(0, 229, 255, 0.5);
+}
+
+/* ============================================ */
+/* CAREER NODE ENHANCED                          */
+/* ============================================ */
+
+.career-node {
+  position: relative;
+  overflow: hidden;
+}
+
+.career-node::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--accent-secondary), transparent);
+  transition: left 0.6s var(--ease-out-expo);
+  pointer-events: none;
+}
+
+.career-node:hover::before {
+  left: 100%;
+}
+
+.career-node.completed {
+  position: relative;
+}
+
+.career-node.completed::after {
+  content: '\2713';
+  position: absolute;
+  top: var(--space-s);
+  right: var(--space-s);
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(61, 220, 132, 0.15);
+  border: 1px solid var(--success);
+  border-radius: 50%;
+  color: var(--success);
+  font-size: 12px;
+  font-weight: 700;
+  box-shadow: 0 0 12px rgba(61, 220, 132, 0.4);
+}
+
+.career-node.current {
+  animation: careerNodePulse 2s ease-in-out infinite;
+}
+
+@keyframes careerNodePulse {
+  0%, 100% { border-color: var(--accent-primary); box-shadow: 0 0 24px -4px rgba(255, 77, 46, 0.4); }
+  50% { border-color: var(--accent-tertiary); box-shadow: 0 0 32px -4px rgba(255, 210, 63, 0.5); }
+}
+
+/* ============================================ */
+/* CUTSCENE TEXT ENHANCED ENTRANCE               */
+/* ============================================ */
+
+.cutscene-headline {
+  animation: cutsceneEntrance 1.2s var(--ease-out-expo) both;
+}
+
+@keyframes cutsceneEntrance {
+  0% { opacity: 0; transform: translateY(30px) scale(0.95); filter: blur(8px); }
+  100% { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+}
+
+.cutscene-sub {
+  animation: cutsceneSubEntrance 1.2s var(--ease-out-expo) 0.3s both;
+}
+
+@keyframes cutsceneSubEntrance {
+  0% { opacity: 0; transform: translateY(20px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+/* ============================================ */
+/* REDUCED MOTION — NEW ADDITIONS                */
+/* ============================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  .battle-pass-tier::after { transition: none; }
+  .battle-pass-tier.unlocked::before { animation: none; }
+  .battle-pass-tier.current::before { animation: none; }
+  .bp-tier-claim-btn::before { display: none; }
+  .store-featured-card:hover { transform: translateY(-3px); }
+  .store-daily-item:hover { transform: none; }
+  .career-node::before { display: none; }
+  .career-node.current { animation: none; }
+  .cutscene-headline { animation: none; opacity: 1; }
+  .cutscene-sub { animation: none; opacity: 1; }
+}
+
 /* === CUTSCENE === */
 .cutscene-title {
   position: fixed; bottom: var(--space-3xl); left: var(--space-3xl);
