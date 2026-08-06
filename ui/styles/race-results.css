@@ -797,10 +797,248 @@
   text-shadow: 0 0 20px rgba(0, 229, 255, 0.4);
 }
 
-/* Reduced motion */
+/* === CYCLE 43: RACE RESULTS ENHANCEMENTS === */
+
+/* Results content border glow for 1st place */
+.results-overlay.visible .results-content {
+  animation: resultsCardEnter 0.6s var(--ease-out-expo) both;
+}
+
+.results-content::before {
+  content: '';
+  position: absolute;
+  top: -1px;
+  left: 20%;
+  right: 20%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(251,191,36,0.5), transparent);
+  border-radius: 2px;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+
+.results-content.first-place::before {
+  opacity: 1;
+  animation: topGlowPulse 3s ease-in-out infinite alternate;
+}
+
+@keyframes topGlowPulse {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; }
+}
+
+/* Mini stat hover effect */
+.mini-stat {
+  transition: all 0.2s ease;
+  cursor: default;
+}
+
+.mini-stat:hover {
+  background: rgba(255,255,255,0.04);
+  transform: translateX(2px);
+}
+
+/* Reward row hover effect */
+.reward-row {
+  transition: all 0.2s ease;
+  cursor: default;
+}
+
+.reward-row:hover {
+  background: rgba(255,255,255,0.05) !important;
+  transform: translateX(3px);
+}
+
+/* Standing row hover */
+.standing-row {
+  cursor: default;
+}
+
+.standing-row:hover {
+  background: rgba(255,255,255,0.03);
+}
+
+/* Lap row hover enhancement */
+.lap-row:hover {
+  background: rgba(255,255,255,0.05) !important;
+}
+
+/* Result card hover lift */
+.result-card {
+  cursor: default;
+}
+
+.result-card:hover {
+  border-color: rgba(255,255,255,0.1) !important;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+}
+
+/* Enhanced victory text */
+.victory-text {
+  text-shadow:
+    0 0 30px rgba(251, 191, 36, 0.6),
+    0 0 60px rgba(251, 191, 36, 0.4),
+    0 4px 0 #b8860b,
+    0 0 120px rgba(251, 191, 36, 0.15);
+}
+
+/* Confetti enhanced - more pieces with variety */
+.confetti-piece {
+  border-radius: var(--cr, 2px);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+/* Grade badge enhanced */
+.grade-badge {
+  transition: all 0.3s ease;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+/* Bonus item enhanced */
+.bonus-item {
+  transition: all 0.2s ease;
+}
+
+.bonus-item:hover {
+  transform: translateX(3px);
+}
+
+/* XP bar fill shimmer */
+.xp-bar-fill::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 30px;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+  animation: xpShimmer 2s ease-in-out infinite;
+}
+
+@keyframes xpShimmer {
+  0%, 100% { opacity: 0; }
+  50% { opacity: 1; }
+}
+
+/* Achievement new enhanced */
+.achievement-new {
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  transition: all 0.2s ease;
+}
+
+.achievement-new:hover {
+  background: rgba(251, 191, 36, 0.15) !important;
+  transform: translateX(3px);
+}
+
+/* Results footer enhanced */
+.results-footer .results-btn {
+  position: relative;
+  overflow: hidden;
+}
+
+.results-footer .results-btn::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+  transition: left 0.4s ease;
+}
+
+.results-footer .results-btn:hover::after {
+  left: 100%;
+}
+
+/* Race results screen (inline) enhancements */
+.rr-container {
+  position: relative;
+}
+
+.rr-container::before {
+  content: '';
+  position: absolute;
+  top: -40px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 200px;
+  height: 200px;
+  background: radial-gradient(circle, rgba(0,229,255,0.08) 0%, transparent 70%);
+  pointer-events: none;
+  animation: rrContainerGlow 4s ease-in-out infinite alternate;
+}
+
+@keyframes rrContainerGlow {
+  0% { opacity: 0.5; }
+  100% { opacity: 1; }
+}
+
+.rr-btn {
+  position: relative;
+  overflow: hidden;
+}
+
+.rr-btn::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+  transition: left 0.5s ease;
+}
+
+.rr-btn:hover::after {
+  left: 100%;
+}
+
+.rr-btn:active {
+  transform: translateY(0) !important;
+}
+
+/* Lap row enhanced stagger for inline results */
+.rr-lap-row {
+  position: relative;
+  overflow: hidden;
+}
+
+.rr-lap-row.best::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,215,0,0.06), transparent);
+  animation: rrBestShimmer 3s ease-in-out infinite;
+}
+
+@keyframes rrBestShimmer {
+  0%, 100% { left: -100%; }
+  50% { left: 100%; }
+}
+
+/* Reduced motion additions */
 @media (prefers-reduced-motion: reduce) {
   .results-overlay.visible .results-card { animation: none; }
   .position-badge { animation: none; }
   .lap-time-row { animation: none; }
   .lap-time-row.best-lap::after { animation: none; }
+  .results-content::before { animation: none !important; }
+  .xp-bar-fill::after { animation: none !important; }
+  .rr-container::before { animation: none !important; }
+  .rr-lap-row.best::after { animation: none !important; }
+  .mini-stat, .reward-row, .standing-row, .lap-row, .result-card, .bonus-item, .achievement-new {
+    transition: none !important;
+  }
+  .rr-btn::after, .results-footer .results-btn::after {
+    display: none;
+  }
 }
+
+/* === END CYCLE 43 ADDITIONS === */

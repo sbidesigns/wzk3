@@ -2538,3 +2538,159 @@
     height: 96px;
   }
 }
+
+/* ============================================================================
+   CYCLE 43: GLOBAL COMPONENT ENHANCEMENTS
+   ============================================================================ */
+
+/* === Button Base Enhanced === */
+.btn {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  background: rgba(255,255,255,0.15);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  transition: width 0.5s ease, height 0.5s ease, opacity 0.3s ease;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.btn:active::after {
+  width: 300px;
+  height: 300px;
+  opacity: 1;
+  transition: width 0s, height 0s, opacity 0s;
+}
+
+/* === Primary Button Enhanced === */
+.btn-primary {
+  box-shadow: 0 4px 15px rgba(255,77,46,0.25);
+}
+
+.btn-primary:hover {
+  box-shadow: 0 6px 25px rgba(255,77,46,0.35), 0 8px 32px rgba(0,0,0,0.2);
+  transform: translateY(-1px);
+}
+
+.btn-primary:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 10px rgba(255,77,46,0.2);
+}
+
+/* === Large Button === */
+.btn-lg {
+  letter-spacing: 1px;
+}
+
+/* === Ghost Button === */
+.btn-ghost {
+  border: 1px solid rgba(255,255,255,0.1) !important;
+  transition: all 0.2s ease;
+}
+
+.btn-ghost:hover {
+  background: rgba(255,255,255,0.06) !important;
+  border-color: rgba(255,255,255,0.2) !important;
+  color: #fff !important;
+  transform: translateY(-1px);
+}
+
+.btn-ghost:active {
+  transform: translateY(0);
+}
+
+/* === Small Button === */
+.btn-sm {
+  transition: all 0.2s ease;
+}
+
+.btn-sm:hover {
+  transform: translateY(-1px);
+}
+
+.btn-sm:active {
+  transform: translateY(0) scale(0.97);
+}
+
+/* === Card Enhanced === */
+.card {
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 1px solid transparent;
+}
+
+.card:hover {
+  border-color: rgba(255,255,255,0.08);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+  transform: translateY(-2px);
+}
+
+.card.card-selected {
+  border-color: var(--accent, #ff4d2e) !important;
+  box-shadow: 0 0 15px rgba(255,77,46,0.12);
+}
+
+/* === Top Nav Button Enhanced === */
+nav .btn-ghost {
+  transition: all 0.2s ease;
+}
+
+nav .btn-ghost:hover {
+  color: var(--accent-secondary, #00e5ff) !important;
+  border-color: rgba(0,229,255,0.2) !important;
+  text-shadow: 0 0 10px rgba(0,229,255,0.3);
+}
+
+/* === Card Selected Enhanced === */
+.card-selected {
+  animation: cardSelectPop 0.3s ease-out;
+}
+
+@keyframes cardSelectPop {
+  0% { transform: scale(0.97); }
+  50% { transform: scale(1.01); }
+  100% { transform: scale(1); }
+}
+
+/* === Responsive === */
+@media (max-width: 768px) {
+  .btn-lg {
+    padding: 10px 20px !important;
+    font-size: 13px !important;
+  }
+  
+  .btn:hover {
+    transform: none;
+  }
+  
+  .card:hover {
+    transform: none;
+  }
+}
+
+/* === Reduced Motion === */
+@media (prefers-reduced-motion: reduce) {
+  .btn, .btn-primary, .btn-ghost, .btn-sm, .card {
+    transition: none !important;
+  }
+  .btn::after, .btn:active::after {
+    display: none;
+  }
+  .btn:hover, .btn-primary:hover, .btn-ghost:hover, .btn-sm:hover, .card:hover {
+    transform: none !important;
+  }
+  .card-selected {
+    animation: none !important;
+  }
+}
+
+/* === END CYCLE 43 ADDITIONS === */

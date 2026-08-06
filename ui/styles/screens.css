@@ -1303,3 +1303,249 @@
   .splash-loading .loading-bar::after { animation: none; }
   .splash-tagline { animation: none; border-right: none; }
 }
+
+/* ============================================================================
+   CYCLE 43: SCREEN ENHANCEMENTS
+   ============================================================================ */
+
+/* === Select Tile Enhanced === */
+.select-tile {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 1px solid transparent;
+}
+
+.select-tile::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(135deg, rgba(255,255,255,0.03), transparent);
+  opacity: 0;
+  transition: opacity 0.25s ease;
+  pointer-events: none;
+}
+
+.select-tile:hover::before {
+  opacity: 1;
+}
+
+.select-tile:hover {
+  transform: translateY(-3px);
+  border-color: rgba(255,255,255,0.1);
+}
+
+.select-tile.selected {
+  border-color: var(--accent, #ff4d2e) !important;
+  box-shadow: 0 0 20px rgba(255,77,46,0.15), inset 0 0 30px rgba(255,77,46,0.05);
+}
+
+.select-tile:active {
+  transform: translateY(-1px) scale(0.98);
+}
+
+/* Tile visual glow on hover */
+.select-tile-visual {
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.select-tile:hover .select-tile-visual {
+  filter: brightness(1.2);
+}
+
+/* === Select Preview Card Enhanced === */
+.select-preview-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.select-preview-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, var(--accent, #ff4d2e), transparent);
+  border-radius: 3px 3px 0 0;
+  opacity: 0.6;
+}
+
+.select-preview-title {
+  position: relative;
+}
+
+.select-preview-title::after {
+  content: '';
+  display: block;
+  width: 30px;
+  height: 2px;
+  background: var(--accent, #ff4d2e);
+  margin-top: 6px;
+  border-radius: 1px;
+  opacity: 0.5;
+}
+
+/* === Select Preview Stats Enhanced === */
+.select-preview-stats {
+  position: relative;
+}
+
+/* Stat bar animation */
+.stat-bar {
+  position: relative;
+  overflow: hidden;
+}
+
+.stat-bar-fill {
+  transition: width 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+  position: relative;
+}
+
+.stat-bar-fill::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 4px;
+  height: 100%;
+  background: rgba(255,255,255,0.4);
+  border-radius: 2px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.stat-bar:hover .stat-bar-fill::after {
+  opacity: 1;
+}
+
+/* === Screen Header Enhanced === */
+.screen-header {
+  position: relative;
+}
+
+.screen-header::after {
+  content: '';
+  display: block;
+  width: 40px;
+  height: 2px;
+  background: linear-gradient(90deg, var(--accent, #ff4d2e), transparent);
+  margin-top: 8px;
+  border-radius: 1px;
+}
+
+/* === Screen Body Enhanced === */
+.screen-body {
+  animation: screenBodyFadeIn 0.5s ease both;
+}
+
+@keyframes screenBodyFadeIn {
+  from { opacity: 0; transform: translateY(15px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* === HUD Label Enhanced === */
+.hud-label {
+  position: relative;
+  letter-spacing: 2px;
+}
+
+.hud-label::before {
+  content: '';
+  display: inline-block;
+  width: 4px;
+  height: 4px;
+  background: var(--accent, #ff4d2e);
+  border-radius: 1px;
+  margin-right: 8px;
+  vertical-align: middle;
+  opacity: 0.6;
+}
+
+/* === Top Nav Enhanced === */
+nav {
+  position: relative;
+}
+
+/* === Stagger Animation Enhanced === */
+.stagger {
+  opacity: 0;
+  animation: staggerIn 0.5s var(--ease-out-expo, cubic-bezier(0.16, 1, 0.3, 1)) both;
+  animation-delay: var(--delay, 0s);
+}
+
+@keyframes staggerIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* === Anim Scale In Enhanced === */
+.anim-scale-in {
+  animation: animScaleIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+@keyframes animScaleIn {
+  from { opacity: 0; transform: scale(0.9); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+/* === Badge Enhanced === */
+.badge {
+  transition: all 0.2s ease;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+.badge:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.2);
+}
+
+.badge-warning {
+  animation: badgeWarningPulse 2s ease-in-out infinite alternate;
+}
+
+@keyframes badgeWarningPulse {
+  0%, 100% { box-shadow: 0 0 6px rgba(251,191,36,0.3); }
+  50% { box-shadow: 0 0 12px rgba(251,191,36,0.5); }
+}
+
+/* === Responsive === */
+@media (max-width: 768px) {
+  .select-tile:hover {
+    transform: translateY(-1px);
+  }
+  
+  .select-tile-visual {
+    height: 100px !important;
+  }
+}
+
+/* === Reduced Motion === */
+@media (prefers-reduced-motion: reduce) {
+  .select-tile, .select-tile-visual, .stat-bar-fill, .badge {
+    transition: none !important;
+  }
+  .select-tile::before, .select-tile:hover::before,
+  .stat-bar:hover .stat-bar-fill::after {
+    display: none;
+  }
+  .screen-body {
+    animation: none !important;
+  }
+  .stagger {
+    animation: none !important;
+    opacity: 1;
+  }
+  .anim-scale-in {
+    animation: none !important;
+    opacity: 1;
+  }
+  .badge-warning {
+    animation: none !important;
+  }
+}
+
+/* === END CYCLE 43 ADDITIONS === */
