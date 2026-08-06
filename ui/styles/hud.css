@@ -1,0 +1,4222 @@
+/* ui/styles/hud.css — HUD System Styling for Warzone Kart: Neon Underground
+ * Features: Glassmorphism panels, neon accents, responsive layout, animations
+ */
+
+/* ==================== ROOT HUD CONTAINER ==================== */
+.game-hud {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: var(--z-hud);
+  font-family: var(--font-mono);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.4s ease-out, visibility 0.4s;
+}
+
+.game-hud.visible,
+.game-hud.hud-visible {
+  opacity: 1;
+  visibility: visible;
+}
+
+.game-hud > * {
+  pointer-events: auto;
+}
+
+/* ==================== BASE PANEL STYLES ==================== */
+.hud-panel {
+  position: absolute;
+  background: linear-gradient(
+    135deg,
+    rgba(10, 12, 20, 0.92) 0%,
+    rgba(18, 20, 31, 0.88) 100%
+  );
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-l);
+  padding: var(--space-m) var(--space-l);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05),
+    0 0 0 1px rgba(0, 229, 255, 0.05);
+  
+  /* Neon accent line at top */
+}
+
+.hud-panel::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 15%;
+  right: 15%;
+  height: 2px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--accent-secondary),
+    transparent
+  );
+  border-radius: var(--radius-pill);
+  opacity: 0.6;
+}
+
+/* ==================== SPEED DISPLAY PANEL ==================== */
+.hud-speed-panel {
+  bottom: var(--space-xl);
+  left: var(--space-xl);
+  min-width: 160px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.speed-container {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-s);
+}
+
+.speed-value {
+  font-family: var(--font-display);
+  font-size: clamp(36px, 5vw, 56px);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  transition: color 0.3s ease;
+  
+  /* Default low speed color */
+  color: var(--success);
+  text-shadow: 
+    0 0 20px rgba(61, 220, 132, 0.4),
+    0 0 40px rgba(61, 220, 132, 0.2);
+}
+
+.speed-value.low {
+  color: var(--success);
+  text-shadow: 0 0 20px rgba(61, 220, 132, 0.4);
+}
+
+.speed-value.medium {
+  color: var(--warning);
+  text-shadow: 
+    0 0 20px rgba(255, 177, 61, 0.4),
+    0 0 40px rgba(255, 177, 61, 0.2);
+}
+
+.speed-value.high {
+  color: #ff8c00;
+  text-shadow: 
+    0 0 20px rgba(255, 140, 0, 0.5),
+    0 0 40px rgba(255, 140, 0, 0.25);
+}
+
+.speed-value.critical {
+  color: var(--danger);
+  text-shadow: 
+    0 0 25px rgba(255, 61, 90, 0.6),
+    0 0 50px rgba(255, 61, 90, 0.3);
+  animation: speedCriticalPulse 0.5s ease-in-out infinite alternate;
+}
+
+@keyframes speedCriticalPulse {
+  from { transform: scale(1); }
+  to { transform: scale(1.02); }
+}
+
+.speed-unit {
+  font-size: var(--text-caption);
+  color: var(--text-tertiary);
+  letter-spacing: var(--tracking-ultra-wide);
+  font-weight: 600;
+}
+
+/* Speed bar */
+.speed-bar-container {
+  width: 100%;
+  height: 4px;
+  background: var(--bg-tertiary);
+  border-radius: var(--radius-pill);
+  overflow: hidden;
+  margin-top: var(--space-xs);
+}
+
+.speed-bar {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(
+    90deg,
+    var(--success) 0%,
+    var(--warning) 50%,
+    #ff8c00 80%,
+    var(--danger) 100%
+  );
+  border-radius: var(--radius-pill);
+  transition: width 0.1s ease-out;
+  box-shadow: 0 0 10px currentColor;
+}
+
+/* Gear indicator */
+.gear-indicator {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  padding: var(--space-xs) var(--space-s);
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: var(--radius-s);
+  border: 1px solid var(--border-subtle);
+}
+
+.gear-label {
+  font-size: 9px;
+  color: var(--text-tertiary);
+  letter-spacing: var(--tracking-ultra-wide);
+}
+
+.gear-value {
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--accent-secondary);
+  text-shadow: 0 0 10px rgba(0, 229, 255, 0.5);
+  transition: all 0.2s ease;
+}
+
+.gear-indicator.gear-6 .gear-value {
+  color: var(--danger);
+  text-shadow: 0 0 10px rgba(255, 61, 90, 0.6);
+  animation: gearMaxPulse 0.4s ease-in-out infinite alternate;
+}
+
+@keyframes gearMaxPulse {
+  from { opacity: 1; }
+  to { opacity: 0.7; }
+}
+
+/* ==================== POSITION & LAP PANEL ==================== */
+.hud-position-panel {
+  top: var(--space-xl);
+  left: var(--space-xl);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s);
+  min-width: 120px;
+}
+
+.position-display {
+  display: flex;
+  align-items: baseline;
+  gap: 2px;
+}
+
+.position-number {
+  font-family: var(--font-display);
+  font-size: clamp(42px, 6vw, 64px);
+  font-weight: 700;
+  line-height: 1;
+  color: var(--text-primary);
+  transition: all 0.3s ease;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+}
+
+.position-suffix {
+  font-family: var(--font-display);
+  font-size: clamp(18px, 2.5vw, 28px);
+  color: var(--text-tertiary);
+  letter-spacing: 0;
+}
+
+/* Podium position colors */
+.position-display.first .position-number {
+  color: var(--accent-tertiary);
+  text-shadow: 
+    0 0 20px rgba(255, 210, 63, 0.5),
+    0 0 40px rgba(255, 210, 63, 0.25);
+}
+
+.position-display.second .position-number {
+  color: #c0c0c0;
+  text-shadow: 0 0 15px rgba(192, 192, 192, 0.4);
+}
+
+.position-display.third .position-number {
+  color: #cd7f32;
+  text-shadow: 0 0 15px rgba(205, 127, 50, 0.4);
+}
+
+/* Position change indicators */
+.position-change {
+  font-size: var(--text-body-s);
+  font-weight: 700;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: all 0.3s ease;
+}
+
+.position-change.gained {
+  opacity: 1;
+  color: var(--success);
+  animation: positionGained 1.5s ease-out forwards;
+}
+
+.position-change.lost {
+  opacity: 1;
+  color: var(--danger);
+  animation: positionLost 1.5s ease-out forwards;
+}
+
+@keyframes positionGained {
+  0% { 
+    opacity: 0; 
+    transform: translateY(-10px) scale(0.8); 
+  }
+  20% { 
+    opacity: 1; 
+    transform: translateY(0) scale(1.1); 
+  }
+  80% { 
+    opacity: 1; 
+    transform: translateY(0) scale(1); 
+  }
+  100% { 
+    opacity: 0; 
+    transform: translateY(-5px) scale(0.9); 
+  }
+}
+
+@keyframes positionLost {
+  0% { 
+    opacity: 0; 
+    transform: translateY(10px) scale(0.8); 
+  }
+  20% { 
+    opacity: 1; 
+    transform: translateY(0) scale(1.1); 
+  }
+  80% { 
+    opacity: 1; 
+    transform: translateY(0) scale(1); 
+  }
+  100% { 
+    opacity: 0; 
+    transform: translateY(5px) scale(0.9); 
+  }
+}
+
+.racers-count {
+  font-size: var(--text-caption);
+  color: var(--text-tertiary);
+  letter-spacing: var(--tracking-wide);
+}
+
+/* Lap counter section */
+.lap-container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  padding-top: var(--space-s);
+  border-top: 1px solid var(--border-subtle);
+}
+
+.lap-counter {
+  display: flex;
+  align-items: baseline;
+  gap: 2px;
+  font-family: var(--font-display);
+}
+
+.lap-current {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--accent-secondary);
+  text-shadow: 0 0 10px rgba(0, 229, 255, 0.4);
+}
+
+.lap-separator {
+  font-size: 14px;
+  color: var(--text-tertiary);
+}
+
+.lap-total {
+  font-size: 18px;
+  color: var(--text-tertiary);
+}
+
+.lap-label {
+  font-size: 9px;
+  color: var(--text-tertiary);
+  letter-spacing: var(--tracking-ultra-wide);
+}
+
+/* Lap progress bar */
+.lap-progress-container {
+  width: 100%;
+  height: 3px;
+  background: var(--bg-tertiary);
+  border-radius: var(--radius-pill);
+  overflow: hidden;
+}
+
+.lap-progress-bar {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, var(--accent-secondary), var(--accent-tertiary));
+  border-radius: var(--radius-pill);
+  transition: width 0.2s ease-out;
+  box-shadow: 0 0 8px rgba(0, 229, 255, 0.5);
+}
+
+/* ==================== RACE TIMER PANEL ==================== */
+.hud-timer-panel {
+  top: var(--space-xl);
+  left: 50%;
+  transform: translateX(-50%);
+  text-align: center;
+  min-width: 140px;
+}
+
+.timer-display {
+  font-family: var(--font-mono);
+  font-size: clamp(20px, 3vw, 28px);
+  font-weight: 600;
+  color: var(--text-primary);
+  letter-spacing: 2px;
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+}
+
+.timer-label {
+  font-size: 9px;
+  color: var(--text-tertiary);
+  letter-spacing: var(--tracking-ultra-wide);
+  margin-top: var(--space-xs);
+}
+
+/* ==================== ITEM BOX PANEL ==================== */
+.hud-item-panel {
+  bottom: var(--space-xl);
+  right: var(--space-xl);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-s);
+  min-width: 100px;
+}
+
+.item-box {
+  width: 72px;
+  height: 72px;
+  border: 2px solid var(--border-subtle);
+  border-radius: var(--radius-m);
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-xs);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.item-box::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at center, transparent 40%, rgba(0, 229, 255, 0.05) 100%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.item-box.has-item {
+  border-color: var(--accent-secondary);
+  box-shadow: 
+    0 0 20px rgba(0, 229, 255, 0.3),
+    inset 0 0 20px rgba(0, 229, 255, 0.1);
+  animation: itemReadyPulse 1.5s ease-in-out infinite;
+}
+
+.item-box.has-item::before {
+  opacity: 1;
+}
+
+@keyframes itemReadyPulse {
+  0%, 100% { box-shadow: 0 0 20px rgba(0, 229, 255, 0.3); }
+  50% { box-shadow: 0 0 30px rgba(0, 229, 255, 0.5); }
+}
+
+.item-icon {
+  width: 32px;
+  height: 32px;
+  color: var(--text-tertiary);
+  transition: all 0.3s ease;
+}
+
+.item-box.has-item .item-icon {
+  color: var(--accent-secondary);
+  filter: drop-shadow(0 0 8px rgba(0, 229, 255, 0.6));
+}
+
+.item-icon svg {
+  width: 100%;
+  height: 100%;
+}
+
+.item-prompt {
+  font-size: 9px;
+  color: var(--text-tertiary);
+  letter-spacing: 1px;
+  background: rgba(0, 0, 0, 0.5);
+  padding: 2px 6px;
+  border-radius: 3px;
+}
+
+.item-status {
+  font-size: 10px;
+  color: var(--text-tertiary);
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+}
+
+/* ==================== SHIELD / HEALTH STATUS PANEL ==================== */
+.hud-status-panel {
+  bottom: calc(var(--space-xl) + 180px);
+  right: var(--space-xl);
+  width: 160px;
+}
+
+.status-bars {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-m);
+}
+
+.shield-bar-container,
+.health-bar-container {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: var(--space-s);
+  align-items: center;
+}
+
+.status-label {
+  font-size: 9px;
+  color: var(--text-tertiary);
+  letter-spacing: var(--tracking-wide);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+}
+
+.status-icon {
+  font-size: 11px;
+}
+
+.bar-track {
+  height: 6px;
+  background: var(--bg-tertiary);
+  border-radius: var(--radius-pill);
+  overflow: hidden;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.bar-fill {
+  height: 100%;
+  width: 100%;
+  border-radius: var(--radius-pill);
+  transition: width 0.3s ease;
+  position: relative;
+}
+
+.shield-fill {
+  background: linear-gradient(90deg, var(--accent-secondary), #00b8d4);
+  box-shadow: 0 0 8px rgba(0, 229, 255, 0.4);
+}
+
+.health-fill {
+  background: linear-gradient(90deg, var(--success), #00e676);
+  box-shadow: 0 0 8px rgba(61, 220, 132, 0.4);
+}
+
+.bar-value {
+  font-size: var(--text-caption);
+  color: var(--text-secondary);
+  min-width: 32px;
+  text-align: right;
+  font-weight: 600;
+}
+
+/* Warning states for status bars */
+.hud-status-panel.warning-shield .shield-fill {
+  animation: statusWarning 0.5s ease-in-out infinite alternate;
+  box-shadow: 0 0 12px rgba(255, 177, 61, 0.6);
+}
+
+.hud-status-panel.danger-shield .shield-fill {
+  animation: statusDanger 0.3s ease-in-out infinite alternate;
+  background: linear-gradient(90deg, var(--danger), #ff1744);
+  box-shadow: 0 0 15px rgba(255, 61, 90, 0.7);
+}
+
+.hud-status-panel.warning-health .health-fill {
+  animation: statusWarning 0.5s ease-in-out infinite alternate;
+  background: linear-gradient(90deg, var(--warning), #ffa000);
+  box-shadow: 0 0 12px rgba(255, 177, 61, 0.6);
+}
+
+.hud-status-panel.danger-health .health-fill {
+  animation: statusDanger 0.3s ease-in-out infinite alternate;
+  background: linear-gradient(90deg, var(--danger), #ff1744);
+  box-shadow: 0 0 15px rgba(255, 61, 90, 0.7);
+}
+
+@keyframes statusWarning {
+  from { opacity: 1; }
+  to { opacity: 0.6; }
+}
+
+@keyframes statusDanger {
+  from { opacity: 1; transform: scaleX(1); }
+  to { opacity: 0.7; transform: scaleX(0.98); }
+}
+
+/* Panel flash on danger */
+.hud-status-panel.warning-shield,
+.hud-status-panel.danger-shield,
+.hud-status-panel.warning-health,
+.hud-status-panel.danger-health {
+  animation: panelFlash 0.5s ease-in-out infinite alternate;
+}
+
+@keyframes panelFlash {
+  from { border-color: var(--border-subtle); }
+  to { border-color: var(--danger); }
+}
+
+/* ==================== COUNTDOWN OVERLAY ==================== */
+.hud-countdown {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: calc(var(--z-hud) + 10);
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+}
+
+.hud-countdown.active {
+  opacity: 1;
+  visibility: visible;
+}
+
+.countdown-number {
+  font-family: var(--font-display);
+  font-size: clamp(120px, 25vw, 200px);
+  font-weight: 700;
+  color: var(--text-primary);
+  text-shadow: 
+    0 0 40px rgba(255, 77, 46, 0.6),
+    0 0 80px rgba(255, 77, 46, 0.3),
+    0 4px 20px rgba(0, 0, 0, 0.5);
+  animation: countdownPulse 1s ease-out;
+  transform: scale(0.5);
+  opacity: 0;
+}
+
+.hud-countdown.active .countdown-number {
+  animation: countdownPopIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+.countdown-number.go {
+  color: var(--success);
+  text-shadow: 
+    0 0 40px rgba(61, 220, 132, 0.6),
+    0 0 80px rgba(61, 220, 132, 0.3);
+  animation: goFlash 0.6s ease-out;
+}
+
+@keyframes countdownPopIn {
+  from {
+    transform: scale(2);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes goFlash {
+  0% {
+    transform: scale(1.5);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 0;
+  }
+}
+
+@keyframes countdownPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+/* ==================== NOTIFICATIONS AREA ==================== */
+.hud-notifications {
+  position: fixed;
+  top: 20%;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-s);
+  pointer-events: none;
+  z-index: calc(var(--z-hud) + 5);
+  max-width: 320px;
+}
+
+.hud-notification {
+  display: flex;
+  align-items: center;
+  gap: var(--space-s);
+  padding: var(--space-m) var(--space-l);
+  background: rgba(10, 12, 20, 0.95);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-m);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  opacity: 0;
+  transform: translateY(-20px) scale(0.9);
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+}
+
+.hud-notification.visible {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+.hud-notification.info {
+  border-left: 3px solid var(--accent-secondary);
+}
+
+.hud-notification.success {
+  border-left: 3px solid var(--success);
+}
+
+.hud-notification.warning {
+  border-left: 3px solid var(--warning);
+}
+
+.hud-notification.danger {
+  border-left: 3px solid var(--danger);
+}
+
+.notif-icon {
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.notif-message {
+  font-size: var(--text-body-s);
+  font-weight: 600;
+  color: var(--text-primary);
+  text-align: center;
+}
+
+/* ==================== LAP TIMES DISPLAY ==================== */
+.hud-lap-times {
+  position: absolute;
+  top: var(--space-xl);
+  right: var(--space-xl);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: var(--space-m);
+  background: rgba(10, 12, 20, 0.85);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-m);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.lap-time-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-m);
+}
+
+.lap-time-label {
+  font-size: 9px;
+  color: var(--text-tertiary);
+  letter-spacing: var(--tracking-wide);
+}
+
+.lap-time-value {
+  font-family: var(--font-mono);
+  font-size: var(--text-body-s);
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.lap-time-value.best {
+  color: var(--accent-tertiary);
+  text-shadow: 0 0 8px rgba(255, 210, 63, 0.4);
+}
+
+/* ==================== MINIMAP CONTAINER ==================== */
+.hud-minimap-container {
+  position: absolute;
+  bottom: var(--space-xl);
+  left: 50%;
+  transform: translateX(-50%);
+  /* Minimap styles handled by minimap.css */
+}
+
+/* ==================== COMPACT (MOBILE) MODE ==================== */
+.game-hud.compact .hud-speed-panel {
+  bottom: var(--space-m);
+  left: var(--space-m);
+  min-width: auto;
+  padding: var(--space-s) var(--space-m);
+}
+
+.game-hud.compact .speed-value {
+  font-size: 28px;
+}
+
+.game-hud.compact .gear-indicator {
+  display: none;
+}
+
+.game-hud.compact .hud-position-panel {
+  top: var(--space-m);
+  left: var(--space-m);
+  padding: var(--space-s) var(--space-m);
+}
+
+.game-hud.compact .position-number {
+  font-size: 32px;
+}
+
+.game-hud.compact .lap-container {
+  display: none;
+}
+
+.game-hud.compact .hud-timer-panel {
+  top: var(--space-m);
+  min-width: auto;
+  padding: var(--space-s) var(--space-m);
+}
+
+.game-hud.compact .timer-display {
+  font-size: 16px;
+}
+
+.game-hud.compact .hud-item-panel {
+  bottom: var(--space-m);
+  right: var(--space-m);
+  padding: var(--space-s);
+}
+
+.game-hud.compact .item-box {
+  width: 56px;
+  height: 56px;
+}
+
+.game-hud.compact .hud-status-panel {
+  display: none; /* Hide on mobile to save space */
+}
+
+.game-hud.compact .hud-lap-times {
+  display: none; /* Hide on mobile */
+}
+
+/* ==================== REDUCED MOTION ==================== */
+@media (prefers-reduced-motion: reduce) {
+  .speed-value.critical,
+  .gear-indicator.gear-6 .gear-value,
+  .item-box.has-item,
+  .shield-fill,
+  .health-fill {
+    animation: none !important;
+  }
+  
+  .hud-notification,
+  .position-change,
+  .countdown-number {
+    transition: opacity 0.2s ease !important;
+    transform: none !important;
+  }
+}
+
+/* ==================== RESPONSIVE BREAKPOINTS ==================== */
+
+/* Tablet portrait and below */
+@media (max-width: 768px) {
+  .game-hud:not(.compact) {
+    /* Auto-enable compact mode on small screens */
+  }
+  
+  .hud-status-panel {
+    bottom: calc(var(--space-xl) + 150px);
+    right: var(--space-m);
+    width: 140px;
+  }
+  
+  .hud-lap-times {
+    top: auto;
+    bottom: calc(var(--space-xl) + 85px);
+    right: var(--space-m);
+  }
+}
+
+/* Small phones */
+@media (max-width: 480px) {
+  .game-hud {
+    transform: scale(0.95);
+    transform-origin: bottom left;
+  }
+  
+  .hud-timer-panel {
+    display: none;
+  }
+}
+
+/* Landscape orientation adjustments */
+@media (max-height: 500px) and (orientation: landscape) {
+  .hud-position-panel {
+    top: var(--space-s);
+    padding: var(--space-s) var(--space-m);
+  }
+  
+  .position-number {
+    font-size: 28px;
+  }
+  
+  .hud-speed-panel {
+    bottom: var(--space-s);
+    padding: var(--space-s) var(--space-m);
+  }
+  
+  .speed-value {
+    font-size: 28px;
+  }
+  
+  .hud-lap-times {
+    display: none;
+  }
+}
+
+/* High DPI / Retina optimization */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  .hud-panel {
+    border-width: 0.5px;
+  }
+  
+  .bar-track {
+    height: 4px;
+  }
+}
+
+/* ========================================================================
+ * CYCLE 25 ENHANCEMENTS — HUD V2 Styling
+ * ========================================================================
+ * Adds glassmorphism overlays, animated pulses, gradient sweeps, color-
+ * coded feedback, and micro-interactions. All classes are prefixed .hud-v2-
+ * so they never collide with existing Cycle 1 styles.
+ * ======================================================================== */
+
+/* ---------- 1. GLASSMORPHISM PANEL OVERLAY ---------- */
+/* Opt-in: add .hud-v2-glass to any .hud-panel for a richer glass effect */
+
+.hud-v2-glass {
+  backdrop-filter: blur(24px) saturate(1.4) brightness(0.95);
+  -webkit-backdrop-filter: blur(24px) saturate(1.4) brightness(0.95);
+  background: linear-gradient(
+    135deg,
+    rgba(10, 12, 20, 0.72) 0%,
+    rgba(18, 20, 31, 0.64) 50%,
+    rgba(10, 12, 20, 0.72) 100%
+  );
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.2),
+    0 0 0 1px rgba(0, 229, 255, 0.06);
+}
+
+.hud-v2-glass::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.07) 0%,
+    transparent 50%
+  );
+  pointer-events: none;
+}
+
+/* ---------- 2. SPEED PULSE EFFECT ---------- */
+/* Add .hud-v2-speed-pulse to the speed value element when speed changes */
+
+@keyframes hud-v2-speedPulse {
+  0% {
+    transform: scale(1);
+    filter: brightness(1);
+  }
+  15% {
+    transform: scale(1.08);
+    filter: brightness(1.5);
+  }
+  40% {
+    transform: scale(0.98);
+    filter: brightness(1.1);
+  }
+  100% {
+    transform: scale(1);
+    filter: brightness(1);
+  }
+}
+
+.hud-v2-speed-pulse {
+  animation: hud-v2-speedPulse 0.35s var(--ease-back-out);
+}
+
+/* Intensity variants — apply alongside .hud-v2-speed-pulse */
+.hud-v2-speed-pulse.hud-v2-speed-hard {
+  animation: hud-v2-speedPulseHard 0.4s var(--ease-back-out);
+}
+
+@keyframes hud-v2-speedPulseHard {
+  0%   { transform: scale(1);   filter: brightness(1) drop-shadow(0 0 0 transparent); }
+  15%  { transform: scale(1.14); filter: brightness(1.8) drop-shadow(0 0 18px currentColor); }
+  40%  { transform: scale(0.97); filter: brightness(1.1) drop-shadow(0 0 6px currentColor); }
+  100% { transform: scale(1);   filter: brightness(1) drop-shadow(0 0 0 transparent); }
+}
+
+/* ---------- 3. GEAR SHIFT FLASH ---------- */
+/* Add .hud-v2-gear-flash to the gear value on upshift */
+
+@keyframes hud-v2-gearFlash {
+  0% {
+    transform: scale(1) translateY(0);
+    color: var(--accent-secondary);
+    text-shadow: 0 0 8px rgba(0, 229, 255, 0.5);
+  }
+  25% {
+    transform: scale(1.45) translateY(-3px);
+    color: #ffffff;
+    text-shadow:
+      0 0 20px rgba(255, 255, 255, 0.9),
+      0 0 40px var(--accent-secondary),
+      0 0 60px var(--accent-secondary);
+  }
+  60% {
+    transform: scale(1.05) translateY(0);
+    color: var(--accent-secondary);
+    text-shadow: 0 0 12px rgba(0, 229, 255, 0.7);
+  }
+  100% {
+    transform: scale(1) translateY(0);
+    color: var(--accent-secondary);
+    text-shadow: 0 0 10px rgba(0, 229, 255, 0.5);
+  }
+}
+
+.hud-v2-gear-flash {
+  animation: hud-v2-gearFlash 0.45s var(--ease-out-expo);
+}
+
+/* ---------- 4. NITRO BAR — ANIMATED GRADIENT + GLOW ---------- */
+/* Apply to the nitro bar fill element */
+
+.hud-v2-nitro-bar {
+  position: relative;
+  overflow: hidden;
+}
+
+.hud-v2-nitro-bar::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    var(--accent-primary) 0%,
+    #ff8c00 30%,
+    var(--accent-tertiary) 50%,
+    #ff8c00 70%,
+    var(--accent-primary) 100%
+  );
+  background-size: 200% 100%;
+  border-radius: inherit;
+  animation: hud-v2-nitroSweep 2s linear infinite;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.hud-v2-nitro-bar.hud-v2-nitro-active::before {
+  opacity: 1;
+}
+
+@keyframes hud-v2-nitroSweep {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* Glow ring around the bar when nitro is active */
+.hud-v2-nitro-bar.hud-v2-nitro-active {
+  box-shadow:
+    0 0 12px rgba(255, 77, 46, 0.6),
+    0 0 24px rgba(255, 77, 46, 0.3),
+    0 0 4px rgba(255, 210, 63, 0.4);
+  animation: hud-v2-nitroGlow 0.8s ease-in-out infinite alternate;
+}
+
+@keyframes hud-v2-nitroGlow {
+  0%   { box-shadow: 0 0 12px rgba(255, 77, 46, 0.6), 0 0 24px rgba(255, 77, 46, 0.3); }
+  100% { box-shadow: 0 0 20px rgba(255, 140, 0, 0.7), 0 0 40px rgba(255, 77, 46, 0.4); }
+}
+
+/* ---------- 5. POSITION CHANGE SLIDE-IN ---------- */
+/* Enhanced slide-in for +1 / -1 indicators */
+
+@keyframes hud-v2-positionGain {
+  0%   { opacity: 0; transform: translateX(-24px) scale(0.6); }
+  20%  { opacity: 1; transform: translateX(4px) scale(1.15); }
+  35%  { transform: translateX(-2px) scale(1); }
+  50%  { transform: translateX(0) scale(1); }
+  85%  { opacity: 1; transform: translateX(0) scale(1); }
+  100% { opacity: 0; transform: translateX(-12px) scale(0.85); }
+}
+
+@keyframes hud-v2-positionLose {
+  0%   { opacity: 0; transform: translateX(24px) scale(0.6); }
+  20%  { opacity: 1; transform: translateX(-4px) scale(1.15); }
+  35%  { transform: translateX(2px) scale(1); }
+  50%  { transform: translateX(0) scale(1); }
+  85%  { opacity: 1; transform: translateX(0) scale(1); }
+  100% { opacity: 0; transform: translateX(12px) scale(0.85); }
+}
+
+.hud-v2-pos-gain {
+  animation: hud-v2-positionGain 1.8s var(--ease-out-expo) forwards;
+  color: var(--success);
+  text-shadow: 0 0 10px rgba(61, 220, 132, 0.6);
+}
+
+.hud-v2-pos-lose {
+  animation: hud-v2-positionLose 1.8s var(--ease-out-expo) forwards;
+  color: var(--danger);
+  text-shadow: 0 0 10px rgba(255, 61, 90, 0.6);
+}
+
+/* ---------- 6. LAP PROGRESS GRADIENT SWEEP ---------- */
+/* Add .hud-v2-lap-sweep to the lap progress bar fill */
+
+.hud-v2-lap-sweep {
+  position: relative;
+  background: linear-gradient(90deg, var(--accent-secondary), var(--accent-tertiary));
+  overflow: hidden;
+}
+
+.hud-v2-lap-sweep::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.45) 50%,
+    transparent 100%
+  );
+  background-size: 60% 100%;
+  background-repeat: no-repeat;
+  animation: hud-v2-sweepHighlight 1.5s ease-in-out infinite;
+}
+
+@keyframes hud-v2-sweepHighlight {
+  0%   { background-position: -60% 0; }
+  100% { background-position: 160% 0; }
+}
+
+/* ---------- 7. COUNTDOWN — BOUNCE + COLOR TRANSITIONS ---------- */
+/* Apply .hud-v2-countdown-color-N / .hud-v2-countdown-go to the number */
+
+@keyframes hud-v2-countdownBounce {
+  0%   { transform: scale(2.5); opacity: 0; filter: blur(8px); }
+  30%  { transform: scale(0.9);  opacity: 1; filter: blur(0); }
+  50%  { transform: scale(1.08); opacity: 1; filter: blur(0); }
+  70%  { transform: scale(0.98); opacity: 1; filter: blur(0); }
+  85%  { opacity: 1; }
+  100% { transform: scale(1);   opacity: 0; filter: blur(4px); }
+}
+
+/* 3 = cyan */
+.hud-v2-countdown-color-3 {
+  color: var(--accent-secondary) !important;
+  text-shadow:
+    0 0 40px rgba(0, 229, 255, 0.8),
+    0 0 80px rgba(0, 229, 255, 0.4),
+    0 0 120px rgba(0, 229, 255, 0.2),
+    0 4px 20px rgba(0, 0, 0, 0.5);
+  animation: hud-v2-countdownBounce 0.95s var(--ease-out-expo) forwards;
+}
+
+/* 2 = orange */
+.hud-v2-countdown-color-2 {
+  color: var(--warning) !important;
+  text-shadow:
+    0 0 40px rgba(255, 177, 61, 0.8),
+    0 0 80px rgba(255, 177, 61, 0.4),
+    0 0 120px rgba(255, 177, 61, 0.2),
+    0 4px 20px rgba(0, 0, 0, 0.5);
+  animation: hud-v2-countdownBounce 0.95s var(--ease-out-expo) forwards;
+}
+
+/* 1 = red */
+.hud-v2-countdown-color-1 {
+  color: var(--danger) !important;
+  text-shadow:
+    0 0 40px rgba(255, 61, 90, 0.8),
+    0 0 80px rgba(255, 61, 90, 0.4),
+    0 0 120px rgba(255, 61, 90, 0.2),
+    0 4px 20px rgba(0, 0, 0, 0.5);
+  animation: hud-v2-countdownBounce 0.95s var(--ease-out-expo) forwards;
+}
+
+/* GO! = gold */
+.hud-v2-countdown-go {
+  color: var(--accent-tertiary) !important;
+  text-shadow:
+    0 0 50px rgba(255, 210, 63, 0.9),
+    0 0 100px rgba(255, 210, 63, 0.5),
+    0 0 160px rgba(255, 210, 63, 0.2),
+    0 4px 20px rgba(0, 0, 0, 0.5);
+  animation: hud-v2-countdownGo 1.1s var(--ease-out-expo) forwards;
+}
+
+@keyframes hud-v2-countdownGo {
+  0%   { transform: scale(3);    opacity: 0; filter: blur(10px); }
+  20%  { transform: scale(0.85); opacity: 1; filter: blur(0); }
+  40%  { transform: scale(1.12); opacity: 1; filter: blur(0); }
+  55%  { transform: scale(0.97); opacity: 1; }
+  75%  { opacity: 1; transform: scale(1); }
+  100% { opacity: 0; transform: scale(1.4); filter: blur(6px); }
+}
+
+/* ---------- 8. MINIMAP — COMPASS RING + PLAYER TRAIL GLOW ---------- */
+
+/* Rotating compass ring around the minimap */
+.hud-v2-compass-ring {
+  position: absolute;
+  inset: -6px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  border-top-color: var(--accent-secondary);
+  border-right-color: rgba(0, 229, 255, 0.3);
+  animation: hud-v2-compassSpin 4s linear infinite;
+  pointer-events: none;
+}
+
+.hud-v2-compass-ring::after {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  border: 1px solid transparent;
+  border-bottom-color: var(--accent-primary);
+  border-left-color: rgba(255, 77, 46, 0.2);
+  animation: hud-v2-compassSpin 6s linear infinite reverse;
+}
+
+@keyframes hud-v2-compassSpin {
+  0%   { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Player trail glow on minimap dot */
+.hud-v2-player-trail {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--accent-secondary) 0%, transparent 70%);
+  filter: blur(4px);
+  pointer-events: none;
+  animation: hud-v2-trailPulse 1.2s ease-in-out infinite alternate;
+}
+
+@keyframes hud-v2-trailPulse {
+  0%   { opacity: 0.4; transform: scale(0.8); }
+  100% { opacity: 0.8; transform: scale(1.3); }
+}
+
+/* ---------- 9. TIMER — MONOSPACE GLOW ---------- */
+
+.hud-v2-timer-glow {
+  font-family: var(--font-mono);
+  letter-spacing: 3px;
+  position: relative;
+}
+
+.hud-v2-timer-glow::before {
+  content: attr(data-time);
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent-secondary);
+  filter: blur(12px);
+  opacity: 0.35;
+  pointer-events: none;
+}
+
+/* ---------- 10. FPS COUNTER — COLOR CODED ---------- */
+
+.hud-v2-fps-good {
+  color: var(--success);
+  text-shadow: 0 0 8px rgba(61, 220, 132, 0.5);
+}
+
+.hud-v2-fps-ok {
+  color: var(--warning);
+  text-shadow: 0 0 8px rgba(255, 177, 61, 0.5);
+}
+
+.hud-v2-fps-bad {
+  color: var(--danger);
+  text-shadow: 0 0 8px rgba(255, 61, 90, 0.6);
+  animation: hud-v2-fpsBlink 0.6s ease-in-out infinite alternate;
+}
+
+@keyframes hud-v2-fpsBlink {
+  0%   { opacity: 1; }
+  100% { opacity: 0.5; }
+}
+
+/* ---------- 11. ITEM BOX — SLOT MACHINE REVEAL ---------- */
+
+@keyframes hud-v2-slotSpin {
+  0%   { transform: translateY(-100%) rotateX(90deg); opacity: 0; filter: blur(4px); }
+  30%  { transform: translateY(0)    rotateX(0deg);   opacity: 1; filter: blur(0); }
+  45%  { transform: translateY(-30%) rotateX(-15deg); }
+  60%  { transform: translateY(0)    rotateX(5deg); }
+  75%  { transform: translateY(-8%)  rotateX(-2deg); }
+  100% { transform: translateY(0)    rotateX(0deg);   opacity: 1; filter: blur(0); }
+}
+
+@keyframes hud-v2-slotBorderSpin {
+  0%   { border-color: var(--accent-secondary); box-shadow: 0 0 20px rgba(0, 229, 255, 0.5); }
+  33%  { border-color: var(--accent-tertiary); box-shadow: 0 0 20px rgba(255, 210, 63, 0.5); }
+  66%  { border-color: var(--accent-primary);  box-shadow: 0 0 20px rgba(255, 77, 46, 0.5); }
+  100% { border-color: var(--accent-secondary); box-shadow: 0 0 20px rgba(0, 229, 255, 0.5); }
+}
+
+.hud-v2-slot-reveal {
+  animation: hud-v2-slotSpin 0.7s var(--ease-back-out) forwards;
+}
+
+.hud-v2-slot-border-spin {
+  animation: hud-v2-slotBorderSpin 0.5s linear infinite;
+}
+
+/* ---------- 12. SHIELD / HEALTH — ANIMATED GRADIENT FILLS ---------- */
+
+.hud-v2-shield-fill {
+  background: linear-gradient(
+    90deg,
+    var(--accent-secondary) 0%,
+    #00b8d4 40%,
+    var(--accent-secondary) 80%,
+    #00b8d4 100%
+  );
+  background-size: 200% 100%;
+  animation: hud-v2-statusSweep 2s linear infinite;
+  box-shadow:
+    0 0 10px rgba(0, 229, 255, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.hud-v2-health-fill {
+  background: linear-gradient(
+    90deg,
+    var(--success) 0%,
+    #00e676 40%,
+    var(--success) 80%,
+    #00e676 100%
+  );
+  background-size: 200% 100%;
+  animation: hud-v2-statusSweep 2.5s linear infinite;
+  box-shadow:
+    0 0 10px rgba(61, 220, 132, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+@keyframes hud-v2-statusSweep {
+  0%   { background-position: 0% 0; }
+  100% { background-position: 200% 0; }
+}
+
+/* Critical health — red pulsing override */
+.hud-v2-health-critical {
+  background: linear-gradient(
+    90deg,
+    var(--danger) 0%,
+    #ff1744 50%,
+    var(--danger) 100%
+  ) !important;
+  background-size: 200% 100% !important;
+  animation: hud-v2-statusSweep 0.8s linear infinite, hud-v2-criticalPulse 0.4s ease-in-out infinite alternate !important;
+  box-shadow:
+    0 0 16px rgba(255, 61, 90, 0.7),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15) !important;
+}
+
+@keyframes hud-v2-criticalPulse {
+  0%   { opacity: 1; }
+  100% { opacity: 0.55; }
+}
+
+/* ---------- 13. NOTIFICATION TOASTS — GLASS + SLIDE-IN ---------- */
+
+.hud-v2-toast {
+  backdrop-filter: blur(20px) saturate(1.3);
+  -webkit-backdrop-filter: blur(20px) saturate(1.3);
+  background: linear-gradient(
+    135deg,
+    rgba(10, 12, 20, 0.78) 0%,
+    rgba(18, 20, 31, 0.7) 100%
+  );
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Shimmer highlight across toast on appear */
+.hud-v2-toast::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 60%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.06),
+    transparent
+  );
+  animation: hud-v2-toastShimmer 0.8s 0.1s ease-out forwards;
+  pointer-events: none;
+}
+
+@keyframes hud-v2-toastShimmer {
+  0%   { left: -100%; }
+  100% { left: 200%; }
+}
+
+/* Slide-in variants */
+@keyframes hud-v2-toastSlideDown {
+  0%   { opacity: 0; transform: translateY(-30px) scale(0.92); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes hud-v2-toastSlideUp {
+  0%   { opacity: 0; transform: translateY(30px) scale(0.92); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes hud-v2-toastSlideLeft {
+  0%   { opacity: 0; transform: translateX(40px) scale(0.92); }
+  100% { opacity: 1; transform: translateX(0) scale(1); }
+}
+
+.hud-v2-toast-slide-down {
+  animation: hud-v2-toastSlideDown 0.4s var(--ease-back-out) forwards;
+}
+
+.hud-v2-toast-slide-up {
+  animation: hud-v2-toastSlideUp 0.4s var(--ease-back-out) forwards;
+}
+
+.hud-v2-toast-slide-left {
+  animation: hud-v2-toastSlideLeft 0.4s var(--ease-back-out) forwards;
+}
+
+/* Type-specific left borders with glow */
+.hud-v2-toast-info {
+  border-left: 3px solid var(--accent-secondary);
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.5),
+    -4px 0 16px rgba(0, 229, 255, 0.15);
+}
+
+.hud-v2-toast-success {
+  border-left: 3px solid var(--success);
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.5),
+    -4px 0 16px rgba(61, 220, 132, 0.15);
+}
+
+.hud-v2-toast-warning {
+  border-left: 3px solid var(--warning);
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.5),
+    -4px 0 16px rgba(255, 177, 61, 0.15);
+}
+
+.hud-v2-toast-danger {
+  border-left: 3px solid var(--danger);
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.5),
+    -4px 0 16px rgba(255, 61, 90, 0.15);
+}
+
+/* ---------- 14. LAP TIMES — BEST TIME HIGHLIGHT GLOW ---------- */
+
+.hud-v2-lap-best {
+  color: var(--accent-tertiary) !important;
+  position: relative;
+  text-shadow: 0 0 10px rgba(255, 210, 63, 0.5);
+}
+
+.hud-v2-lap-best::before {
+  content: '';
+  position: absolute;
+  left: -8px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3px;
+  height: 60%;
+  border-radius: var(--radius-pill);
+  background: var(--accent-tertiary);
+  box-shadow:
+    0 0 8px rgba(255, 210, 63, 0.7),
+    0 0 16px rgba(255, 210, 63, 0.3);
+  animation: hud-v2-bestGlow 1.5s ease-in-out infinite alternate;
+}
+
+@keyframes hud-v2-bestGlow {
+  0%   { opacity: 0.6; box-shadow: 0 0 8px rgba(255, 210, 63, 0.5); }
+  100% { opacity: 1;   box-shadow: 0 0 14px rgba(255, 210, 63, 0.9), 0 0 28px rgba(255, 210, 63, 0.3); }
+}
+
+/* Row background highlight for best lap */
+.hud-v2-lap-row-best {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 210, 63, 0.08) 0%,
+    rgba(255, 210, 63, 0.02) 100%
+  );
+  border-radius: var(--radius-s);
+  padding: 2px 6px;
+  margin: 0 -6px;
+}
+
+/* ==================== REDUCED MOTION (V2) ==================== */
+@media (prefers-reduced-motion: reduce) {
+  .hud-v2-speed-pulse,
+  .hud-v2-speed-pulse.hud-v2-speed-hard,
+  .hud-v2-gear-flash,
+  .hud-v2-nitro-bar::before,
+  .hud-v2-nitro-bar.hud-v2-nitro-active,
+  .hud-v2-pos-gain,
+  .hud-v2-pos-lose,
+  .hud-v2-lap-sweep::after,
+  .hud-v2-countdown-color-3,
+  .hud-v2-countdown-color-2,
+  .hud-v2-countdown-color-1,
+  .hud-v2-countdown-go,
+  .hud-v2-compass-ring,
+  .hud-v2-compass-ring::after,
+  .hud-v2-player-trail,
+  .hud-v2-fps-bad,
+  .hud-v2-slot-reveal,
+  .hud-v2-slot-border-spin,
+  .hud-v2-shield-fill,
+  .hud-v2-health-fill,
+  .hud-v2-health-critical,
+  .hud-v2-toast::after,
+  .hud-v2-toast-slide-down,
+  .hud-v2-toast-slide-up,
+  .hud-v2-toast-slide-left,
+  .hud-v2-lap-best::before {
+    animation: none !important;
+    transition: opacity 0.2s ease !important;
+    transform: none !important;
+  }
+}
+
+/* ============================================================================
+   CYCLE 26: GLASSMORPHISM UPGRADE & NEW HUD ENHANCEMENTS
+   ============================================================================ */
+
+/* 1. Animated neon border glow on hud-panel */
+.hud-panel {
+  position: absolute;
+  transition: box-shadow 0.4s ease, border-color 0.4s ease;
+}
+
+.hud-panel::after {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  background: linear-gradient(
+    var(--hud-neon-angle, 135deg),
+    rgba(0, 229, 255, 0.3),
+    rgba(255, 77, 46, 0.2),
+    rgba(0, 229, 255, 0.3)
+  );
+  background-size: 200% 200%;
+  z-index: -1;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+  animation: hudNeonBorderSweep 6s linear infinite;
+  pointer-events: none;
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  -webkit-mask-composite: xor;
+  padding: 1px;
+}
+
+.hud-panel:hover::after,
+.hud-panel.boosting::after {
+  opacity: 1;
+}
+
+@keyframes hudNeonBorderSweep {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* 2. Speed value with dynamic text shadow intensity */
+.speed-value.low {
+  text-shadow: 0 0 4px rgba(0, 229, 255, 0.3);
+}
+.speed-value.medium {
+  text-shadow: 0 0 8px rgba(0, 229, 255, 0.5), 0 0 16px rgba(0, 229, 255, 0.2);
+}
+.speed-value.high {
+  text-shadow: 0 0 12px rgba(255, 77, 46, 0.6), 0 0 24px rgba(255, 77, 46, 0.3), 0 0 40px rgba(255, 77, 46, 0.15);
+}
+.speed-value.critical {
+  text-shadow: 0 0 16px rgba(239, 68, 68, 0.8), 0 0 32px rgba(239, 68, 68, 0.5), 0 0 48px rgba(239, 68, 68, 0.25);
+  animation: hudCriticalPulse 0.5s ease-in-out infinite alternate;
+}
+
+@keyframes hudCriticalPulse {
+  from { text-shadow: 0 0 16px rgba(239, 68, 68, 0.8), 0 0 32px rgba(239, 68, 68, 0.5); }
+  to { text-shadow: 0 0 24px rgba(239, 68, 68, 1), 0 0 48px rgba(239, 68, 68, 0.7), 0 0 64px rgba(239, 68, 68, 0.3); }
+}
+
+/* 3. Gear shift flash animation */
+.gear-value.gear-shift-flash {
+  animation: hudGearFlash 0.3s ease-out;
+}
+
+@keyframes hudGearFlash {
+  0% { color: #fff; text-shadow: 0 0 20px rgba(255, 255, 255, 0.9); transform: scale(1.3); }
+  100% { color: var(--accent-secondary, #00e5ff); text-shadow: none; transform: scale(1); }
+}
+
+/* 4. Nitro/boost bar */
+.hud-boost-panel {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: linear-gradient(135deg, rgba(10, 12, 20, 0.92), rgba(18, 20, 31, 0.88));
+  border: 1px solid rgba(255, 140, 0, 0.2);
+  border-radius: var(--radius-m, 8px);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  font-family: var(--font-mono, monospace);
+}
+
+.hud-boost-label {
+ font-size: 10px;
+ font-weight: 700;
+ color: rgba(255, 255, 255, 0.5);
+ letter-spacing: 1px;
+ text-transform: uppercase;
+}
+
+.hud-boost-pips {
+  display: flex;
+  gap: 4px;
+}
+
+.hud-boost-pip {
+  width: 18px;
+  height: 8px;
+  border-radius: 2px;
+  background: rgba(255, 140, 0, 0.2);
+  border: 1px solid rgba(255, 140, 0, 0.3);
+  transition: all 0.3s ease;
+}
+
+.hud-boost-pip.filled {
+  background: linear-gradient(90deg, #ff8c00, #ff4d2e);
+  border-color: #ff8c00;
+  box-shadow: 0 0 8px rgba(255, 140, 0, 0.4);
+}
+
+.hud-boost-pip.active {
+  animation: hudBoostPipPulse 0.3s ease-in-out infinite alternate;
+}
+
+@keyframes hudBoostPipPulse {
+  from { box-shadow: 0 0 8px rgba(255, 140, 0, 0.4); }
+  to { box-shadow: 0 0 16px rgba(255, 140, 0, 0.8), 0 0 24px rgba(255, 77, 46, 0.4); }
+}
+
+.hud-boost-bar-container {
+  width: 80px;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.hud-boost-bar-fill {
+  height: 100%;
+  border-radius: 3px;
+  background: linear-gradient(90deg, #ff4d2e, #ff8c00);
+  transition: width 0.15s linear;
+  box-shadow: 0 0 6px rgba(255, 140, 0, 0.5);
+}
+
+/* Boost active edge glow on screen */
+.hud-boost-active-overlay {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 99;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  box-shadow: inset 0 0 120px 30px rgba(255, 140, 0, 0.25);
+}
+
+.hud-boost-active-overlay.active {
+  opacity: 1;
+  animation: hudBoostEdgeGlow 0.4s ease-in-out infinite alternate;
+}
+
+@keyframes hudBoostEdgeGlow {
+  from { box-shadow: inset 0 0 100px 20px rgba(255, 140, 0, 0.2); }
+  to { box-shadow: inset 0 0 140px 40px rgba(255, 140, 0, 0.35); }
+}
+
+/* 5. Position change slide-in animation */
+.position-change {
+  overflow: hidden;
+}
+
+.position-change.hud-pos-gain {
+  animation: hudPosGainSlide 0.8s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.position-change.hud-pos-lose {
+  animation: hudPosLoseSlide 0.8s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes hudPosGainSlide {
+  0% { transform: translateY(20px); opacity: 0; }
+  20% { transform: translateY(-5px); opacity: 1; }
+  30% { transform: translateY(0); }
+  100% { transform: translateY(0); opacity: 0; }
+}
+
+@keyframes hudPosLoseSlide {
+  0% { transform: translateY(-20px); opacity: 0; }
+  20% { transform: translateY(5px); opacity: 1; }
+  30% { transform: translateY(0); }
+  100% { transform: translateY(0); opacity: 0; }
+}
+
+/* 6. Lap progress bar with gradient sweep */
+.lap-progress-bar {
+  position: relative;
+  overflow: hidden;
+}
+
+.lap-progress-bar::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+ animation: hudLapSweep 2s ease-in-out infinite;
+}
+
+@keyframes hudLapSweep {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+/* 7. Timer with blur underlay glow */
+.hud-timer-panel .timer-display {
+  position: relative;
+}
+
+.hud-timer-panel .timer-display::before {
+  content: attr(data-time);
+  position: absolute;
+  inset: 0;
+  filter: blur(8px);
+  opacity: 0.3;
+  color: var(--accent-secondary, #00e5ff);
+  z-index: -1;
+}
+
+/* 8. Item slot with 3D tumble reveal */
+.item-box.has-item .item-icon {
+  animation: hudItemTumble 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes hudItemTumble {
+  0% { transform: rotateY(90deg) scale(0.5); opacity: 0; }
+  50% { transform: rotateY(-15deg) scale(1.1); opacity: 1; }
+  100% { transform: rotateY(0deg) scale(1); opacity: 1; }
+}
+
+/* 9. Shield/health bars with animated gradient fills */
+.bar-fill.shield-fill {
+  background: linear-gradient(90deg, #00e5ff, #3b82f6, #00e5ff);
+  background-size: 200% 100%;
+  animation: hudShieldSweep 3s ease-in-out infinite;
+}
+
+@keyframes hudShieldSweep {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+.bar-fill.health-fill {
+  background: linear-gradient(90deg, #4ade80, #22c55e, #4ade80);
+  background-size: 200% 100%;
+  animation: hudHealthSweep 3s ease-in-out infinite;
+}
+
+.bar-fill.health-fill.health-critical {
+  background: linear-gradient(90deg, #ef4444, #f97316, #ef4444);
+  background-size: 200% 100%;
+  animation: hudHealthCritical 0.5s ease-in-out infinite alternate;
+}
+
+@keyframes hudHealthSweep {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+@keyframes hudHealthCritical {
+  from { background-position: 0% 50%; opacity: 0.7; }
+  to { background-position: 100% 50%; opacity: 1; }
+}
+
+/* 10. Notification toasts with glassmorphism + shimmer */
+.hud-notification {
+  position: relative;
+  overflow: hidden;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.hud-notification::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.08), transparent);
+  transform: skewX(-15deg);
+  animation: hudToastShimmer 3s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes hudToastShimmer {
+  0% { left: -100%; }
+  50% { left: 200%; }
+  100% { left: 200%; }
+}
+
+.hud-notification.success {
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.12), rgba(10, 12, 20, 0.9));
+  border-color: rgba(34, 197, 94, 0.25);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), 0 0 16px rgba(34, 197, 94, 0.1);
+}
+
+.hud-notification.warning {
+  background: linear-gradient(135deg, rgba(251, 191, 36, 0.12), rgba(10, 12, 20, 0.9));
+  border-color: rgba(251, 191, 36, 0.25);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), 0 0 16px rgba(251, 191, 36, 0.1);
+}
+
+.hud-notification.danger {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.12), rgba(10, 12, 20, 0.9));
+  border-color: rgba(239, 68, 68, 0.25);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), 0 0 16px rgba(239, 68, 68, 0.1);
+}
+
+/* Collision flash vignette */
+.hud-collision-flash {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 98;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+  box-shadow: inset 0 0 150px 50px rgba(239, 68, 68, 0.4);
+}
+
+.hud-collision-flash.active {
+  opacity: 1;
+}
+
+/* Reduced motion for Cycle 26 additions */
+@media (prefers-reduced-motion: reduce) {
+  .hud-panel::after,
+  .speed-value.critical,
+  .gear-value.gear-shift-flash,
+  .hud-boost-pip.active,
+  .hud-boost-active-overlay.active,
+  .lap-progress-bar::after,
+  .bar-fill.shield-fill,
+  .bar-fill.health-fill,
+  .bar-fill.health-fill.health-critical,
+  .hud-notification::before {
+    animation: none !important;
+  }
+  .position-change.hud-pos-gain,
+  .position-change.hud-pos-lose,
+  .item-box.has-item .item-icon {
+    animation: none !important;
+    transform: none !important;
+  }
+}
+
+/* ============================================
+   CYCLE 27: PROXIMITY WARNING STYLING
+   ============================================ */
+.hud-notification.proximity-warning {
+  border-left: 3px solid #ffb13d;
+  background: linear-gradient(135deg, rgba(255, 177, 61, 0.15), rgba(255, 107, 53, 0.1));
+  animation: proximityPulse 0.5s ease-in-out 3;
+}
+
+@keyframes proximityPulse {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(4px); }
+  75% { transform: translateX(-4px); }
+}
+
+/* ============================================
+   CYCLE 27: MINIMAP LEGEND UPDATE
+   ============================================ */
+.minimap-legend {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  justify-content: center;
+  padding: 4px 8px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  margin-top: 4px;
+}
+
+.minimap-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 8px;
+  color: rgba(255, 255, 255, 0.45);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.minimap-legend-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .hud-notification.proximity-warning { animation: none; }
+  .hud-speed-value { transition: none !important; }
+}
+
+/* ============================================================================
+   CYCLE 29: HUD STYLING ENHANCEMENTS
+   ============================================================================ */
+
+/* === GRADIENT SPEED VALUE === */
+.speed-value {
+  transition: color 0.3s ease, text-shadow 0.3s ease;
+}
+
+.speed-value.critical {
+  color: #ff3d5a !important;
+  text-shadow: 0 0 20px rgba(255, 61, 90, 0.8), 0 0 40px rgba(255, 61, 90, 0.3);
+  animation: speedPulseCritical 0.5s ease-in-out infinite alternate;
+}
+
+.speed-value.high {
+  color: #ffaa00 !important;
+  text-shadow: 0 0 15px rgba(255, 170, 0, 0.6);
+}
+
+.speed-value.medium {
+  color: #00e5ff !important;
+  text-shadow: 0 0 10px rgba(0, 229, 255, 0.4);
+}
+
+@keyframes speedPulseCritical {
+  from { transform: scale(1); }
+  to { transform: scale(1.03); }
+}
+
+/* === POSITION DISPLAY ENHANCED === */
+.hud-position-panel {
+  transition: transform 0.3s var(--ease-out-expo);
+}
+
+.hud-position-panel.position-gained {
+  animation: positionUp 0.4s var(--ease-out-expo);
+}
+
+.hud-position-panel.position-lost {
+  animation: positionDown 0.4s var(--ease-out-expo);
+}
+
+@keyframes positionUp {
+  0% { transform: translateY(8px) scale(0.9); color: #00ff88; }
+  50% { transform: translateY(-3px) scale(1.15); }
+  100% { transform: translateY(0) scale(1); }
+}
+
+@keyframes positionDown {
+  0% { transform: translateY(-8px) scale(1.1); color: #ff3d5a; }
+  50% { transform: translateY(3px) scale(0.95); }
+  100% { transform: translateY(0) scale(1); }
+}
+
+/* === BOOST BAR ENHANCED === */
+.hud-boost-bar-fill {
+  transition: width 0.3s ease, background 0.3s ease;
+ }
+
+.hud-boost-bar-fill.refilling {
+  background: linear-gradient(90deg, #00e5ff, #a855f7) !important;
+  animation: boostRefillPulse 1s ease-in-out infinite;
+}
+
+@keyframes boostRefillPulse {
+  0%, 100% { opacity: 0.7; }
+  50% { opacity: 1; }
+}
+
+/* === LAP COUNTER ENHANCED === */
+.hud-lap-current {
+  transition: all 0.3s var(--ease-out-expo);
+}
+
+.hud-lap-current.lap-complete {
+  animation: lapComplete 0.8s var(--ease-out-expo);
+}
+
+@keyframes lapComplete {
+  0% { transform: scale(1); }
+  30% { transform: scale(1.5); color: #00ff88; text-shadow: 0 0 20px rgba(0,255,136,0.8); }
+  100% { transform: scale(1); }
+}
+
+/* === MINIMAP ENHANCED === */
+.minimap-container {
+  transition: box-shadow 0.3s ease;
+}
+
+.minimap-container.proximity-alert {
+  box-shadow: 0 0 20px rgba(255, 61, 90, 0.4), inset 0 0 15px rgba(255, 61, 90, 0.1);
+}
+
+/* === FPS COUNTER ENHANCED === */
+.fps-display {
+  font-variant-numeric: tabular-nums;
+  transition: color 0.5s ease;
+}
+
+/* === NOTIFICATION ENHANCED === */
+.hud-notification {
+  transition: all 0.3s var(--ease-out-expo);
+  transform-origin: right center;
+}
+
+.hud-notification.warning {
+  border-left: 3px solid #ffb13d;
+}
+
+.hud-notification.success {
+  border-left: 3px solid #3ddc84;
+}
+
+/* === BOOST ACTIVE OVERLAY ENHANCED === */
+.hud-boost-active-overlay {
+  transition: opacity 0.2s ease;
+}
+
+.hud-boost-active-overlay.active {
+  background: radial-gradient(ellipse at center, rgba(255, 170, 0, 0.08) 0%, rgba(255, 77, 46, 0.15) 60%, transparent 100%);
+}
+
+/* === COLLISION FLASH ENHANCED === */
+.hud-collision-flash {
+  pointer-events: none;
+  transition: opacity 0.15s ease;
+}
+
+/* === COUNTDOWN TEXT ENHANCED === */
+.countdown-text {
+  text-shadow:
+    0 0 30px currentColor,
+    0 0 60px currentColor,
+    0 2px 4px rgba(0,0,0,0.8);
+}
+
+/* === REDUCED MOTION OVERRIDES === */
+@media (prefers-reduced-motion: reduce) {
+  .speed-value.critical { animation: none; }
+  .hud-position-panel.position-gained,
+  .hud-position-panel.position-lost { animation: none; }
+  .hud-boost-bar-fill.refilling { animation: none; }
+  .hud-lap-current.lap-complete { animation: none; }
+  .hud-drift-combo.active { animation: none; }
+  .hud-notification.best-lap { animation: none; }
+  .drift-score-value { text-shadow: none; }
+}
+
+/* ==================== CYCLE 30: DRIFT SCORE DISPLAY ==================== */
+.hud-drift-score {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -80%);
+  text-align: center;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  z-index: calc(var(--z-hud) + 10);
+}
+.hud-drift-score.active {
+  opacity: 1;
+  transform: translate(-50%, -80%) scale(1.05);
+}
+.drift-score-label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: var(--tracking-ultra-wide);
+  color: rgba(255, 102, 0, 0.7);
+  text-shadow: 0 0 10px rgba(255, 102, 0, 0.5);
+}
+.drift-score-value {
+  font-family: var(--font-display);
+  font-size: 48px;
+  font-weight: 900;
+  color: #ff6600;
+  text-shadow:
+    0 0 20px rgba(255, 102, 0, 0.8),
+    0 0 40px rgba(255, 102, 0, 0.4),
+    0 2px 4px rgba(0, 0, 0, 0.8);
+  line-height: 1;
+  margin-top: 4px;
+}
+
+.hud-drift-combo {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -40%);
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 700;
+  color: #ffaa00;
+  letter-spacing: var(--tracking-wide);
+  text-shadow: 0 0 15px rgba(255, 170, 0, 0.6);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  z-index: calc(var(--z-hud) + 9);
+}
+.hud-drift-combo.active {
+  opacity: 1;
+  animation: driftComboPulse 0.5s ease-in-out infinite alternate;
+}
+@keyframes driftComboPulse {
+  from { transform: translate(-50%, -40%) scale(1); }
+  to { transform: translate(-50%, -40%) scale(1.08); }
+}
+
+/* ==================== CYCLE 30: TOTAL RACE SCORE ==================== */
+.hud-total-score {
+  position: absolute;
+  top: var(--space-l);
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: var(--space-s);
+  padding: var(--space-xs) var(--space-l);
+  background: linear-gradient(135deg, rgba(10, 12, 20, 0.85), rgba(18, 20, 31, 0.8));
+  border: 1px solid rgba(255, 170, 0, 0.2);
+  border-radius: var(--radius-pill);
+  backdrop-filter: blur(12px);
+}
+.total-score-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: var(--tracking-ultra-wide);
+  color: var(--text-tertiary);
+}
+.total-score-value {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 800;
+  color: #ffaa00;
+  text-shadow: 0 0 12px rgba(255, 170, 0, 0.4);
+}
+
+/* ==================== CYCLE 30: COUNTDOWN FLASH OVERLAY ==================== */
+.countdown-flash {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9999;
+  animation: countdownFlash 0.4s ease-out forwards;
+}
+.flash-count {
+  background: radial-gradient(ellipse at center, rgba(255, 77, 46, 0.15) 0%, transparent 70%);
+}
+.flash-go {
+  background: radial-gradient(ellipse at center, rgba(0, 255, 136, 0.25) 0%, transparent 70%);
+}
+@keyframes countdownFlash {
+  0% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+/* ==================== CYCLE 30: LAP TIME DELTA ==================== */
+.lap-time-delta {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  margin-left: var(--space-s);
+}
+.delta-fast { color: #00ff88; }
+.delta-slow { color: #ff4d2e; }
+
+/* ==================== CYCLE 30: NOTIFICATION TYPE ENHANCEMENTS ==================== */
+.hud-notification.drift {
+  border-left: 3px solid #ff6600;
+  background: linear-gradient(90deg, rgba(255, 102, 0, 0.15), transparent);
+}
+.hud-notification.boost {
+  border-left: 3px solid #00ff88;
+  background: linear-gradient(90deg, rgba(0, 255, 136, 0.15), transparent);
+}
+.hud-notification.best-lap {
+  border-left: 3px solid #ffd23f;
+  background: linear-gradient(90deg, rgba(255, 210, 63, 0.15), transparent);
+  animation: bestLapGlow 0.5s ease-in-out 3;
+}
+@keyframes bestLapGlow {
+  0%, 100% { box-shadow: 0 0 0 rgba(255, 210, 63, 0); }
+  50% { box-shadow: 0 0 20px rgba(255, 210, 63, 0.3); }
+}
+
+/* ==================== CYCLE 31: REAR-VIEW MIRROR ==================== */
+.hud-rear-mirror {
+  position: fixed;
+  bottom: var(--space-2xl);
+  right: var(--space-2xl);
+  z-index: calc(var(--z-hud) + 5);
+  border-radius: 12px;
+  overflow: hidden;
+  background: rgba(5, 6, 10, 0.8);
+  border: 2px solid rgba(0, 229, 255, 0.25);
+  box-shadow:
+    0 0 20px rgba(0, 229, 255, 0.1),
+    inset 0 0 30px rgba(0, 0, 0, 0.3);
+  animation: mirrorSlideIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+.rear-mirror-label {
+  position: absolute;
+  top: 4px;
+  left: 8px;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: var(--tracking-ultra-wide);
+  color: rgba(0, 229, 255, 0.6);
+  text-shadow: 0 0 8px rgba(0, 229, 255, 0.3);
+  z-index: 2;
+}
+@keyframes mirrorSlideIn {
+  from { transform: translateY(20px) scale(0.9); opacity: 0; }
+  to { transform: translateY(0) scale(1); opacity: 1; }
+}
+
+/* ==================== CYCLE 31: SECTOR PROGRESS ==================== */
+.hud-sector-display {
+  position: absolute;
+  bottom: calc(var(--space-2xl) + 40px);
+  right: var(--space-2xl);
+  display: flex;
+  gap: 4px;
+  z-index: var(--z-hud);
+}
+.sector-marker {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 20px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  transition: all 0.3s ease;
+}
+.sector-marker.active {
+  background: rgba(0, 229, 255, 0.15);
+  border-color: rgba(0, 229, 255, 0.3);
+}
+.sector-marker.current {
+  background: rgba(0, 229, 255, 0.35);
+  border-color: rgba(0, 229, 255, 0.6);
+  box-shadow: 0 0 10px rgba(0, 229, 255, 0.2);
+  transform: scaleY(1.15);
+}
+.sector-num {
+  font-family: var(--font-mono);
+  font-size: 8px;
+  color: rgba(255, 255, 255, 0.3);
+  letter-spacing: 0.5px;
+  transition: color 0.3s ease;
+}
+.sector-marker.active .sector-num { color: rgba(0, 229, 255, 0.7); }
+.sector-marker.current .sector-num { color: #fff; font-weight: 700; }
+
+/* ==================== CYCLE 31: NOTIFICATION INFO TYPE ==================== */
+.hud-notification.info {
+  border-left: 3px solid #00e5ff;
+  background: linear-gradient(90deg, rgba(0, 229, 255, 0.15), transparent);
+}
+
+/* ==================== CYCLE 31: SCANLINE OVERLAY ==================== */
+.game-hud::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: calc(var(--z-hud) - 1);
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 0, 0, 0.03) 2px,
+    rgba(0, 0, 0, 0.03) 4px
+  );
+}
+
+/* ==================== CYCLE 31: HUD PANEL GLOW ENHANCEMENT ==================== */
+.hud-panel {
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05),
+    0 0 0 1px rgba(0, 229, 255, 0.05),
+    0 0 20px rgba(0, 229, 255, 0.03);
+  transition: box-shadow 0.3s ease;
+}
+.hud-panel:hover {
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 0 0 1px rgba(0, 229, 255, 0.1),
+    0 0 25px rgba(0, 229, 255, 0.06);
+}
+
+/* ==================== CYCLE 31: SPEED BAR NEON GLOW ==================== */
+.speed-bar {
+  box-shadow: 0 0 8px rgba(0, 229, 255, 0.3), 0 0 2px rgba(0, 229, 255, 0.5);
+  transition: box-shadow 0.3s ease, width 0.1s linear;
+}
+.speed-bar[style*="100%"] {
+  box-shadow: 0 0 16px rgba(0, 229, 255, 0.5), 0 0 4px rgba(0, 229, 255, 0.8);
+}
+
+/* ==================== CYCLE 31: BOOST PIP GLOW ==================== */
+.hud-boost-pip.filled {
+  box-shadow: 0 0 6px rgba(255, 77, 46, 0.4);
+}
+.hud-boost-pip.active {
+  box-shadow: 0 0 12px rgba(255, 77, 46, 0.7), 0 0 4px rgba(255, 77, 46, 0.9);
+  animation: pipActive 0.3s ease-in-out infinite alternate;
+}
+@keyframes pipActive {
+  from { box-shadow: 0 0 6px rgba(255, 77, 46, 0.4); }
+  to { box-shadow: 0 0 16px rgba(255, 77, 46, 0.8), 0 0 6px rgba(255, 77, 46, 1); }
+}
+
+/* ==================== CYCLE 31: REDUCED MOTION ==================== */
+@media (prefers-reduced-motion: reduce) {
+  .hud-rear-mirror { animation: none; }
+  .sector-marker { transition: none; }
+  .hud-boost-pip.active { animation: none; }
+  .game-hud::after { display: none; }
+}
+
+/* ==================== CYCLE 34: DYNAMIC VIGNETTE ==================== */
+#dynamic-vignette {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: calc(var(--z-hud, 50) + 2);
+  transition: box-shadow 0.5s ease;
+  will-change: box-shadow;
+}
+#dynamic-vignette.speed-low { box-shadow: inset 0 0 80px rgba(0, 0, 0, 0.2); }
+#dynamic-vignette.speed-medium { box-shadow: inset 0 0 120px rgba(0, 0, 0, 0.35), inset 0 0 200px rgba(0, 0, 0, 0.15); }
+#dynamic-vignette.speed-high { box-shadow: inset 0 0 150px rgba(0, 0, 0, 0.5), inset 0 0 250px rgba(0, 0, 0, 0.25); }
+#dynamic-vignette.speed-critical {
+  box-shadow: inset 0 0 180px rgba(0, 0, 0, 0.6), inset 0 0 300px rgba(0, 0, 0, 0.3), inset 0 0 50px rgba(255, 61, 90, 0.15);
+  animation: vignetteCriticalPulse 0.4s ease-in-out infinite alternate;
+}
+#dynamic-vignette.nitro-active { box-shadow: inset 0 0 100px rgba(0, 255, 136, 0.1), inset 0 0 200px rgba(0, 0, 0, 0.3); }
+#dynamic-vignette.collision-flash { box-shadow: inset 0 0 200px rgba(255, 50, 50, 0.4) !important; transition: box-shadow 0.05s ease; }
+#dynamic-vignette.drift-active { box-shadow: inset 0 0 100px rgba(255, 150, 0, 0.15), inset 0 0 180px rgba(0, 0, 0, 0.3); }
+@keyframes vignetteCriticalPulse {
+  from { box-shadow: inset 0 0 180px rgba(0, 0, 0, 0.6), inset 0 0 300px rgba(0, 0, 0, 0.3), inset 0 0 50px rgba(255, 61, 90, 0.15); }
+  to { box-shadow: inset 0 0 200px rgba(0, 0, 0, 0.65), inset 0 0 350px rgba(0, 0, 0, 0.35), inset 0 0 60px rgba(255, 61, 90, 0.25); }
+}
+
+/* ==================== CYCLE 34: HEAT SHIMMER ==================== */
+#heat-shimmer {
+  position: fixed; inset: 0; pointer-events: none;
+  z-index: calc(var(--z-hud, 50) + 1);
+  opacity: 0; transition: opacity 0.5s ease;
+  background: repeating-linear-gradient(0deg, transparent 0px, rgba(255, 140, 0, 0.02) 2px, transparent 4px);
+  animation: heatShimmer 0.8s ease-in-out infinite;
+  will-change: opacity, transform;
+}
+#heat-shimmer.active { opacity: 1; }
+@keyframes heatShimmer {
+  0%, 100% { transform: translateY(0) scaleY(1); }
+  25% { transform: translateY(-1px) scaleY(1.002); }
+  50% { transform: translateY(1px) scaleY(0.998); }
+  75% { transform: translateY(-0.5px) scaleY(1.001); }
+}
+
+/* ==================== CYCLE 34: RACE STANDINGS TOWER ==================== */
+.race-standings-tower {
+  position: fixed; top: 50%; right: 16px; transform: translateY(-50%);
+  display: flex; flex-direction: column; gap: 4px;
+  z-index: calc(var(--z-hud, 50) + 3); will-change: transform;
+}
+.standings-row {
+  display: flex; align-items: center; gap: 8px; padding: 5px 12px;
+  border-radius: var(--radius-s, 4px); background: rgba(5, 6, 10, 0.6);
+  backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.06); min-width: 140px;
+  transition: all 0.3s ease; font-size: 12px; will-change: transform, opacity;
+}
+.standings-row.player-row { background: rgba(0, 229, 255, 0.12); border-color: rgba(0, 229, 255, 0.3); box-shadow: 0 0 12px rgba(0, 229, 255, 0.1); }
+.standings-row.position-changed-up { animation: standingsSlideUp 0.4s var(--ease-out-expo); }
+.standings-row.position-changed-down { animation: standingsSlideDown 0.4s var(--ease-out-expo); }
+@keyframes standingsSlideUp { 0% { transform: translateX(6px); background: rgba(0, 255, 136, 0.2); } 100% { transform: translateX(0); } }
+@keyframes standingsSlideDown { 0% { transform: translateX(6px); background: rgba(255, 61, 90, 0.2); } 100% { transform: translateX(0); } }
+.standings-pos { font-family: var(--font-mono); font-weight: 700; font-size: 13px; min-width: 20px; text-align: center; }
+.standings-pos.pos-1 { color: #ffd23f; text-shadow: 0 0 8px rgba(255, 210, 63, 0.5); }
+.standings-pos.pos-2 { color: #c0c0c0; text-shadow: 0 0 6px rgba(192, 192, 192, 0.4); }
+.standings-pos.pos-3 { color: #cd7f32; text-shadow: 0 0 6px rgba(205, 127, 50, 0.4); }
+.standings-name { flex: 1; color: var(--text-secondary, rgba(255, 255, 255, 0.7)); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 11px; }
+.standings-row.player-row .standings-name { color: #fff; font-weight: 600; }
+.standings-gap { font-family: var(--font-mono); font-size: 10px; color: var(--text-tertiary, rgba(255, 255, 255, 0.4)); }
+.standings-gap.ahead { color: #00ff88; }
+.standings-gap.behind { color: #ff6b6b; }
+
+/* ==================== CYCLE 34: TACHOMETER / RPM GAUGE ==================== */
+.hud-tachometer {
+  position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%);
+  width: 200px; height: 60px; z-index: calc(var(--z-hud, 50) + 4);
+  pointer-events: none; opacity: 0.7; transition: opacity 0.3s ease;
+}
+.tacho-bar-container { position: relative; width: 100%; height: 8px; background: rgba(5, 6, 10, 0.7); border-radius: 4px; overflow: hidden; border: 1px solid rgba(255, 255, 255, 0.08); }
+.tacho-bar-fill { height: 100%; border-radius: 3px; background: linear-gradient(90deg, #00e5ff 0%, #00ff88 40%, #ffd23f 70%, #ff4d2e 100%); transition: width 0.05s linear; will-change: width; box-shadow: 0 0 8px rgba(0, 229, 255, 0.3); }
+.tacho-bar-fill.redline { animation: tachoRedline 0.15s ease-in-out infinite alternate; box-shadow: 0 0 16px rgba(255, 77, 46, 0.6); }
+@keyframes tachoRedline { from { opacity: 0.85; } to { opacity: 1; } }
+.tacho-label { display: flex; justify-content: space-between; margin-top: 4px; font-family: var(--font-mono); font-size: 9px; color: var(--text-tertiary, rgba(255, 255, 255, 0.4)); text-transform: uppercase; letter-spacing: 1px; }
+.tacho-rpm-value { position: absolute; top: -18px; right: 0; font-family: var(--font-display); font-size: 14px; font-weight: 700; color: #00e5ff; text-shadow: 0 0 8px rgba(0, 229, 255, 0.4); }
+.tacho-rpm-value.redline { color: #ff4d2e; text-shadow: 0 0 8px rgba(255, 77, 46, 0.6); animation: tachoRedline 0.15s ease-in-out infinite alternate; }
+
+/* ==================== CYCLE 34: WRONG WAY INDICATOR ==================== */
+.wrong-way-indicator {
+  position: fixed; top: 15%; left: 50%; transform: translateX(-50%);
+  z-index: calc(var(--z-hud, 50) + 10); padding: 12px 32px;
+  background: rgba(255, 50, 50, 0.15); border: 2px solid rgba(255, 50, 50, 0.6);
+  border-radius: var(--radius-pill, 999px); font-family: var(--font-display);
+  font-size: 28px; font-weight: 900; color: #ff3d5a;
+  text-shadow: 0 0 20px rgba(255, 61, 90, 0.8); letter-spacing: 0.15em;
+  text-transform: uppercase; animation: wrongWayBlink 0.5s steps(2, end) infinite;
+  display: none; will-change: opacity;
+}
+.wrong-way-indicator.active { display: block; animation: wrongWayAppear 0.3s ease forwards, wrongWayBlink 0.5s steps(2, end) infinite 0.3s; }
+@keyframes wrongWayBlink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+@keyframes wrongWayAppear { from { transform: translateX(-50%) scale(0.5); opacity: 0; } to { transform: translateX(-50%) scale(1); opacity: 1; } }
+.wrong-way-indicator::before { content: '<<< '; animation: wrongWayArrow 0.6s ease-in-out infinite alternate; }
+.wrong-way-indicator::after { content: ' >>>'; animation: wrongWayArrow 0.6s ease-in-out infinite alternate-reverse; }
+@keyframes wrongWayArrow { from { opacity: 0.4; } to { opacity: 1; } }
+
+/* ==================== CYCLE 34: WEATHER RAIN ==================== */
+.weather-rain-container { position: fixed; inset: 0; pointer-events: none; z-index: calc(var(--z-hud, 50) + 1); overflow: hidden; opacity: 0; transition: opacity 1s ease; }
+.weather-rain-container.active { opacity: 1; }
+.rain-drop { position: absolute; width: 1px; background: linear-gradient(to bottom, transparent, rgba(120, 180, 255, 0.5), rgba(120, 180, 255, 0.8)); animation: rainFall linear infinite; will-change: transform; }
+@keyframes rainFall { from { transform: translateY(-20px) rotate(15deg); } to { transform: translateY(100vh) rotate(15deg); } }
+.weather-splash { position: fixed; bottom: 0; left: 0; right: 0; height: 4px; background: linear-gradient(to top, rgba(120, 180, 255, 0.15), transparent); pointer-events: none; z-index: calc(var(--z-hud, 50) + 1); opacity: 0; transition: opacity 1s ease; }
+.weather-splash.active { opacity: 1; }
+
+/* ==================== CYCLE 34: HAZARD ZONE ==================== */
+.hazard-zone-indicator { position: fixed; bottom: 200px; left: 50%; transform: translateX(-50%); padding: 8px 24px; background: rgba(255, 165, 0, 0.12); border: 1px solid rgba(255, 165, 0, 0.4); border-radius: var(--radius-pill, 999px); font-family: var(--font-mono); font-size: 13px; font-weight: 600; color: #ffa500; letter-spacing: 0.1em; text-transform: uppercase; z-index: calc(var(--z-hud, 50) + 5); display: none; will-change: opacity; }
+.hazard-zone-indicator.active { display: block; animation: hazardPulse 0.8s ease-in-out infinite; }
+@keyframes hazardPulse { 0%, 100% { opacity: 0.8; box-shadow: 0 0 10px rgba(255, 165, 0, 0.2); } 50% { opacity: 1; box-shadow: 0 0 20px rgba(255, 165, 0, 0.4); } }
+
+/* ==================== CYCLE 34: ENHANCED NEON TOKENS ==================== */
+:root {
+  --shadow-neon-cyan: 0 0 8px rgba(0, 229, 255, 0.4), 0 0 2px rgba(0, 229, 255, 0.6);
+  --shadow-neon-orange: 0 0 8px rgba(255, 77, 46, 0.4), 0 0 2px rgba(255, 77, 46, 0.6);
+  --shadow-neon-gold: 0 0 8px rgba(255, 210, 63, 0.4), 0 0 2px rgba(255, 210, 63, 0.6);
+  --shadow-neon-green: 0 0 8px rgba(0, 255, 136, 0.4), 0 0 2px rgba(0, 255, 136, 0.6);
+  --shadow-neon-red: 0 0 8px rgba(255, 61, 90, 0.4), 0 0 2px rgba(255, 61, 90, 0.6);
+  --glass-bg-dark: rgba(5, 6, 10, 0.75);
+  --glass-bg-subtle: rgba(5, 6, 10, 0.5);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-border-hover: rgba(255, 255, 255, 0.15);
+}
+
+/* ==================== CYCLE 34: GPU ACCELERATION HINTS ==================== */
+.hud-panel { will-change: box-shadow, transform; }
+.hud-boost-pip { will-change: box-shadow, transform; }
+.hud-notification { will-change: transform, opacity; }
+.speed-value { will-change: color, text-shadow, transform; }
+.position-number { will-change: transform, color; }
+.hud-lap-current { will-change: transform, color; }
+
+/* ==================== CYCLE 34: SCANLINE SCROLL ==================== */
+.game-hud::after { animation: scanlineScroll 8s linear infinite !important; }
+@keyframes scanlineScroll { from { background-position: 0 0; } to { background-position: 0 100px; } }
+
+/* ==================== CYCLE 34: MOBILE RESPONSIVE ==================== */
+@media (max-width: 768px) {
+  .race-standings-tower { right: 8px; gap: 2px; }
+  .standings-row { padding: 3px 8px; min-width: 100px; font-size: 10px; }
+  .standings-name { font-size: 9px; }
+  .standings-gap { display: none; }
+  .hud-tachometer { width: 140px; bottom: 80px; }
+}
+@media (max-width: 480px) {
+  .race-standings-tower { display: none; }
+  .hud-tachometer { width: 120px; height: 40px; bottom: 70px; }
+  .wrong-way-indicator { font-size: 20px; padding: 8px 20px; }
+}
+
+/* ==================== CYCLE 35: ANIMATED GRADIENT BORDER ==================== */
+@supports (background: paint(id)) {
+  .hud-panel.gradient-border {
+    border-image: conic-gradient(from var(--border-angle, 0deg), #00e5ff, #ff4d2e, #ffd23f, #a855f7, #00e5ff) 1;
+    animation: rotateBorder 4s linear infinite;
+  }
+}
+@keyframes rotateBorder {
+  to { --border-angle: 360deg; }
+}
+
+/* Fallback animated border for all HUD panels */
+.hud-panel::after {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  padding: 1px;
+  background: conic-gradient(from var(--hud-border-angle, 0deg), rgba(0,229,255,0.3), transparent 25%, rgba(255,77,46,0.2) 50%, transparent 75%, rgba(0,229,255,0.3));
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.6s ease;
+  animation: hudBorderRotate 6s linear infinite;
+}
+.hud-panel:hover::after,
+.hud-panel.panel-highlight::after {
+  opacity: 1;
+}
+@keyframes hudBorderRotate {
+  to { --hud-border-angle: 360deg; }
+}
+@property --hud-border-angle {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
+}
+
+/* ==================== CYCLE 35: SPEED-BASED EDGE TINT ==================== */
+#speed-edge-tint {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 4;
+  opacity: 0;
+  transition: opacity 0.5s ease, background 0.8s ease;
+}
+#speed-edge-tint.speed-low {
+  opacity: 1;
+  background: radial-gradient(ellipse at center, transparent 50%, rgba(0,100,255,0.08) 100%);
+}
+#speed-edge-tint.speed-medium {
+  opacity: 1;
+  background: radial-gradient(ellipse at center, transparent 40%, rgba(255,165,0,0.1) 100%);
+}
+#speed-edge-tint.speed-high {
+  opacity: 1;
+  background: radial-gradient(ellipse at center, transparent 30%, rgba(255,77,46,0.15) 100%);
+}
+#speed-edge-tint.speed-max {
+  opacity: 1;
+  background: radial-gradient(ellipse at center, transparent 25%, rgba(255,30,30,0.2) 100%);
+  animation: edgeTintPulse 0.3s ease-in-out infinite alternate;
+}
+@keyframes edgeTintPulse {
+  from { opacity: 0.8; }
+  to { opacity: 1; }
+}
+
+/* ==================== CYCLE 35: LENS FLARE EFFECT ==================== */
+#lens-flare-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 6;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+#lens-flare-container.active {
+  opacity: 1;
+}
+.lens-flare-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(2px);
+  animation: flareFloat 2s ease-in-out infinite alternate;
+}
+.lens-flare-orb:nth-child(1) {
+  width: 120px; height: 120px; top: 15%; right: 20%;
+  background: radial-gradient(circle, rgba(0,229,255,0.35), transparent 70%);
+}
+.lens-flare-orb:nth-child(2) {
+  width: 80px; height: 80px; top: 25%; right: 35%;
+  background: radial-gradient(circle, rgba(255,77,46,0.25), transparent 70%);
+  animation-delay: 0.4s; animation-duration: 1.6s;
+}
+.lens-flare-orb:nth-child(3) {
+  width: 200px; height: 200px; top: 10%; right: 10%;
+  background: radial-gradient(circle, rgba(255,255,255,0.1), transparent 60%);
+  animation-delay: 0.8s; animation-duration: 2.5s; filter: blur(8px);
+}
+.lens-flare-orb:nth-child(4) {
+  width: 40px; height: 40px; top: 40%; right: 25%;
+  background: radial-gradient(circle, rgba(0,229,255,0.5), transparent 70%);
+  animation-delay: 1.2s; animation-duration: 1.2s;
+}
+.lens-flare-orb:nth-child(5) {
+  width: 60px; height: 60px; bottom: 30%; left: 15%;
+  background: radial-gradient(circle, rgba(255,210,63,0.2), transparent 70%);
+  animation-delay: 0.6s; animation-duration: 1.8s;
+}
+@keyframes flareFloat {
+  from { transform: translate(0, 0) scale(1); }
+  to { transform: translate(10px, -8px) scale(1.15); }
+}
+
+/* ==================== CYCLE 35: FLICKERING NEON WARNING ==================== */
+.neon-flicker {
+  animation: neonFlicker 0.15s steps(2, start) infinite alternate;
+}
+@keyframes neonFlicker {
+  0% { opacity: 1; text-shadow: 0 0 8px currentColor, 0 0 16px currentColor; }
+  50% { opacity: 0.85; text-shadow: 0 0 4px currentColor; }
+  100% { opacity: 1; text-shadow: 0 0 12px currentColor, 0 0 24px currentColor; }
+}
+
+/* ==================== CYCLE 35: RPM-GLOW SYNC ON SPEED PANEL ==================== */
+.hud-speed-panel.rpm-glow {
+  transition: box-shadow 0.15s ease;
+}
+.hud-speed-panel.rpm-low {
+  box-shadow: 0 0 15px rgba(0,229,255,0.1), inset 0 0 10px rgba(0,229,255,0.03);
+}
+.hud-speed-panel.rpm-mid {
+  box-shadow: 0 0 20px rgba(0,229,255,0.2), 0 0 40px rgba(0,229,255,0.08), inset 0 0 15px rgba(0,229,255,0.05);
+}
+.hud-speed-panel.rpm-high {
+  box-shadow: 0 0 25px rgba(255,165,0,0.3), 0 0 50px rgba(255,165,0,0.1), inset 0 0 20px rgba(255,165,0,0.05);
+}
+.hud-speed-panel.rpm-redline {
+  box-shadow: 0 0 30px rgba(255,50,50,0.4), 0 0 60px rgba(255,50,50,0.15), inset 0 0 25px rgba(255,50,50,0.08);
+  animation: rpmRedlinePulse 0.2s ease-in-out infinite alternate;
+}
+@keyframes rpmRedlinePulse {
+  from { box-shadow: 0 0 25px rgba(255,50,50,0.35), 0 0 50px rgba(255,50,50,0.12); }
+  to { box-shadow: 0 0 35px rgba(255,50,50,0.5), 0 0 70px rgba(255,50,50,0.2), inset 0 0 30px rgba(255,50,50,0.1); }
+}
+
+/* ==================== CYCLE 35: SLIPSTREAM DRAFT INDICATOR ==================== */
+#slipstream-indicator {
+  position: fixed;
+  bottom: 180px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  opacity: 0;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  pointer-events: none;
+  z-index: 15;
+}
+#slipstream-indicator.active {
+  opacity: 1;
+  transform: translateX(-50%) scale(1.05);
+}
+.slipstream-icon {
+  width: 48px; height: 48px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(0,229,255,0.3), rgba(0,229,255,0.05));
+  border: 2px solid rgba(0,229,255,0.6);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px;
+  animation: slipstreamPulse 0.8s ease-in-out infinite;
+}
+@keyframes slipstreamPulse {
+  0%, 100% { box-shadow: 0 0 15px rgba(0,229,255,0.3); transform: scale(1); }
+  50% { box-shadow: 0 0 30px rgba(0,229,255,0.6); transform: scale(1.1); }
+}
+.slipstream-label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  color: #00e5ff;
+  text-shadow: 0 0 8px rgba(0,229,255,0.6);
+}
+.slipstream-bar {
+  width: 80px; height: 4px;
+  background: rgba(255,255,255,0.1);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.slipstream-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #00e5ff, #00ffa8);
+  border-radius: 2px;
+  transition: width 0.2s ease;
+  box-shadow: 0 0 6px rgba(0,229,255,0.5);
+}
+
+/* ==================== CYCLE 35: RACE STATS OVERLAY ==================== */
+#race-stats-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(5,6,10,0.92);
+  backdrop-filter: blur(20px);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.5s ease, visibility 0.5s;
+}
+#race-stats-overlay.visible {
+  opacity: 1;
+  visibility: visible;
+}
+.race-stats-card {
+  background: linear-gradient(135deg, rgba(10,12,20,0.95), rgba(18,20,31,0.9));
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 20px;
+  padding: 40px 48px;
+  min-width: 420px;
+  max-width: 520px;
+  box-shadow: 0 24px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(0,229,255,0.05), inset 0 1px 0 rgba(255,255,255,0.05);
+  animation: statsCardIn 0.6s cubic-bezier(0.16,1,0.3,1) both;
+}
+@keyframes statsCardIn {
+  from { transform: scale(0.9) translateY(20px); opacity: 0; }
+  to { transform: scale(1) translateY(0); opacity: 1; }
+}
+.race-stats-title {
+  font-family: var(--font-display);
+  font-size: 28px;
+  font-weight: 800;
+  text-align: center;
+  margin-bottom: 8px;
+  background: linear-gradient(135deg, #00e5ff, #ffd23f);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.race-stats-subtitle {
+  text-align: center;
+  font-size: 13px;
+  color: rgba(255,255,255,0.4);
+  margin-bottom: 28px;
+  letter-spacing: 0.1em;
+}
+.race-stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 28px;
+}
+.stat-item {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 12px;
+  padding: 14px 16px;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+.stat-item:hover {
+  border-color: rgba(0,229,255,0.2);
+  box-shadow: 0 0 12px rgba(0,229,255,0.08);
+}
+.stat-item.full-width {
+  grid-column: 1 / -1;
+}
+.stat-label {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.35);
+  margin-bottom: 4px;
+}
+.stat-value {
+  font-family: var(--font-mono);
+  font-size: 22px;
+  font-weight: 700;
+  color: #fff;
+}
+.stat-value.accent-cyan { color: #00e5ff; text-shadow: 0 0 8px rgba(0,229,255,0.4); }
+.stat-value.accent-orange { color: #ff4d2e; text-shadow: 0 0 8px rgba(255,77,46,0.4); }
+.stat-value.accent-gold { color: #ffd23f; text-shadow: 0 0 8px rgba(255,210,63,0.4); }
+.stat-value.accent-green { color: #00ffa8; text-shadow: 0 0 8px rgba(0,255,168,0.4); }
+.stat-unit {
+  font-size: 12px;
+  font-weight: 400;
+  color: rgba(255,255,255,0.3);
+  margin-left: 2px;
+}
+.race-stats-close {
+  display: block;
+  width: 100%;
+  padding: 12px;
+  border: 1px solid rgba(0,229,255,0.3);
+  border-radius: 10px;
+  background: rgba(0,229,255,0.08);
+  color: #00e5ff;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.2s ease;
+}
+.race-stats-close:hover {
+  background: rgba(0,229,255,0.15);
+  box-shadow: 0 0 20px rgba(0,229,255,0.2);
+}
+
+/* ==================== CYCLE 35: GHOST TRAIL LINE ==================== */
+#ghost-trail-canvas {
+  position: fixed;
+  bottom: 12px;
+  right: 12px;
+  width: 160px;
+  height: 160px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.06);
+  background: rgba(5,6,10,0.7);
+  backdrop-filter: blur(8px);
+  z-index: 12;
+  pointer-events: none;
+  opacity: 0.7;
+}
+
+/* ==================== CYCLE 35: ICE SURFACE INDICATOR ==================== */
+#ice-surface-indicator {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  padding: 8px 24px;
+  border-radius: 8px;
+  background: rgba(100,180,255,0.12);
+  border: 1px solid rgba(100,180,255,0.3);
+  color: #64b4ff;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  pointer-events: none;
+  z-index: 15;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  text-shadow: 0 0 8px rgba(100,180,255,0.5);
+}
+#ice-surface-indicator.active {
+  opacity: 1;
+  animation: iceIndicatorShimmer 1.5s ease-in-out infinite;
+}
+@keyframes iceIndicatorShimmer {
+  0%, 100% { box-shadow: 0 0 10px rgba(100,180,255,0.2); }
+  50% { box-shadow: 0 0 20px rgba(100,180,255,0.4); }
+}
+
+/* ==================== CYCLE 35: DRAFT LINES EFFECT ==================== */
+.draft-line {
+  position: absolute;
+  width: 2px;
+  background: linear-gradient(180deg, rgba(0,229,255,0.4), transparent);
+  pointer-events: none;
+  animation: draftLineFade 0.8s ease-out forwards;
+}
+@keyframes draftLineFade {
+  from { opacity: 1; height: 0; }
+  to { opacity: 0; height: 60px; }
+}
+
+/* ==================== CYCLE 35: ENHANCED TIRE SMOKE PARTICLES ==================== */
+.tire-smoke-enhanced {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  height: 200px;
+  pointer-events: none;
+  z-index: 3;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  background: linear-gradient(to top, rgba(180,180,200,0.15), transparent 80%);
+  filter: blur(6px);
+}
+.tire-smoke-enhanced.active {
+  opacity: 1;
+}
+
+/* ==================== CYCLE 35: BOOST CINEMATIC FLASH ==================== */
+#boost-cinematic-flash {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 7;
+  background: radial-gradient(ellipse at center bottom, rgba(0,255,168,0.4), transparent 70%);
+  opacity: 0;
+}
+#boost-cinematic-flash.flash {
+  animation: boostCinematic 0.6s ease-out forwards;
+}
+@keyframes boostCinematic {
+  0% { opacity: 0.8; }
+  30% { opacity: 0.3; }
+  100% { opacity: 0; }
+}
+
+/* ==================== CYCLE 35: MINIMAP ENHANCED GLOW ==================== */
+.minimap-container {
+  transition: box-shadow 0.3s ease;
+}
+.minimap-container.near-opponent {
+  box-shadow: 0 0 20px rgba(255,77,46,0.4), inset 0 0 10px rgba(255,77,46,0.1);
+}
+.minimap-container.drafting-active {
+  box-shadow: 0 0 20px rgba(0,229,255,0.5), inset 0 0 10px rgba(0,229,255,0.15);
+}
+
+/* ==================== CYCLE 35: MOBILE RESPONSIVE ==================== */
+@media (max-width: 768px) {
+  .race-stats-card { min-width: 300px; max-width: 380px; padding: 24px 28px; }
+  .race-stats-grid { gap: 10px; }
+  .stat-value { font-size: 18px; }
+  .slipstream-icon { width: 36px; height: 36px; font-size: 16px; }
+  #ghost-trail-canvas { width: 120px; height: 120px; }
+}
+
+/* ==================== CYCLE 35: REDUCED MOTION ==================== */
+@media (prefers-reduced-motion: reduce) {
+  .lens-flare-orb { animation: none; }
+  .neon-flicker { animation: none; }
+  .slipstream-icon { animation: none; }
+  .hud-speed-panel.rpm-redline { animation: none; }
+  #speed-edge-tint.speed-max { animation: none; }
+  .race-stats-card { animation: none; }
+  #ice-surface-indicator.active { animation: none; }
+  #boost-cinematic-flash.flash { animation: none; }
+}
+
+/* ==================== CYCLE 34: REDUCED MOTION ==================== */
+@media (prefers-reduced-motion: reduce) {
+  #dynamic-vignette { transition: none; }
+  #dynamic-vignette.speed-critical { animation: none; }
+  #heat-shimmer { animation: none; }
+  .standings-row { animation: none; }
+  .tacho-bar-fill { transition: none; }
+  .wrong-way-indicator { animation: none !important; opacity: 1; }
+  .rain-drop { animation: none; }
+  .hazard-zone-indicator { animation: none; }
+  .game-hud::after { animation: none !important; }
+}
+
+/* ==================== CYCLE 36: TURBO START OVERLAY ==================== */
+#turbo-start-overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  z-index: 60;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s;
+}
+#turbo-start-overlay.active {
+  opacity: 1;
+  visibility: visible;
+}
+.turbo-start-ring {
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  border: 4px solid rgba(255,255,255,0.1);
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+.turbo-start-ring::before {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  border: 4px solid transparent;
+  border-top-color: #00ffa8;
+  border-right-color: #00e5ff;
+  animation: turboRingSpin 1.2s linear infinite;
+}
+.turbo-start-ring::after {
+  content: '';
+  position: absolute;
+  inset: 6px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(0,255,168,0.15), transparent 70%);
+}
+@keyframes turboRingSpin {
+  to { transform: rotate(360deg); }
+}
+.turbo-start-label {
+  font-family: var(--font-display);
+  font-size: 18px;
+  letter-spacing: 0.2em;
+  color: #00ffa8;
+  text-shadow: 0 0 12px rgba(0,255,168,0.6);
+  text-transform: uppercase;
+}
+.turbo-start-timer {
+  font-family: var(--font-mono);
+  font-size: 42px;
+  font-weight: 700;
+  color: #fff;
+  margin-top: 8px;
+  text-shadow: 0 0 20px rgba(0,229,255,0.5);
+}
+.turbo-start-zone {
+  width: 100%;
+  height: 6px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 3px;
+  margin-top: 16px;
+  overflow: hidden;
+  max-width: 200px;
+}
+.turbo-start-zone-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #00ffa8, #00e5ff);
+  border-radius: 3px;
+  transition: width 0.1s linear;
+  box-shadow: 0 0 10px rgba(0,255,168,0.4);
+}
+.turbo-start-result {
+  font-family: var(--font-display);
+  font-size: 28px;
+  letter-spacing: 0.15em;
+  margin-top: 12px;
+  opacity: 0;
+  transform: scale(0.5);
+  transition: all 0.4s cubic-bezier(0.34,1.56,0.64,1);
+}
+.turbo-start-result.perfect {
+  color: #ffd23f;
+  text-shadow: 0 0 20px rgba(255,210,63,0.8), 0 0 40px rgba(255,210,63,0.4);
+  opacity: 1;
+  transform: scale(1);
+}
+.turbo-start-result.good {
+  color: #00ffa8;
+  text-shadow: 0 0 16px rgba(0,255,168,0.6);
+  opacity: 1;
+  transform: scale(0.9);
+}
+.turbo-start-result.missed {
+  color: #ff3d5a;
+  text-shadow: 0 0 12px rgba(255,61,90,0.5);
+  opacity: 1;
+  transform: scale(0.85);
+}
+
+/* ==================== CYCLE 36: COMBO MULTIPLIER DISPLAY ==================== */
+#combo-multiplier-display {
+  position: fixed;
+  top: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  pointer-events: none;
+  z-index: 16;
+  opacity: 0;
+  transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.34,1.56,0.64,1);
+}
+#combo-multiplier-display.active {
+  opacity: 1;
+}
+#combo-multiplier-display.pop {
+  animation: comboPop 0.3s cubic-bezier(0.34,1.56,0.64,1);
+}
+@keyframes comboPop {
+  0% { transform: translateX(-50%) scale(1); }
+  50% { transform: translateX(-50%) scale(1.3); }
+  100% { transform: translateX(-50%) scale(1); }
+}
+.combo-mult-value {
+  font-family: var(--font-display);
+  font-size: 48px;
+  font-weight: 800;
+  line-height: 1;
+  background: linear-gradient(135deg, #ff4d2e, #ffd23f);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  filter: drop-shadow(0 0 8px rgba(255,77,46,0.5));
+}
+.combo-mult-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  color: rgba(255,255,255,0.5);
+  text-transform: uppercase;
+}
+.combo-mult-timer-bar {
+  width: 80px;
+  height: 3px;
+  background: rgba(255,255,255,0.1);
+  border-radius: 2px;
+  overflow: hidden;
+  margin-top: 4px;
+}
+.combo-mult-timer-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #ff4d2e, #ffd23f);
+  border-radius: 2px;
+  transition: width 0.1s linear;
+}
+.combo-mult-breakdown {
+  display: flex;
+  gap: 12px;
+  margin-top: 6px;
+}
+.combo-source {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: rgba(255,255,255,0.4);
+  letter-spacing: 0.1em;
+}
+.combo-source-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+.combo-source-dot.drift { background: #ffd23f; box-shadow: 0 0 4px rgba(255,210,63,0.5); }
+.combo-source-dot.slipstream { background: #00e5ff; box-shadow: 0 0 4px rgba(0,229,255,0.5); }
+.combo-source-dot.boost { background: #00ffa8; box-shadow: 0 0 4px rgba(0,255,168,0.5); }
+.combo-source-dot.hazard { background: #ff3d5a; box-shadow: 0 0 4px rgba(255,61,90,0.5); }
+
+/* ==================== CYCLE 36: AMBIENT EMBER PARTICLES ==================== */
+#ambient-embers-container {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 2;
+  opacity: 0;
+  transition: opacity 1s ease;
+}
+#ambient-embers-container.active {
+  opacity: 1;
+}
+.ambient-ember {
+  position: absolute;
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255,140,0,0.8), rgba(255,77,46,0.3));
+  animation: emberFloat linear infinite;
+  filter: blur(0.5px);
+}
+@keyframes emberFloat {
+  0% { transform: translateY(0) translateX(0) scale(1); opacity: 0; }
+  10% { opacity: 0.8; }
+  80% { opacity: 0.6; }
+  100% { transform: translateY(-120px) translateX(var(--ember-drift, 20px)) scale(0.2); opacity: 0; }
+}
+.ambient-ember.ember-blue {
+  background: radial-gradient(circle, rgba(0,229,255,0.7), rgba(0,150,255,0.2));
+}
+.ambient-ember.ember-gold {
+  background: radial-gradient(circle, rgba(255,210,63,0.8), rgba(255,140,0,0.3));
+}
+
+/* ==================== CYCLE 36: TRACK PROGRESS RING (CIRCULAR) ==================== */
+#track-progress-ring {
+  position: fixed;
+  bottom: 16px;
+  left: 16px;
+  width: 70px;
+  height: 70px;
+  z-index: 14;
+  pointer-events: none;
+}
+#track-progress-ring svg {
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+.tpr-track {
+  fill: none;
+  stroke: rgba(255,255,255,0.06);
+  stroke-width: 4;
+}
+.tpr-fill {
+  fill: none;
+  stroke: url(#tprGradient);
+  stroke-width: 4;
+  stroke-linecap: round;
+  stroke-dasharray: 188.5;
+  stroke-dashoffset: 188.5;
+  transition: stroke-dashoffset 0.4s cubic-bezier(0.4,0,0.2,1);
+  filter: drop-shadow(0 0 4px rgba(0,229,255,0.4));
+}
+.tpr-center {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+.tpr-lap {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 700;
+  color: #fff;
+  line-height: 1;
+}
+.tpr-total {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: rgba(255,255,255,0.35);
+  letter-spacing: 0.1em;
+}
+.tpr-label {
+  font-family: var(--font-mono);
+  font-size: 7px;
+  color: rgba(255,255,255,0.25);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  margin-top: 1px;
+}
+
+/* ==================== CYCLE 36: HUD DATA FLOW ANIMATION ==================== */
+.hud-data-tick {
+  display: inline-block;
+  transition: transform 0.15s cubic-bezier(0.34,1.56,0.64,1), color 0.3s ease;
+}
+.hud-data-tick.bump-up {
+  transform: translateY(-2px) scale(1.08);
+  color: #00ffa8;
+}
+.hud-data-tick.bump-down {
+  transform: translateY(2px) scale(0.95);
+  color: #ff3d5a;
+}
+
+/* ==================== CYCLE 36: NEON TRACK SIGNS (3D projected to HUD) ==================== */
+.neon-track-sign {
+  position: fixed;
+  font-family: var(--font-display);
+  font-size: 14px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  pointer-events: none;
+  z-index: 8;
+  opacity: 0;
+  transform: perspective(400px) rotateX(5deg);
+  transition: opacity 0.5s ease;
+  text-shadow:
+    0 0 8px currentColor,
+    0 0 16px currentColor,
+    0 0 32px currentColor;
+}
+.neon-track-sign.visible {
+  opacity: 0.9;
+}
+.neon-track-sign.sign-cyan { color: #00e5ff; }
+.neon-track-sign.sign-orange { color: #ff8c00; }
+.neon-track-sign.sign-pink { color: #ff4d8a; }
+.neon-track-sign.sign-green { color: #00ffa8; }
+
+/* ==================== CYCLE 36: AI RUBBERBAND INDICATOR ==================== */
+#ai-rubberband-indicator {
+  position: fixed;
+  top: 110px;
+  right: 20px;
+  padding: 6px 14px;
+  border-radius: 6px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  pointer-events: none;
+  z-index: 15;
+  opacity: 0;
+  transition: opacity 0.4s ease, background 0.4s ease, color 0.4s ease;
+}
+#ai-rubberband-indicator.catching-up {
+  opacity: 1;
+  background: rgba(255,61,90,0.12);
+  border: 1px solid rgba(255,61,90,0.3);
+  color: #ff3d5a;
+}
+#ai-rubberband-indicator.easing-off {
+  opacity: 1;
+  background: rgba(0,229,255,0.12);
+  border: 1px solid rgba(0,229,255,0.3);
+  color: #00e5ff;
+}
+
+/* ==================== CYCLE 36: SHORTCUT DETECTED TOAST ==================== */
+.shortcut-toast {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0.8);
+  padding: 10px 28px;
+  border-radius: 10px;
+  background: rgba(255,210,63,0.12);
+  border: 1px solid rgba(255,210,63,0.35);
+  color: #ffd23f;
+  font-family: var(--font-display);
+  font-size: 20px;
+  letter-spacing: 0.15em;
+  text-shadow: 0 0 12px rgba(255,210,63,0.6);
+  pointer-events: none;
+  z-index: 55;
+  opacity: 0;
+  animation: shortcutToastAnim 1.8s ease-out forwards;
+}
+@keyframes shortcutToastAnim {
+  0% { opacity: 0; transform: translate(-50%, -50%) scale(0.7); }
+  15% { opacity: 1; transform: translate(-50%, -50%) scale(1.05); }
+  30% { transform: translate(-50%, -50%) scale(1); }
+  75% { opacity: 1; }
+  100% { opacity: 0; transform: translate(-50%, -60%) scale(0.95); }
+}
+
+/* ==================== CYCLE 36: RACE LINE GUIDE ==================== */
+#race-line-guide {
+  position: fixed;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  padding: 6px 16px;
+  border-radius: 8px;
+  background: rgba(5,6,10,0.7);
+  border: 1px solid rgba(0,229,255,0.15);
+  pointer-events: none;
+  z-index: 14;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  backdrop-filter: blur(8px);
+}
+#race-line-guide.visible {
+  opacity: 1;
+}
+.rlg-label {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  color: rgba(255,255,255,0.35);
+  text-transform: uppercase;
+}
+.rlg-arrows {
+  display: flex;
+  gap: 3px;
+}
+.rlg-arrow {
+  width: 8px;
+  height: 8px;
+  border-right: 2px solid rgba(0,229,255,0.5);
+  border-top: 2px solid rgba(0,229,255,0.5);
+  transform: rotate(45deg);
+  animation: rlgArrowPulse 1.5s ease-in-out infinite;
+}
+.rlg-arrow:nth-child(2) { animation-delay: 0.15s; opacity: 0.7; }
+.rlg-arrow:nth-child(3) { animation-delay: 0.3s; opacity: 0.4; }
+@keyframes rlgArrowPulse {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 1; border-color: rgba(0,229,255,0.8); }
+}
+.rlg-distance {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 700;
+  color: #00e5ff;
+  text-shadow: 0 0 6px rgba(0,229,255,0.4);
+}
+
+/* ==================== CYCLE 36: ENHANCED DESIGN TOKENS ==================== */
+:root {
+  --accent-purple: #a855f7;
+  --accent-pink: #ff4d8a;
+  --accent-lime: #84cc16;
+  --glow-cyan: 0 0 12px rgba(0,229,255,0.5);
+  --glow-orange: 0 0 12px rgba(255,77,46,0.5);
+  --glow-gold: 0 0 12px rgba(255,210,63,0.5);
+  --glow-green: 0 0 12px rgba(0,255,168,0.5);
+  --glass-bg-strong: rgba(5,6,10,0.88);
+  --glass-border-active: rgba(0,229,255,0.25);
+  --text-bright: #ffffff;
+  --shadow-deep: 0 16px 48px rgba(0,0,0,0.5);
+}
+
+/* ==================== CYCLE 36: MOBILE RESPONSIVE ==================== */
+@media (max-width: 768px) {
+  #turbo-start-overlay .turbo-start-ring { width: 100px; height: 100px; }
+  .turbo-start-timer { font-size: 32px; }
+  .combo-mult-value { font-size: 36px; }
+  #track-progress-ring { width: 55px; height: 55px; bottom: 10px; left: 10px; }
+  .tpr-lap { font-size: 18px; }
+  #ai-rubberband-indicator { top: 90px; right: 10px; font-size: 9px; }
+}
+
+/* ==================== CYCLE 36: REDUCED MOTION ==================== */
+@media (prefers-reduced-motion: reduce) {
+  .turbo-start-ring::before { animation: none; }
+  .turbo-start-result { transition: none; }
+  #combo-multiplier-display.pop { animation: none; }
+  .ambient-ember { animation: none; }
+  .neon-track-sign { transition: none; }
+  .shortcut-toast { animation: none; }
+  .rlg-arrow { animation: none; }
+  .hud-data-tick { transition: none; }
+}
+
+
+/* ==================== CYCLE 37: STYLING IMPROVEMENTS ==================== */
+
+/* 1. MOTION BLUR OVERLAY — cinematic speed lines with radial streaks */
+#motion-blur-overlay {
+  position: fixed; inset: 0; z-index: 45; pointer-events: none;
+  opacity: 0; transition: opacity 0.3s ease;
+  background: radial-gradient(ellipse 120% 100% at 50% 50%, transparent 30%, rgba(0,0,0,0.15) 100%);
+}
+#motion-blur-overlay.active { opacity: 1; }
+#motion-blur-overlay .blur-streak {
+  position: absolute; top: 50%; height: 2px; border-radius: 2px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.12), transparent);
+  animation: streakFly 0.6s linear infinite;
+}
+@keyframes streakFly {
+  0% { transform: translateX(100vw) translateY(-50%); opacity: 0; }
+  20% { opacity: 1; }
+  80% { opacity: 1; }
+  100% { transform: translateX(-100vw) translateY(-50%); opacity: 0; }
+}
+
+/* 2. NEON GLOW PULSE — subtle ambient glow around screen edges */
+#neon-ambient-glow {
+  position: fixed; inset: 0; z-index: 44; pointer-events: none;
+  opacity: 0.6;
+  box-shadow:
+    inset 0 0 80px -20px rgba(255,77,46,0.08),
+    inset 0 0 120px -40px rgba(0,229,255,0.06),
+    inset 0 -60px 100px -30px rgba(255,210,63,0.05);
+  animation: neonAmbientPulse 4s ease-in-out infinite alternate;
+}
+@keyframes neonAmbientPulse {
+  0% { opacity: 0.4; }
+  100% { opacity: 0.8; }
+}
+
+/* 3. SPEED-REACTIVE CHROMATIC ABERRATION on HUD text */
+.chromatic-speed-text {
+  text-shadow:
+    -1px 0 rgba(255,0,0,0.3),
+    1px 0 rgba(0,150,255,0.3),
+    0 -1px rgba(0,255,0,0.2),
+    0 1px rgba(255,0,255,0.2);
+  transition: text-shadow 0.2s ease;
+}
+.chromatic-speed-text.intense {
+  text-shadow:
+    -2px 0 rgba(255,0,0,0.6),
+    2px 0 rgba(0,150,255,0.6),
+    0 -2px rgba(0,255,0,0.4),
+    0 2px rgba(255,0,255,0.4),
+    -1px 0 rgba(255,0,0,0.3),
+    1px 0 rgba(0,150,255,0.3);
+}
+
+/* 4. DYNAMIC SCANLINE EFFECT — retro CRT overlay */
+#scanline-effect {
+  position: fixed; inset: 0; z-index: 43; pointer-events: none;
+  opacity: 0.03;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0,0,0,0.4) 2px,
+    rgba(0,0,0,0.4) 4px
+  );
+  mix-blend-mode: multiply;
+}
+#scanline-effect.speed-boost {
+  opacity: 0.07;
+  animation: scanlineFlicker 0.15s steps(2) infinite;
+}
+@keyframes scanlineFlicker {
+  0%, 100% { opacity: 0.05; }
+  50% { opacity: 0.09; }
+}
+
+/* 5. PARTICLE BURST ON BOOST — radial explosion of particles */
+.boost-burst-particle {
+  position: fixed; width: 6px; height: 6px; border-radius: 50%;
+  pointer-events: none; z-index: 55;
+  animation: boostBurst 0.8s ease-out forwards;
+}
+@keyframes boostBurst {
+  0% { transform: translate(0,0) scale(1); opacity: 1; }
+  100% { transform: translate(var(--bx), var(--by)) scale(0); opacity: 0; }
+}
+
+/* 6. DRIFT SPARK SHOWER — cascading sparks during drift */
+#drift-spark-shower {
+  position: fixed; bottom: 15%; left: 50%; transform: translateX(-50%);
+  width: 120px; height: 80px; pointer-events: none; z-index: 46;
+  opacity: 0; transition: opacity 0.2s ease;
+}
+#drift-spark-shower.active { opacity: 1; }
+.drift-spark {
+  position: absolute; width: 3px; height: 3px; border-radius: 50%;
+  background: #ffd23f; box-shadow: 0 0 6px rgba(255,210,63,0.8);
+  animation: sparkFall var(--spark-dur, 0.6s) ease-in forwards;
+}
+@keyframes sparkFall {
+  0% { transform: translate(0, 0) scale(1); opacity: 1; }
+  60% { opacity: 0.8; }
+  100% { transform: translate(var(--sx, 0px), var(--sy, 40px)) scale(0.2); opacity: 0; }
+}
+
+/* 7. VIGNETTE PULSE — dramatic vignette on low health / damage */
+#damage-vignette {
+  position: fixed; inset: 0; z-index: 42; pointer-events: none;
+  box-shadow: inset 0 0 150px 60px rgba(255,30,30,0.0);
+  transition: box-shadow 0.15s ease;
+}
+#damage-vignette.active {
+  box-shadow: inset 0 0 150px 60px rgba(255,30,30,0.25);
+  animation: damagePulse 0.5s ease-out;
+}
+@keyframes damagePulse {
+  0% { box-shadow: inset 0 0 200px 80px rgba(255,30,30,0.4); }
+  100% { box-shadow: inset 0 0 150px 60px rgba(255,30,30,0.25); }
+}
+
+/* 8. NEON HORIZONTAL RULE — glowing separator line */
+.neon-hr {
+  height: 1px; border: none; margin: 8px 0;
+  background: linear-gradient(90deg, transparent, var(--accent-secondary, #00e5ff), transparent);
+  box-shadow: 0 0 8px rgba(0,229,255,0.3);
+  opacity: 0.5;
+}
+
+/* 9. PULSING DOT GRID — tech/matrix background pattern */
+#tech-dot-grid {
+  position: fixed; inset: 0; z-index: -1; pointer-events: none;
+  opacity: 0.025;
+  background-image: radial-gradient(circle, rgba(0,229,255,0.8) 1px, transparent 1px);
+  background-size: 40px 40px;
+  animation: dotGridDrift 20s linear infinite;
+}
+@keyframes dotGridDrift {
+  0% { background-position: 0 0; }
+  100% { background-position: 40px 40px; }
+}
+
+/* 10. WHEEL SPIN INDICATOR — shows when tires lose traction */
+#wheel-spin-indicator {
+  position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%);
+  z-index: 56; pointer-events: none; opacity: 0;
+  transition: opacity 0.2s ease;
+  display: flex; gap: 6px; align-items: center;
+}
+#wheel-spin-indicator.active { opacity: 1; }
+.wheel-spin-icon {
+  width: 24px; height: 24px; border: 2px solid var(--accent-tertiary, #ffd23f);
+  border-radius: 50%; border-top-color: transparent;
+  animation: wheelSpin 0.3s linear infinite;
+}
+.wheel-spin-label {
+  font-family: var(--font-mono, 'JetBrains Mono', monospace);
+  font-size: 10px; color: var(--accent-tertiary, #ffd23f);
+  text-transform: uppercase; letter-spacing: 0.15em;
+  text-shadow: 0 0 8px rgba(255,210,63,0.5);
+}
+@keyframes wheelSpin {
+  to { transform: rotate(360deg); }
+}
+
+/* 11. POSITION CHANGE BANNER — large animated banner on position change */
+#position-change-banner {
+  position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.5);
+  z-index: 85; pointer-events: none; opacity: 0;
+  font-family: var(--font-display, 'Bebas Neue', sans-serif);
+  font-size: 72px; letter-spacing: 0.08em;
+  text-transform: uppercase;
+  transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  -webkit-text-stroke: 2px rgba(255,255,255,0.1);
+}
+#position-change-banner.show {
+  opacity: 1; transform: translate(-50%, -50%) scale(1);
+}
+#position-change-banner.gain { color: #3ddc84; text-shadow: 0 0 30px rgba(61,220,132,0.6), 0 0 60px rgba(61,220,132,0.3); }
+#position-change-banner.loss { color: #ff3d5a; text-shadow: 0 0 30px rgba(255,61,90,0.6), 0 0 60px rgba(255,61,90,0.3); }
+
+/* 12. FUEL / ENERGY BAR — decorative energy resource bar */
+#energy-bar-container {
+  position: fixed; bottom: 20px; right: 20px; z-index: 52;
+  width: 8px; height: 200px; border-radius: 4px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.08);
+  overflow: hidden; pointer-events: none;
+}
+#energy-bar-fill {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  height: 100%; border-radius: 3px;
+  background: linear-gradient(0deg, #00e5ff, #00ffcc);
+  box-shadow: 0 0 10px rgba(0,229,255,0.4);
+  transition: height 0.3s ease;
+}
+#energy-bar-label {
+  position: fixed; bottom: 224px; right: 20px; z-index: 52;
+  font-family: var(--font-mono, monospace); font-size: 9px;
+  color: rgba(0,229,255,0.6); text-transform: uppercase;
+  letter-spacing: 0.15em; pointer-events: none;
+}
+
+/* 13. MINIMAP PING — pulsing ring on minimap for events */
+.minimap-ping {
+  position: absolute; width: 16px; height: 16px; border-radius: 50%;
+  border: 2px solid #ff4d2e; pointer-events: none;
+  animation: minimapPing 1.5s ease-out forwards;
+}
+@keyframes minimapPing {
+  0% { transform: translate(-50%, -50%) scale(0.5); opacity: 1; }
+  100% { transform: translate(-50%, -50%) scale(3); opacity: 0; }
+}
+
+/* 14. BOOST CHAIN INDICATOR — visual chain for consecutive boosts */
+#boost-chain-display {
+  position: fixed; top: 80px; left: 50%; transform: translateX(-50%);
+  z-index: 54; pointer-events: none; opacity: 0;
+  display: flex; gap: 8px; align-items: center;
+  transition: opacity 0.3s ease;
+}
+#boost-chain-display.active { opacity: 1; }
+.boost-chain-dot {
+  width: 10px; height: 10px; border-radius: 50%;
+  border: 2px solid rgba(0,229,255,0.4);
+  transition: all 0.2s ease;
+}
+.boost-chain-dot.filled {
+  background: #00e5ff; border-color: #00e5ff;
+  box-shadow: 0 0 10px rgba(0,229,255,0.6);
+}
+.boost-chain-label {
+  font-family: var(--font-mono, monospace); font-size: 11px;
+  color: #00e5ff; text-shadow: 0 0 8px rgba(0,229,255,0.4);
+}
+
+/* 15. RACE EVENT FEED — scrolling event notifications */
+#race-event-feed {
+  position: fixed; right: 16px; top: 50%; transform: translateY(-50%);
+  z-index: 53; pointer-events: none; display: flex;
+  flex-direction: column; gap: 6px; align-items: flex-end;
+  max-height: 300px; overflow: hidden;
+}
+.race-event-item {
+  padding: 6px 14px; border-radius: 6px;
+  background: rgba(5,6,10,0.75); backdrop-filter: blur(8px);
+  border: 1px solid rgba(255,255,255,0.08);
+  font-family: var(--font-mono, monospace); font-size: 11px;
+  color: var(--text-primary, #f5f6fa); white-space: nowrap;
+  animation: eventFeedIn 0.3s ease-out, eventFeedOut 0.4s ease-in 2.5s forwards;
+}
+.race-event-item.event-boost { border-left: 3px solid #00e5ff; color: #00e5ff; }
+.race-event-item.event-drift { border-left: 3px solid #ffd23f; color: #ffd23f; }
+.race-event-item.event-pass { border-left: 3px solid #3ddc84; color: #3ddc84; }
+.race-event-item.event-warning { border-left: 3px solid #ff3d5a; color: #ff3d5a; }
+.race-event-item.event-record { border-left: 3px solid #ff4d8a; color: #ff4d8a; }
+@keyframes eventFeedIn {
+  0% { transform: translateX(30px); opacity: 0; }
+  100% { transform: translateX(0); opacity: 1; }
+}
+@keyframes eventFeedOut {
+  0% { opacity: 1; }
+  100% { opacity: 0; transform: translateX(20px); }
+}
+
+/* 16. HUD CORNER BRACKETS — decorative tech frame corners */
+#hud-corner-frame {
+  position: fixed; inset: 12px; z-index: 41; pointer-events: none;
+  opacity: 0.12;
+}
+#hud-corner-frame .corner {
+  position: absolute; width: 30px; height: 30px;
+}
+#hud-corner-frame .corner::before,
+#hud-corner-frame .corner::after {
+  content: ''; position: absolute; background: var(--accent-secondary, #00e5ff);
+}
+#hud-corner-frame .corner-tl { top: 0; left: 0; }
+#hud-corner-frame .corner-tl::before { top: 0; left: 0; width: 30px; height: 1px; }
+#hud-corner-frame .corner-tl::after { top: 0; left: 0; width: 1px; height: 30px; }
+#hud-corner-frame .corner-tr { top: 0; right: 0; }
+#hud-corner-frame .corner-tr::before { top: 0; right: 0; width: 30px; height: 1px; }
+#hud-corner-frame .corner-tr::after { top: 0; right: 0; width: 1px; height: 30px; }
+#hud-corner-frame .corner-bl { bottom: 0; left: 0; }
+#hud-corner-frame .corner-bl::before { bottom: 0; left: 0; width: 30px; height: 1px; }
+#hud-corner-frame .corner-bl::after { bottom: 0; left: 0; width: 1px; height: 30px; }
+#hud-corner-frame .corner-br { bottom: 0; right: 0; }
+#hud-corner-frame .corner-br::before { bottom: 0; right: 0; width: 30px; height: 1px; }
+#hud-corner-frame .corner-br::after { bottom: 0; right: 0; width: 1px; height: 30px; }
+
+/* ==================== CYCLE 37: MOBILE RESPONSIVE ==================== */
+@media (max-width: 768px) {
+  #position-change-banner { font-size: 48px; }
+  #energy-bar-container { height: 140px; bottom: 14px; right: 14px; }
+  #energy-bar-label { bottom: 160px; right: 14px; font-size: 8px; }
+  .race-event-item { font-size: 9px; padding: 4px 10px; }
+  .wheel-spin-icon { width: 18px; height: 18px; }
+}
+
+/* ==================== CYCLE 37: REDUCED MOTION ==================== */
+@media (prefers-reduced-motion: reduce) {
+  .blur-streak { animation: none !important; }
+  #neon-ambient-glow { animation: none !important; }
+  .drift-spark { animation: none !important; }
+  .boost-burst-particle { animation: none !important; }
+  .wheel-spin-icon { animation: none !important; }
+  #position-change-banner { transition: none !important; }
+  .race-event-item { animation: none !important; }
+  #tech-dot-grid { animation: none !important; }
+  #scanline-effect { animation: none !important; }
+  .minimap-ping { animation: none !important; }
+}
+
+
+/* ============================================================ */
+/* CYCLE 38: NEW STYLING SYSTEMS                              */
+/* ============================================================ */
+
+/* 1. LIGHTNING FLASH */
+#lightning-flash-overlay {
+  position: fixed; inset: 0; z-index: 2000; pointer-events: none;
+  transition: background 0.05s ease;
+}
+#lightning-flash-overlay.lightning-inactive { background: transparent; }
+#lightning-flash-overlay.lightning-active { background: rgba(255,255,255,0.7); }
+#lightning-flash-overlay.lightning-afterflash { background: rgba(200,220,255,0.25); }
+
+/* 2. CINEMATIC LETTERBOX BARS */
+#letterbox-bar-top, #letterbox-bar-bottom {
+  position: fixed; left: 0; right: 0; height: 0; z-index: 1800;
+  background: #000; pointer-events: none;
+  transition: height 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+#letterbox-bar-top { top: 0; }
+#letterbox-bar-bottom { bottom: 0; }
+#letterbox-bar-top.active, #letterbox-bar-bottom.active { height: 48px; }
+
+/* 3. HOLOGRAPHIC HUD SHIMMER */
+#holo-shimmer-overlay {
+  position: fixed; inset: 0; z-index: 150; pointer-events: none;
+  opacity: 0; transition: opacity 0.3s ease;
+  mix-blend-mode: screen;
+}
+
+/* 4. CHROMATIC ABERRATION */
+#chromatic-aberration-overlay {
+  position: fixed; inset: 0; z-index: 140; pointer-events: none;
+  box-shadow:
+    calc(-1 * var(--ca-intensity, 0px)) 0 0 0 rgba(255,0,0,0.15),
+    var(--ca-intensity, 0px) 0 0 0 rgba(0,255,255,0.15),
+    0 calc(-1 * var(--ca-intensity, 0px)) 0 0 rgba(0,255,0,0.08),
+    0 var(--ca-intensity, 0px) 0 0 rgba(255,0,255,0.08);
+  --ca-intensity: 0px;
+}
+
+/* 5. BEST LAP CELEBRATION */
+#best-lap-celebration {
+  position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.5);
+  z-index: 1600; text-align: center; pointer-events: none;
+  opacity: 0; transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+#best-lap-celebration.show {
+  opacity: 1; transform: translate(-50%, -50%) scale(1);
+}
+.best-lap-icon {
+  font-family: 'Bebas Neue', Impact, sans-serif;
+  font-size: 56px; letter-spacing: 8px;
+  color: #ffd23f;
+  text-shadow: 0 0 30px rgba(255,210,63,0.6), 0 0 60px rgba(255,210,63,0.3), 0 0 4px #ff8c00;
+  animation: bestLapPulse 0.8s ease infinite alternate;
+}
+.best-lap-time {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 32px; color: #fff; margin-top: 4px;
+  text-shadow: 0 0 20px rgba(0,229,255,0.5);
+}
+.best-lap-subtitle {
+  font-family: 'Inter', sans-serif;
+  font-size: 14px; color: rgba(0,229,255,0.8);
+  letter-spacing: 6px; text-transform: uppercase; margin-top: 4px;
+}
+@keyframes bestLapPulse {
+  from { text-shadow: 0 0 30px rgba(255,210,63,0.6), 0 0 60px rgba(255,210,63,0.3), 0 0 4px #ff8c00; transform: scale(1); }
+  to { text-shadow: 0 0 50px rgba(255,210,63,0.8), 0 0 100px rgba(255,210,63,0.4), 0 0 6px #ff8c00; transform: scale(1.02); }
+}
+
+/* 6. POSITION SPARKLINE */
+#position-sparkline {
+  position: fixed; bottom: 100px; left: 12px; z-index: 800;
+  border-radius: 6px; border: 1px solid rgba(0,229,255,0.2);
+  opacity: 0.7; pointer-events: none;
+}
+
+/* 7. CHECKPOINT BONUS DISPLAY */
+#checkpoint-bonus-display {
+  position: fixed; top: 35%; left: 50%; transform: translate(-50%, -50%);
+  z-index: 1550; pointer-events: none;
+  font-family: 'Bebas Neue', Impact, sans-serif;
+  font-size: 28px; color: #00e5ff; letter-spacing: 4px;
+  text-shadow: 0 0 20px rgba(0,229,255,0.6);
+  opacity: 0; transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+#checkpoint-bonus-display.show {
+  opacity: 1; transform: translate(-50%, -50%) scale(1.1);
+  animation: checkpointPop 0.4s ease;
+}
+@keyframes checkpointPop {
+  0% { transform: translate(-50%, -50%) scale(0.6); opacity: 0; }
+  50% { transform: translate(-50%, -50%) scale(1.15); opacity: 1; }
+  100% { transform: translate(-50%, -50%) scale(1.1); opacity: 1; }
+}
+
+/* 8. MOBILE RESPONSIVE (Cycle 38) */
+@media (max-width: 768px) {
+  #letterbox-bar-top.active, #letterbox-bar-bottom.active { height: 28px; }
+  #position-sparkline { bottom: 80px; left: 8px; }
+  .best-lap-icon { font-size: 36px; letter-spacing: 4px; }
+  .best-lap-time { font-size: 22px; }
+  #checkpoint-bonus-display { font-size: 20px; }
+}
+
+/* 9. REDUCED MOTION (Cycle 38) */
+@media (prefers-reduced-motion: reduce) {
+  #letterbox-bar-top, #letterbox-bar-bottom { transition: none; }
+  #best-lap-celebration { transition: opacity 0.2s ease; }
+  .best-lap-icon { animation: none; }
+  #checkpoint-bonus-display { animation: none; }
+}
+
+
+/* ============================================================ */
+/* CYCLE 39: NEW STYLING SYSTEMS                              */
+/* ============================================================ */
+
+/* 1. SPEED LINES OVERLAY */
+#speed-lines-overlay-c39 {
+  position: fixed; inset: 0; z-index: 130; pointer-events: none;
+  opacity: 0; transition: opacity 0.3s ease;
+  mix-blend-mode: screen;
+}
+
+/* 2. POWERUP COLLECT BURST */
+#powerup-collect-burst {
+  position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+  z-index: 1600; pointer-events: none; width: 120px; height: 120px;
+  opacity: 0;
+}
+#powerup-collect-burst.burst { animation: powerupBurst 0.6s ease-out forwards; }
+.burst-ring {
+  position: absolute; inset: 0; border-radius: 50%;
+  border: 2px solid var(--burst-color, #00e5ff);
+  animation: burstRingExpand 0.6s ease-out forwards;
+}
+.burst-ring.ring2 { animation-delay: 0.1s; }
+@keyframes burstRingExpand {
+  from { transform: scale(0.3); opacity: 1; }
+  to { transform: scale(2.5); opacity: 0; }
+}
+@keyframes powerupBurst {
+  0% { opacity: 1; } 100% { opacity: 0; }
+}
+
+/* 3. RACE PROGRESS PERCENTAGE */
+#race-progress-pct {
+  position: fixed; bottom: 160px; left: 12px; z-index: 800;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 14px; color: rgba(0,229,255,0.8);
+  background: rgba(5,6,10,0.6); padding: 4px 8px; border-radius: 4px;
+  border-left: 2px solid rgba(0,229,255,0.4);
+  pointer-events: none;
+}
+.pct-value { font-weight: 600; font-size: 18px; color: #00e5ff; }
+.pct-symbol { font-size: 12px; opacity: 0.6; margin-left: 1px; }
+.pct-label { font-size: 8px; opacity: 0.4; margin-left: 4px; letter-spacing: 2px; }
+
+/* 4. COMBO BREAK NOTIFICATION */
+#combo-break-notification {
+  position: fixed; top: 30%; left: 50%; transform: translate(-50%, -50%) scale(0.8);
+  z-index: 1550; pointer-events: none;
+  font-family: 'Bebas Neue', Impact, sans-serif;
+  font-size: 36px; letter-spacing: 6px; color: #ff3d5a;
+  text-shadow: 0 0 20px rgba(255,61,90,0.6), 0 0 40px rgba(255,61,90,0.3);
+  opacity: 0; transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+#combo-break-notification.show {
+  opacity: 1; transform: translate(-50%, -50%) scale(1);
+  animation: comboBreakShake 0.4s ease;
+}
+@keyframes comboBreakShake {
+  0%, 100% { transform: translate(-50%, -50%) scale(1) rotate(0); }
+  25% { transform: translate(-52%, -50%) scale(1.05) rotate(-2deg); }
+  75% { transform: translate(-48%, -50%) scale(1.05) rotate(2deg); }
+}
+
+/* 5. SPEED ZONE INDICATOR */
+#speed-zone-indicator {
+  position: fixed; top: 70px; left: 50%; transform: translateX(-50%);
+  z-index: 800; pointer-events: none;
+  font-family: 'Bebas Neue', Impact, sans-serif;
+  font-size: 16px; letter-spacing: 4px; color: #ffd23f;
+  text-shadow: 0 0 10px rgba(255,210,63,0.4);
+  opacity: 0; transition: opacity 0.3s ease;
+}
+#speed-zone-indicator.active {
+  opacity: 0.8;
+  animation: speedZonePulse 1s ease infinite;
+}
+@keyframes speedZonePulse {
+  0%, 100% { opacity: 0.6; } 50% { opacity: 1; }
+}
+
+/* 6. TIRE SCREECH INDICATOR */
+#tire-screech-indicator {
+  position: fixed; bottom: 60px; left: 50%; transform: translateX(-50%);
+  z-index: 800; pointer-events: none;
+  text-align: center; opacity: 0; transition: opacity 0.2s ease;
+}
+#tire-screech-indicator.active { opacity: 1; }
+.screech-bar {
+  width: 0; height: 3px; background: linear-gradient(90deg, #ff4d2e, #ffd23f);
+  border-radius: 2px; margin: 0 auto 4px; transition: width 0.1s ease;
+  box-shadow: 0 0 8px rgba(255,77,46,0.4);
+}
+.screech-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 8px; color: rgba(255,77,46,0.6); letter-spacing: 3px;
+}
+
+/* MOBILE RESPONSIVE (Cycle 39) */
+@media (max-width: 768px) {
+  #race-progress-pct { bottom: 120px; }
+  .pct-value { font-size: 14px; }
+  #combo-break-notification { font-size: 24px; }
+  #tire-screech-indicator { bottom: 40px; }
+}
+
+/* REDUCED MOTION (Cycle 39) */
+@media (prefers-reduced-motion: reduce) {
+  #powerup-collect-burst.burst, .burst-ring { animation: none; }
+  #combo-break-notification.show { animation: none; }
+  #speed-zone-indicator.active { animation: none; opacity: 0.8; }
+}
+
+/* ============================================================ */
+/* CYCLE 40: 6 STYLING SYSTEMS + 6 FEATURES                    */
+/* ============================================================ */
+
+/* 1. NEON GRID GROUND OVERLAY */
+#neon-grid-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  pointer-events: none;
+  opacity: 0.5;
+  mix-blend-mode: screen;
+}
+#neon-grid-canvas {
+  width: 100%;
+  height: 100%;
+  image-rendering: pixelated;
+}
+
+/* 2. SPEED BLUR RADIAL OVERLAY */
+#speed-blur-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease, backdrop-filter 0.3s ease;
+  background: radial-gradient(ellipse at center, transparent 40%, rgba(5,6,10,0.6) 100%);
+}
+
+/* 3. BOOST SPARK TRAIL PARTICLES */
+.c40-boost-spark {
+  position: fixed;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  z-index: 900;
+  pointer-events: none;
+  box-shadow: 0 0 6px currentColor, 0 0 12px currentColor;
+  transition: opacity 0.1s linear, transform 0.1s linear;
+}
+
+/* 4. DRIFT ANGLE METER */
+#drift-angle-meter {
+  position: fixed;
+  bottom: 100px;
+  right: 20px;
+  z-index: 800;
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+#drift-angle-meter.active {
+  opacity: 1;
+  transform: translateY(0);
+}
+#drift-angle-meter svg {
+  filter: drop-shadow(0 0 4px rgba(255,210,63,0.5));
+}
+.dam-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 8px;
+  letter-spacing: 2px;
+  color: rgba(255,210,63,0.6);
+  text-align: center;
+  margin-top: 2px;
+}
+#dam-fill {
+  transition: stroke-dasharray 0.1s ease;
+}
+#dam-dot {
+  transition: cx 0.1s ease, cy 0.1s ease, opacity 0.15s ease;
+}
+
+/* 5. LAP TIME DELTA DISPLAY */
+#lap-time-delta {
+  position: fixed;
+  top: 140px;
+  right: 20px;
+  z-index: 800;
+  pointer-events: none;
+  background: rgba(10,12,20,0.8);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 8px;
+  padding: 6px 12px;
+  text-align: right;
+}
+.ltd-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 8px;
+  letter-spacing: 2px;
+  color: rgba(255,255,255,0.4);
+  margin-bottom: 2px;
+}
+.ltd-value {
+  font-family: 'Bebas Neue', Impact, sans-serif;
+  font-size: 18px;
+  letter-spacing: 1px;
+  transition: color 0.2s ease;
+}
+.ltd-value.ltd-negative {
+  color: #22c55e;
+  text-shadow: 0 0 8px rgba(34,197,94,0.4);
+}
+.ltd-value.ltd-positive {
+  color: #ff3d5a;
+  text-shadow: 0 0 8px rgba(255,61,90,0.4);
+}
+
+/* 6. PROXIMITY ALERT FLASH */
+#proximity-alert-flash {
+  position: fixed;
+  inset: 0;
+  z-index: 700;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+  background: radial-gradient(ellipse at center, transparent 30%, rgba(255,61,90,0.12) 100%);
+  border: 3px solid transparent;
+  border-image: linear-gradient(180deg, rgba(255,61,90,0.3), transparent 40%, transparent 60%, rgba(255,61,90,0.3)) 1;
+}
+#proximity-alert-flash.active {
+  opacity: 1;
+  animation: proximityPulse 0.3s ease;
+}
+@keyframes proximityPulse {
+  0% { opacity: 0; transform: scale(1.02); }
+  50% { opacity: 1; transform: scale(1); }
+  100% { opacity: 0.6; transform: scale(1); }
+}
+
+/* 7. NITRO FLAME AURA */
+#nitro-flame-aura {
+  position: fixed;
+  inset: 0;
+  z-index: 55;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+#nitro-flame-aura.active {
+  opacity: 1;
+  animation: nitroAuraFlicker 0.15s ease infinite;
+}
+.nitro-flame-left, .nitro-flame-right {
+  position: absolute;
+  bottom: 0;
+  width: 25%;
+  height: 60%;
+  background: linear-gradient(0deg, rgba(255,77,46,0.15) 0%, rgba(0,229,255,0.08) 40%, transparent 100%);
+ filter: blur(20px);
+}
+.nitro-flame-left { left: 0; }
+.nitro-flame-right { right: 0; }
+.nitro-flame-core {
+  position: absolute;
+  bottom: 5%;
+  left: 15%;
+  right: 15%;
+  height: 40%;
+  background: radial-gradient(ellipse at bottom, rgba(0,229,255,0.1) 0%, transparent 70%);
+  filter: blur(30px);
+}
+@keyframes nitroAuraFlicker {
+  0% { opacity: 0.85; }
+  50% { opacity: 1; }
+  100% { opacity: 0.9; }
+}
+
+/* MOBILE RESPONSIVE (Cycle 40) */
+@media (max-width: 768px) {
+  #drift-angle-meter { bottom: 80px; right: 10px; }
+  #lap-time-delta { top: 120px; right: 10px; padding: 4px 8px; }
+  .ltd-value { font-size: 14px; }
+  #neon-grid-overlay { opacity: 0.3; }
+}
+
+/* REDUCED MOTION (Cycle 40) */
+@media (prefers-reduced-motion: reduce) {
+  #proximity-alert-flash.active { animation: none; }
+  #nitro-flame-aura.active { animation: none; opacity: 1; }
+  .c40-boost-spark { transition: none; }
+}

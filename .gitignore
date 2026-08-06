@@ -1,0 +1,19 @@
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Non-project files - NEVER commit these
+tool-results/
+scripts/
+.env
+worklog.md
+*.log
+node_modules/
+.zscripts/
+
+# Download artifacts (only used locally)
+download/
