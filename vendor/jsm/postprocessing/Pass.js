@@ -7,16 +7,9 @@ class Pass {
 
 	constructor() {
 
-		// if set to true, the pass is processed by the composer
 		this.enabled = true;
-
-		// if set to true, the pass indicates to swap read and write buffer after rendering
 		this.needsSwap = true;
-
-		// if set to true, the pass clears its buffer before rendering
 		this.clear = false;
-
-		// if set to true, the result of this pass is rendered to screen
 		this.renderToScreen = false;
 
 	}
@@ -33,4 +26,36 @@ class Pass {
 
 }
 
-export { Pass };
+class FullScreenQuad {
+
+	constructor( material ) {
+
+		this._mesh = new THREE.Mesh(
+			new THREE.PlaneGeometry( 2, 2 ),
+			material || new THREE.MeshBasicMaterial()
+		);
+		this._mesh.frustumCulled = false;
+
+	}
+
+	render( renderer ) {
+
+		renderer.render( this._mesh, _camera );
+
+	}
+
+	dispose() {
+
+		this._mesh.geometry.dispose();
+		if ( this._mesh.material.dispose ) this._mesh.material.dispose();
+
+	}
+
+	get material() { return this._mesh.material; }
+	set material( v ) { this._mesh.material = v; }
+
+}
+
+const _camera = new THREE.OrthographicCamera( -1, 1, 1, -1, 0, 1 );
+
+export { Pass, FullScreenQuad };

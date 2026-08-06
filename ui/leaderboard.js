@@ -1280,5 +1280,5 @@ class LeaderboardSystem {
 // Singleton instance export
 const leaderboardSystem = new LeaderboardSystem();
 
-export { LeaderboardSystem, leaderboardSystem, LEADERBOARD_CATEGORY, VEHICLE_CLASSES };
+export { LeaderboardSystem, leaderboardSystem, LEADERBOARD_CATEGORY };
 export default leaderboardSystem;

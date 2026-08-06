@@ -1,8 +1,7 @@
 /**
  * ShaderPass - Applies a shader as a post-processing pass
  */
-import { Pass } from './Pass.js';
-import * as THREE from 'three';
+import { Pass, FullScreenQuad } from './Pass.js';
 
 class ShaderPass extends Pass {
 
@@ -69,33 +68,5 @@ class ShaderPass extends Pass {
 	}
 
 }
-
-class FullScreenQuad {
-
-	constructor( material ) {
-
-		this._mesh = new THREE.Mesh(
-			new THREE.PlaneGeometry( 2, 2 ),
-			material
-		);
-		this._mesh.frustumCulled = false;
-
-	}
-
-	render( renderer ) {
-
-		renderer.render( this._mesh, _camera );
-
-	}
-
-	dispose() {
-
-		this._mesh.geometry.dispose();
-
-	}
-
-}
-
-const _camera = new THREE.OrthographicCamera( -1, 1, 1, -1, 0, 1 );
 
 export { ShaderPass };

@@ -1255,5 +1255,5 @@ class DailyChallengeSystem {
 // Singleton instance export
 const dailyChallengeSystem = new DailyChallengeSystem();
 
-export { DailyChallengeSystem, dailyChallengeSystem, CHALLENGE_TYPE, CHALLENGE_DIFFICULTY };
+export { DailyChallengeSystem, dailyChallengeSystem, CHALLENGE_TYPE };
 export default dailyChallengeSystem;

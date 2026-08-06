@@ -1,12 +1,16 @@
 // barrel/controllers/controller.touch.js
 // Renders on-screen touch controls. Activated only when touch is detected.
+// Uses closure-based state instead of 'this' for ES module compatibility.
+
+let _active = false;
+let _container = null;
 
 export function activate(inputManager) {
-  this._active = true;
-  this._container = document.createElement('div');
-  this._container.id = 'touch-controls';
-  this._container.style.cssText = 'position:fixed;inset:0;pointer-events:none;z-index:50;display:none';
-  document.body.appendChild(this._container);
+  _active = true;
+  _container = document.createElement('div');
+  _container.id = 'touch-controls';
+  _container.style.cssText = 'position:fixed;inset:0;pointer-events:none;z-index:50;display:none';
+  document.body.appendChild(_container);
 
   const layout = inputManager._bindings?.controllers?.touch?.layout || {
     leftSide: ['steerLeft', 'steerRight'],
@@ -19,34 +23,33 @@ export function activate(inputManager) {
   const leftGroup = document.createElement('div');
   leftGroup.style.cssText = `position:absolute;left:24px;bottom:24px;display:flex;gap:12px;pointer-events:auto`;
   for (const action of layout.leftSide) {
-    leftGroup.appendChild(this._makeButton(action, size, opacity, inputManager));
+    leftGroup.appendChild(_makeButton(action, size, opacity, inputManager));
   }
-  this._container.appendChild(leftGroup);
+  _container.appendChild(leftGroup);
 
   // Right side: action buttons
   const rightGroup = document.createElement('div');
   rightGroup.style.cssText = `position:absolute;right:24px;bottom:24px;display:flex;gap:12px;pointer-events:auto`;
   for (const action of layout.rightSide) {
-    rightGroup.appendChild(this._makeButton(action, size, opacity, inputManager));
+    rightGroup.appendChild(_makeButton(action, size, opacity, inputManager));
   }
-  this._container.appendChild(rightGroup);
+  _container.appendChild(rightGroup);
 
-  this._container.style.display = 'block';
+  _container.style.display = 'block';
   inputManager.ctx?.engine?.bus?.emit('controller:activated', { id: 'touch' });
 }
 
 export function deactivate(inputManager) {
-  this._active = false;
-  if (this._container) {
-    this._container.remove();
-    this._container = null;
+  _active = false;
+  if (_container) {
+    _container.remove();
+    _container = null;
   }
   inputManager.ctx?.engine?.bus?.emit('controller:deactivated', { id: 'touch' });
 }
 
 export function poll(inputManager, dt) { /* no-op; touch events are immediate */ }
 
-// Internal helper exposed as export for module-internal use
 function _makeButton(action, size, opacity, inputManager) {
   const btn = document.createElement('div');
   btn.dataset.action = action;
@@ -77,8 +80,5 @@ function _makeButton(action, size, opacity, inputManager) {
   btn.addEventListener('mouseleave', release);
   return btn;
 }
-
-// Export for the activate() closure above
-activate._makeButton = _makeButton;
 
 export default { activate, deactivate, poll };
