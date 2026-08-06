@@ -1,7 +1,8 @@
-// ui/race-scene.js -- ENHANCED RACE SCENE (Cycle 42)
+// ui/race-scene.js -- ENHANCED RACE SCENE (Cycle 44)
 // Performance: Merged geometries, minimal draw calls
-// HUD: Glassmorphism panels, minimap, boost pips, progress bar
+// HUD: Glassmorphism panels, minimap, boost pips, progress bar, rear-view mirror
 // Features: AI opponents, speed gauge, particle trail, finish line, lap splits, track markers
+// Cycle 44: Rear-view mirror, obstacle/traffic system, item variety with HUD display
 
 import * as THREE from '../vendor/three.module.js';
 
@@ -74,7 +75,17 @@ export class RaceScene {
     this._skyGradientTop = new THREE.Color(0x0a0a15);
     this._skyGradientBot = new THREE.Color(0x0a0a20);
     this._checkeredTexture = null;
-  }
+    // === Cycle 44: New state vars ===
+    this._rearViewCamera = null;
+    this._rearViewCanvas = null;
+    this._rearViewCtx = null;
+    this._rearViewSize = 160;
+    this._obstacles = [];
+    this._obstacleSpawnTimer = 0;
+    this._obstacleSpawnInterval = 4.0;
+    this._currentItem = null; // { type, timer, duration }
+    this._shieldMesh = null;
+    this._shieldActive = false;
 
   _setupInputListeners() {
     if (this._inputListenersAdded) return;
@@ -102,6 +113,7 @@ export class RaceScene {
       case 'ShiftLeft': case 'ShiftRight': eng.input._setAction('boost', 1); this._tryActivateBoost(); break;
       case 'Escape': this._togglePause(); break;
       case 'KeyR': if (e.ctrlKey) { e.preventDefault(); } break;
+      case 'KeyE': this._useItem(); break;
     }
   }
 
@@ -135,6 +147,9 @@ export class RaceScene {
       this._createFinishLine();
       this._createTrackMarkers();
       this._createParticlePool();
+      this._createRearViewMirror();
+      this._createShieldMesh();
+      this._spawnInitialObstacles();
       if (this._vehicle) {
         this._camera.position.copy(this._vehicle.position).add(this._cameraOffset);
         this._camera.lookAt(this._vehicle.position);
@@ -673,6 +688,15 @@ export class RaceScene {
       s += '<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;"><span style="width:8px;height:8px;border-radius:50%;background:' + oc + ';display:inline-block;box-shadow:0 0 6px ' + oc + ';"></span><span id="hud-opp-' + oi + '" style="color:rgba(255,255,255,0.6);">P' + (oi + 2) + ' ---</span></div>';
     }
     s += '</div>';
+    // Rear-view mirror (Cycle 44)
+    s += '<div id="hud-rearview-container" style="position:fixed;top:24px;left:50%;transform:translateX(-50%) translateY(60px);z-index:100;background:rgba(10,12,20,0.8);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:4px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,0.4);">';
+    s += '<canvas id="hud-rearview-canvas" width="160" height="160" style="display:block;border-radius:7px;width:120px;height:120px;"></canvas></div>';
+    // Current item HUD (Cycle 44)
+    s += '<div id="hud-item-slot" style="position:fixed;bottom:24px;right:180px;z-index:100;width:56px;height:56px;background:rgba(10,12,20,0.8);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,0.1);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:24px;transition:all 0.3s ease;box-shadow:0 2px 12px rgba(0,0,0,0.3);">';
+    s += '<span id="hud-item-icon" style="opacity:0.3;">?</span></div>';
+    s += '<div id="hud-item-label" style="position:fixed;bottom:84px;right:174px;z-index:100;font-family:Inter,sans-serif;font-size:9px;color:rgba(255,255,255,0.3);letter-spacing:2px;text-transform:uppercase;transition:all 0.3s;">ITEM [E]</div>';
+    // Obstacle warning (Cycle 44)
+    s += '<div id="hud-obstacle-warn" style="position:fixed;top:50%;left:50%;transform:translate(-50%,-80px);z-index:100;pointer-events:none;opacity:0;transition:opacity 0.3s;font-family:Bebas Neue,sans-serif;font-size:20px;color:#ff4d2e;letter-spacing:4px;text-shadow:0 0 20px rgba(255,77,46,0.6);">OBSTACLE AHEAD</div>';
     hud.innerHTML = s;
     document.body.appendChild(hud);
     this._hudElement = hud;
@@ -696,7 +720,11 @@ export class RaceScene {
       lapSplit: hud.querySelector('#hud-lap-split'),
       bestLap: hud.querySelector('#hud-best-lap'),
       boostPips: hud.querySelectorAll('.boost-pip'),
-      oppSlots: []
+      oppSlots: [],
+      itemIcon: hud.querySelector('#hud-item-icon'),
+      itemSlot: hud.querySelector('#hud-item-slot'),
+      obstacleWarn: hud.querySelector('#hud-obstacle-warn'),
+      rearViewContainer: hud.querySelector('#hud-rearview-container')
     };
     for (var os = 0; os < 3; os++) {
       var oppEl = hud.querySelector('#hud-opp-' + os);
@@ -704,6 +732,8 @@ export class RaceScene {
     }
     this._minimapCanvas = hud.querySelector('#hud-minimap-canvas');
     if (this._minimapCanvas) this._minimapCtx = this._minimapCanvas.getContext('2d');
+    this._rearViewCanvas = hud.querySelector('#hud-rearview-canvas');
+    if (this._rearViewCanvas) this._rearViewCtx = this._rearViewCanvas.getContext('2d');
     this._gaugeCanvas = hud.querySelector('#hud-speed-gauge');
     if (this._gaugeCanvas) this._gaugeCtx = this._gaugeCanvas.getContext('2d');
     if (this._hudRefs.lapTotal) this._hudRefs.lapTotal.textContent = String(this._state.totalLaps);
@@ -914,6 +944,9 @@ export class RaceScene {
     this._updateSpeedVisuals(dt);
     this._updateDriftPopup(dt);
     this._updateOpponentsHUD();
+    this._updateRearViewMirror();
+    this._updateObstacles(dt);
+    this._updateShieldVisual(dt);
   }
 
   // ==================== OPPONENT UPDATE (Cycle 42) ====================
@@ -1158,6 +1191,13 @@ export class RaceScene {
     for (var i = 0; i < this._itemBoxes.length; i++) { var b = this._itemBoxes[i]; if (!b.visible) continue; ctx.fillStyle = 'rgba(0,229,255,0.7)'; ctx.fillRect(hs + b.position.x * sc - 2, hs + b.position.z * sc - 2, 4, 4); }
     // Boost pads
     for (var j = 0; j < this._boostPads.length; j++) { var p = this._boostPads[j]; ctx.fillStyle = 'rgba(0,255,136,0.4)'; ctx.fillRect(hs + p.position.x * sc - 3, hs + p.position.z * sc - 5, 6, 10); }
+    // Obstacles on minimap (Cycle 44)
+    for (var oi2 = 0; oi2 < this._obstacles.length; oi2++) {
+      var ob = this._obstacles[oi2];
+      if (!ob.userData.active || !ob.visible) continue;
+      ctx.fillStyle = 'rgba(255,77,46,0.6)';
+      ctx.fillRect(hs + ob.position.x * sc - 2, hs + ob.position.z * sc - 1, 4, 3);
+    }
     // Opponents on minimap
     for (var oi = 0; oi < this._opponents.length; oi++) {
       var opp = this._opponents[oi];
@@ -1182,6 +1222,11 @@ export class RaceScene {
       if (this._vehicle.position.distanceTo(b.position) < 3) {
         b.userData.cooldownUntil = now + 5000; b.visible = false;
         var items = ['boost', 'shield', 'missile', 'speed']; var item = items[Math.floor(Math.random() * items.length)];
+        // Assign item to player (Cycle 44)
+        if (!this._currentItem) {
+          this._currentItem = { type: item };
+          this._updateItemHUD();
+        }
         // Trigger pickup flash
         this._itemPickupFlash = 1.0;
         if (window.__engine && window.__engine.bus) window.__engine.bus.emit('item:picked', { item: item, boxIndex: i });
@@ -1245,6 +1290,233 @@ export class RaceScene {
       }
     });
     console.log('[RaceScene] Race finished! Time:', this._formatTime(ft), 'Best Lap:', this._bestLapTime < Infinity ? this._formatTime(this._bestLapTime) : 'N/A');
+  }
+
+  // ==================== REAR-VIEW MIRROR (Cycle 44) ====================
+
+  _createRearViewMirror() {
+    if (!this._renderer) return;
+    this._rearViewCamera = new THREE.PerspectiveCamera(90, 1, 0.5, 200);
+  }
+
+  _updateRearViewMirror() {
+    if (!this._rearViewCamera || !this._rearViewCtx || !this._vehicle || !this._renderer) return;
+    // Position camera behind and above vehicle, looking backward
+    var behind = this._vehicle.position.clone();
+    behind.z -= 12;
+    behind.y += 3;
+    this._rearViewCamera.position.copy(behind);
+    this._rearViewCamera.lookAt(this._vehicle.position.x, this._vehicle.position.y + 1, this._vehicle.position.z - 30);
+    // Render to the rear-view canvas
+    var rvCanvas = this._rearViewCanvas;
+    if (rvCanvas.width !== this._rearViewSize || rvCanvas.height !== this._rearViewSize) {
+      rvCanvas.width = this._rearViewSize;
+      rvCanvas.height = this._rearViewSize;
+    }
+    this._renderer.setRenderTarget(null);
+    this._renderer.setViewport(0, 0, this._rearViewSize, this._rearViewSize);
+    this._renderer.setScissor(0, 0, this._rearViewSize, this._rearViewSize);
+    this._renderer.setScissorTest(true);
+    this._rearViewCamera.aspect = 1;
+    this._rearViewCamera.updateProjectionMatrix();
+    this._renderer.render(this._scene, this._rearViewCamera);
+    this._renderer.setScissorTest(false);
+    // Draw rear-view overlay with rounded corners and "REAR VIEW" label
+    var ctx = this._rearViewCtx, sz = this._rearViewSize;
+    ctx.fillStyle = 'rgba(10,12,20,0.3)';
+    ctx.fillRect(0, 0, sz, 4);
+    ctx.fillRect(0, sz - 14, sz, 14);
+    ctx.fillStyle = 'rgba(255,255,255,0.3)';
+    ctx.font = '9px Inter, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('REAR VIEW', sz / 2, sz - 4);
+    // Reset viewport
+    this._renderer.setViewport(0, 0, window.innerWidth, window.innerHeight);
+  }
+
+  // ==================== OBSTACLE / TRAFFIC SYSTEM (Cycle 44) ====================
+
+  _spawnInitialObstacles() {
+    var tl = this._trackLength;
+    var hw = this._trackWidth / 2 - 2;
+    // Spawn 6 initial obstacles spread across the track
+    for (var i = 0; i < 6; i++) {
+      var z = -tl / 2 + 150 + i * (tl - 200) / 6;
+      var x = (Math.random() - 0.5) * hw * 1.5;
+      this._createObstacle(x, z);
+    }
+  }
+
+  _createObstacle(x, z) {
+    var types = ['barrier', 'cone', 'debris'];
+    var type = types[Math.floor(Math.random() * types.length)];
+    var g = new THREE.Group();
+    if (type === 'barrier') {
+      var bMat = new THREE.MeshStandardMaterial({ color: 0xff4d2e, emissive: 0xff4d2e, emissiveIntensity: 0.3, roughness: 0.5 });
+      var bar = new THREE.Mesh(new THREE.BoxGeometry(3, 1.2, 0.6), bMat);
+      bar.position.y = 0.6; g.add(bar);
+      // Warning stripes
+      var stripeMat = new THREE.MeshBasicMaterial({ color: 0xffd23f });
+      for (var s = -1; s <= 1; s += 2) {
+        var stripe = new THREE.Mesh(new THREE.BoxGeometry(0.8, 1.2, 0.62), stripeMat);
+        stripe.position.set(s * 0.9, 0.6, 0); g.add(stripe);
+      }
+      // Warning light
+      var wLight = new THREE.PointLight(0xff4d2e, 0.5, 12);
+      wLight.position.set(0, 1.5, 0); g.add(wLight);
+    } else if (type === 'cone') {
+      var cMat = new THREE.MeshStandardMaterial({ color: 0xff6600, roughness: 0.7 });
+      for (var c = -1; c <= 1; c++) {
+        var cone = new THREE.Mesh(new THREE.ConeGeometry(0.25, 0.8, 6), cMat);
+        cone.position.set(c * 1.5, 0.4, 0); g.add(cone);
+      }
+    } else {
+      var dMat = new THREE.MeshStandardMaterial({ color: 0x444455, roughness: 0.8 });
+      for (var d = 0; d < 3; d++) {
+        var debris = new THREE.Mesh(
+          new THREE.BoxGeometry(0.5 + Math.random() * 1, 0.3 + Math.random() * 0.4, 0.5 + Math.random() * 1),
+          dMat
+        );
+        debris.position.set((Math.random() - 0.5) * 3, 0.2 + Math.random() * 0.2, (Math.random() - 0.5) * 2);
+        debris.rotation.y = Math.random() * Math.PI;
+        g.add(debris);
+      }
+    }
+    g.position.set(x, 0, z);
+    g.userData = { type: 'obstacle', obstacleType: type, active: true };
+    this._scene.add(g);
+    this._obstacles.push(g);
+  }
+
+  _updateObstacles(dt) {
+    if (!this._vehicle || !this._state.raceStarted) return;
+    var tl = this._trackLength;
+    var warnEl = this._hudRefs.obstacleWarn;
+    var warned = false;
+    for (var i = this._obstacles.length - 1; i >= 0; i--) {
+      var obs = this._obstacles[i];
+      // Check if obstacle is far behind — recycle
+      if (obs.position.z < this._vehicle.position.z - 200) {
+        // Respawn ahead
+        obs.position.z = this._vehicle.position.z + 200 + Math.random() * 400;
+        obs.position.x = (Math.random() - 0.5) * (this._trackWidth / 2 - 2) * 1.5;
+      }
+      // Collision check
+      if (obs.userData.active) {
+        var dx = Math.abs(this._vehicle.position.x - obs.position.x);
+        var dz = this._vehicle.position.z - obs.position.z;
+        if (dx < 2.5 && dz > -2 && dz < 3) {
+          // Collision!
+          if (this._shieldActive) {
+            // Shield absorbs hit
+            this._shieldActive = false;
+            this._currentItem = null;
+            this._updateItemHUD();
+            obs.position.z = this._vehicle.position.z + 300; // Push obstacle away
+            this._itemPickupFlash = 0.5;
+            if (window.__engine && window.__engine.bus) window.__engine.bus.emit('item:shieldBlocked');
+          } else {
+            // Slow down vehicle
+            this._state.speed *= 0.4;
+            this._cameraShakeIntensity = 0.6;
+            obs.userData.active = false;
+            obs.visible = false;
+            // Respawn after delay
+            (function(o) {
+              setTimeout(function() { o.userData.active = true; o.visible = true; o.position.z = this._vehicle.position.z + 400 + Math.random() * 300; }.bind(this), 5000);
+            }.bind(this))(obs);
+          }
+        }
+      }
+      // Warning if obstacle ahead and close
+      var aheadDist = obs.position.z - this._vehicle.position.z;
+      if (aheadDist > 0 && aheadDist < 60 && Math.abs(obs.position.x - this._vehicle.position.x) < 4) {
+        warned = true;
+      }
+    }
+    if (warnEl) warnEl.style.opacity = warned ? '1' : '0';
+  }
+
+  // ==================== ITEM VARIETY (Cycle 44) ====================
+
+  _createShieldMesh() {
+    var shieldGeo = new THREE.SphereGeometry(3, 16, 12);
+    var shieldMat = new THREE.MeshBasicMaterial({ color: 0x3b82f6, transparent: true, opacity: 0.25, side: THREE.DoubleSide });
+    this._shieldMesh = new THREE.Mesh(shieldGeo, shieldMat);
+    this._shieldMesh.visible = false;
+    this._scene.add(this._shieldMesh);
+  }
+
+  _useItem() {
+    if (!this._currentItem || !this._state.raceStarted) return;
+    var item = this._currentItem.type;
+    if (item === 'boost') {
+      this._tryActivateBoost();
+    } else if (item === 'shield') {
+      this._shieldActive = true;
+      this._shieldMesh.visible = true;
+      if (window.__engine && window.__engine.bus) window.__engine.bus.emit('item:shieldActivated');
+      // Auto-expire shield after 8s
+      (function(self) {
+        setTimeout(function() { self._shieldActive = false; if (self._shieldMesh) self._shieldMesh.visible = false; }, 8000);
+      })(this);
+    } else if (item === 'missile') {
+      // Fire missile forward — boost speed dramatically for 1s
+      this._state.speed = Math.min(220, this._state.speed + 80);
+      this._cameraShakeIntensity = 0.4;
+      this._itemPickupFlash = 0.8;
+      // Check if any opponent is ahead and close
+      for (var i = 0; i < this._opponents.length; i++) {
+        var opp = this._opponents[i];
+        var dist = opp.mesh.position.z - this._vehicle.position.z;
+        if (dist > 0 && dist < 40 && Math.abs(opp.mesh.position.x - this._vehicle.position.x) < 6) {
+          // Hit! Slow them down
+          opp.currentSpeed *= 0.3;
+          opp.mesh.position.x += (Math.random() - 0.5) * 8; // Knock sideways
+          break;
+        }
+      }
+      if (window.__engine && window.__engine.bus) window.__engine.bus.emit('item:missileFired');
+    } else if (item === 'speed') {
+      // Instant speed boost
+      this._state.speed = Math.min(220, this._state.speed + 50);
+      this._itemPickupFlash = 0.6;
+      if (window.__engine && window.__engine.bus) window.__engine.bus.emit('item:speedUsed');
+    }
+    this._currentItem = null;
+    this._updateItemHUD();
+  }
+
+  _updateItemHUD() {
+    var icon = this._hudRefs.itemIcon;
+    var slot = this._hudRefs.itemSlot;
+    if (!icon || !slot) return;
+    if (this._currentItem) {
+      var icons = { boost: '⚡', shield: '🛡', missile: '💥', speed: '💨' };
+      var colors = { boost: '#00e5ff', shield: '#3b82f6', missile: '#ef4444', speed: '#22c55e' };
+      icon.textContent = icons[this._currentItem.type] || '?';
+      icon.style.opacity = '1';
+      slot.style.borderColor = colors[this._currentItem.type] || 'rgba(255,255,255,0.1)';
+      slot.style.boxShadow = '0 0 16px ' + (colors[this._currentItem.type] || 'transparent').replace(')', ',0.3)').replace('rgb', 'rgba');
+    } else {
+      icon.textContent = '?';
+      icon.style.opacity = '0.3';
+      slot.style.borderColor = 'rgba(255,255,255,0.1)';
+      slot.style.boxShadow = '0 2px 12px rgba(0,0,0,0.3)';
+    }
+  }
+
+  _updateShieldVisual(dt) {
+    if (!this._shieldMesh) return;
+    if (this._shieldActive && this._vehicle) {
+      this._shieldMesh.position.copy(this._vehicle.position);
+      this._shieldMesh.position.y += 0.8;
+      this._shieldMesh.rotation.y += dt * 2;
+      this._shieldMesh.material.opacity = 0.15 + Math.sin(performance.now() * 0.008) * 0.1;
+      this._shieldMesh.visible = true;
+    } else {
+      this._shieldMesh.visible = false;
+    }
   }
 
   // ==================== CLEANUP ====================

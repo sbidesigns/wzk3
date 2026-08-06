@@ -872,3 +872,138 @@
     border: 1px solid rgba(255, 255, 255, 0.3);
   }
 }
+
+/* ============================================
+   CYCLE 44: ACHIEVEMENTS ENHANCEMENTS
+   ============================================ */
+
+/* Achievement card enhanced hover lift + border glow */
+.achievement-card {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.achievement-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--accent, #ff6b35), transparent);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.achievement-card:hover::before {
+  opacity: 1;
+}
+
+.achievement-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.3), 0 0 20px rgba(255, 107, 53, 0.06);
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+/* Unlocked achievement enhanced glow animation */
+.achievement-card.unlocked {
+  border-color: rgba(255, 210, 63, 0.2);
+}
+
+.achievement-card.unlocked:hover {
+  border-color: rgba(255, 210, 63, 0.4);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.3), 0 0 24px rgba(255, 210, 63, 0.1);
+}
+
+/* Achievement icon enhanced hover */
+.achievement-icon {
+  transition: all 0.3s ease;
+}
+
+.achievement-card:hover .achievement-icon {
+  transform: scale(1.15) rotate(5deg);
+  filter: brightness(1.2);
+}
+
+/* Achievement progress bar enhanced shimmer */
+.achievement-progress-fill {
+  position: relative;
+  overflow: hidden;
+}
+
+.achievement-progress-fill::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.25), transparent);
+  animation: achieveShimmer 2s ease-in-out infinite;
+}
+
+@keyframes achieveShimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(200%); }
+}
+
+/* Achievement unlock pop animation */
+.achievement-card.just-unlocked {
+  animation: achieveUnlockPop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+@keyframes achieveUnlockPop {
+  0% { transform: scale(0.8); opacity: 0; }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+/* Achievement category tab enhanced hover */
+.ach-category-tab {
+  transition: all 0.25s ease;
+}
+
+.ach-category-tab:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.ach-category-tab.active {
+  box-shadow: 0 0 16px rgba(255, 107, 53, 0.15);
+}
+
+/* Achievement reward tag enhanced hover */
+.ach-reward-tag {
+  transition: all 0.2s ease;
+}
+
+.ach-reward-tag:hover {
+  transform: scale(1.05);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Achievement header enhanced accent */
+.ach-header {
+  position: relative;
+}
+
+.ach-header::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, rgba(255, 210, 63, 0.3), transparent 80%);
+}
+
+/* Responsive additions */
+@media (max-width: 768px) {
+  .achievement-card:hover { transform: none; }
+  .achievement-card:hover .achievement-icon { transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .achievement-progress-fill::after { animation: none; }
+  .achievement-card.just-unlocked { animation: none; }
+  .achievement-card:hover .achievement-icon { transition: none; }
+}
+

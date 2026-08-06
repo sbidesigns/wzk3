@@ -894,3 +894,160 @@
     border-width: 1px;
   }
 }
+
+/* ============================================
+   CYCLE 44: DAILY CHALLENGES ENHANCEMENTS
+   ============================================ */
+
+/* Challenge card enhanced hover lift + border glow */
+.challenge-card {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.challenge-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--accent, #ff6b35), transparent);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.challenge-card:hover::before {
+  opacity: 1;
+}
+
+.challenge-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.3), 0 0 20px rgba(255, 107, 53, 0.06);
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+/* Challenge card completed state enhanced */
+.challenge-card.completed {
+  border-color: rgba(34, 197, 94, 0.2);
+}
+
+.challenge-card.completed:hover {
+  border-color: rgba(34, 197, 94, 0.4);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.3), 0 0 20px rgba(34, 197, 94, 0.08);
+}
+
+/* Timer enhanced pulse when running low */
+.challenge-timer {
+  transition: all 0.3s ease;
+}
+
+.challenge-timer.low-time {
+  color: #ef4444;
+  animation: timerLowPulse 1s ease-in-out infinite;
+}
+
+@keyframes timerLowPulse {
+  0%, 100% { text-shadow: 0 0 8px rgba(239, 68, 68, 0.4); }
+  50% { text-shadow: 0 0 20px rgba(239, 68, 68, 0.8); }
+}
+
+/* Reward enhanced glow */
+.challenge-reward {
+  transition: all 0.25s ease;
+}
+
+.challenge-reward:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 16px rgba(255, 210, 63, 0.15);
+}
+
+/* Challenge progress bar enhanced shimmer */
+.challenge-progress-fill {
+  position: relative;
+  overflow: hidden;
+}
+
+.challenge-progress-fill::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.25), transparent);
+  animation: challengeShimmer 2s ease-in-out infinite;
+}
+
+@keyframes challengeShimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(200%); }
+}
+
+/* Challenge type icon enhanced hover */
+.challenge-type-icon {
+  transition: all 0.3s ease;
+}
+
+.challenge-card:hover .challenge-type-icon {
+  transform: scale(1.15) rotate(-5deg);
+  filter: brightness(1.2);
+}
+
+/* Challenge header enhanced accent */
+.challenge-header {
+  position: relative;
+}
+
+.challenge-header::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, rgba(255, 107, 53, 0.3), transparent 80%);
+}
+
+/* Claim button enhanced sweep hover */
+.challenge-claim-btn {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.25s ease;
+}
+
+.challenge-claim-btn::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 40%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+  pointer-events: none;
+}
+
+.challenge-claim-btn:hover::after {
+  animation: claimSweep 0.5s ease-out;
+}
+
+@keyframes claimSweep {
+  to { left: 200%; }
+}
+
+.challenge-claim-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(34, 197, 94, 0.2);
+}
+
+/* Responsive additions */
+@media (max-width: 768px) {
+  .challenge-card:hover { transform: none; }
+  .challenge-card:hover .challenge-type-icon { transform: none; }
+  .challenge-claim-btn:hover { transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .challenge-progress-fill::after { animation: none; }
+  .challenge-timer.low-time { animation: none; }
+  .challenge-claim-btn::after { animation: none; }
+}
+

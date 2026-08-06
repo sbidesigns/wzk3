@@ -872,3 +872,170 @@
     width: 4px !important;
   }
 }
+
+/* ============================================
+   CYCLE 44: LEADERBOARD ENHANCEMENTS
+   ============================================ */
+
+/* Table row enhanced hover with slide highlight */
+.lb-row {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.25s ease;
+}
+
+.lb-row::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 40%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.03), transparent);
+  pointer-events: none;
+  transition: none;
+}
+
+.lb-row:hover::after {
+  animation: lbRowSweep 0.6s ease-out;
+}
+
+@keyframes lbRowSweep {
+  to { left: 200%; }
+}
+
+.lb-row:hover {
+  background: rgba(255, 255, 255, 0.06) !important;
+  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.2);
+}
+
+/* Rank badge enhanced glow for top 3 */
+.lb-rank-1, .lb-rank-2, .lb-rank-3 {
+  position: relative;
+}
+
+.lb-row:nth-child(1) .lb-rank {
+  text-shadow: 0 0 16px rgba(255, 215, 0, 0.6);
+  animation: goldPulse 2s ease-in-out infinite;
+}
+
+@keyframes goldPulse {
+  0%, 100% { text-shadow: 0 0 16px rgba(255, 215, 0, 0.6); }
+  50% { text-shadow: 0 0 24px rgba(255, 215, 0, 0.9), 0 0 40px rgba(255, 215, 0, 0.3); }
+}
+
+.lb-row:nth-child(2) .lb-rank {
+  text-shadow: 0 0 12px rgba(192, 192, 192, 0.4);
+}
+
+.lb-row:nth-child(3) .lb-rank {
+  text-shadow: 0 0 12px rgba(205, 127, 50, 0.4);
+}
+
+/* Stat card enhanced hover */
+.lb-stat-card {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.lb-stat-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--accent, #ff6b35), transparent);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.lb-stat-card:hover::before {
+  opacity: 1;
+}
+
+.lb-stat-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3), 0 0 20px rgba(255, 107, 53, 0.06);
+}
+
+/* Category tab enhanced hover */
+.lb-tab {
+  transition: all 0.25s ease;
+  position: relative;
+}
+
+.lb-tab:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.lb-tab.active {
+  box-shadow: 0 0 16px rgba(255, 107, 53, 0.15);
+}
+
+/* Header enhanced with bottom glow line */
+.lb-header {
+  position: relative;
+}
+
+.lb-header::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 10%;
+  right: 10%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 107, 53, 0.3), transparent);
+}
+
+/* Personal best item enhanced hover */
+.lb-personal-item {
+  transition: all 0.25s ease;
+}
+
+.lb-personal-item:hover {
+  transform: translateX(4px);
+  border-color: rgba(0, 229, 255, 0.2);
+  box-shadow: 0 2px 12px rgba(0, 229, 255, 0.06);
+}
+
+/* Skeleton loading enhanced shimmer */
+.lb-skeleton {
+  position: relative;
+  overflow: hidden;
+}
+
+.lb-skeleton::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.04), transparent);
+  animation: lbSkeletonShimmer 1.5s ease-in-out infinite;
+}
+
+@keyframes lbSkeletonShimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+/* Table header enhanced sticky shadow */
+.lb-table thead {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+}
+
+/* Responsive additions */
+@media (max-width: 768px) {
+  .lb-stat-card:hover { transform: none; }
+  .lb-personal-item:hover { transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lb-row::after { animation: none !important; }
+  .lb-row:nth-child(1) .lb-rank { animation: none; }
+  .lb-skeleton::after { animation: none; }
+}
+

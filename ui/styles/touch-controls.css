@@ -534,3 +534,124 @@
   white-space: nowrap;
   border: 0;
 }
+
+/* ============================================
+   CYCLE 44: TOUCH CONTROLS ENHANCEMENTS
+   ============================================ */
+
+/* Touch button enhanced press feedback */
+.touch-btn {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.15s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.touch-btn::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(circle at var(--touch-x, 50%) var(--touch-y, 50%), rgba(255, 255, 255, 0.2), transparent 60%);
+  opacity: 0;
+  transition: opacity 0.15s ease;
+  pointer-events: none;
+}
+
+.touch-btn.active::after {
+  opacity: 1;
+}
+
+.touch-btn:active {
+  transform: scale(0.92);
+  box-shadow: 0 0 20px rgba(255, 107, 53, 0.3), inset 0 0 16px rgba(255, 107, 53, 0.1);
+}
+
+/* Touch button glow ring on active */
+.touch-btn::before {
+  content: '';
+  position: absolute;
+  inset: -3px;
+  border-radius: inherit;
+  border: 2px solid transparent;
+  transition: all 0.2s ease;
+  pointer-events: none;
+}
+
+.touch-btn.active::before {
+  border-color: rgba(255, 107, 53, 0.4);
+  box-shadow: 0 0 12px rgba(255, 107, 53, 0.2);
+}
+
+/* D-pad enhanced styling */
+.touch-dpad {
+  position: relative;
+}
+
+.touch-dpad::after {
+  content: '';
+  position: absolute;
+  inset: -8px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 107, 53, 0.04), transparent 70%);
+  pointer-events: none;
+}
+
+.touch-dpad-btn {
+  transition: all 0.15s ease;
+}
+
+.touch-dpad-btn:active {
+  transform: scale(0.88);
+  background: rgba(255, 107, 53, 0.25);
+  box-shadow: 0 0 16px rgba(255, 107, 53, 0.2);
+}
+
+/* Action buttons enhanced glow */
+.touch-action-btn {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.15s ease;
+}
+
+.touch-action-btn:active {
+  transform: scale(0.9);
+}
+
+.touch-action-btn.boost-active {
+  box-shadow: 0 0 24px rgba(0, 229, 255, 0.4), inset 0 0 12px rgba(0, 229, 255, 0.15);
+  border-color: rgba(0, 229, 255, 0.5);
+}
+
+/* Touch controls container enhanced backdrop */
+.touch-controls-container {
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+/* Touch joystick enhanced glow */
+.touch-joystick-base {
+  box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.4), 0 0 12px rgba(255, 255, 255, 0.03);
+  transition: box-shadow 0.2s ease;
+}
+
+.touch-joystick-base.active {
+  box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.4), 0 0 20px rgba(255, 107, 53, 0.15);
+}
+
+.touch-joystick-knob {
+  transition: all 0.15s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.touch-joystick-knob.active {
+  box-shadow: 0 2px 16px rgba(255, 107, 53, 0.3);
+}
+
+/* Responsive additions */
+@media (prefers-reduced-motion: reduce) {
+  .touch-btn:active { transform: none; }
+  .touch-dpad-btn:active { transform: none; }
+  .touch-action-btn:active { transform: none; }
+}
+

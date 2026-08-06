@@ -722,3 +722,200 @@
   .track-loading-ring { animation: none; }
   .loading-tip { animation: none; opacity: 0.8; }
 }
+
+/* ============================================
+   CYCLE 44: TRACK LOADING ENHANCEMENTS
+   ============================================ */
+
+/* Track preview image enhanced border glow */
+.tl-track-image {
+  box-shadow:
+    0 0 20px rgba(255, 107, 53, 0.12),
+    inset 0 0 30px rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 107, 53, 0.15);
+  transition: box-shadow 0.3s ease, border-color 0.3s ease;
+}
+
+.tl-track-image:hover {
+  box-shadow:
+    0 0 30px rgba(255, 107, 53, 0.25),
+    inset 0 0 30px rgba(0, 0, 0, 0.3);
+  border-color: rgba(255, 107, 53, 0.3);
+}
+
+/* Meta item hover glow */
+.meta-item {
+  transition: all 0.2s ease;
+}
+
+.meta-item:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.12);
+  transform: translateY(-1px);
+}
+
+/* Progress fill enhanced shimmer with color sweep */
+.tl-progress-fill::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.25) 50%,
+    transparent 100%
+  );
+  animation: tlProgressSweep 2s ease-in-out infinite;
+}
+
+@keyframes tlProgressSweep {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(200%); }
+}
+
+/* Status dot enhanced glow ring */
+.tl-status-dot::after {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  border: 1px solid rgba(0, 229, 255, 0.3);
+  animation: statusRingPulse 1.2s ease-in-out infinite;
+}
+
+@keyframes statusRingPulse {
+  0%, 100% { transform: scale(1); opacity: 0.6; }
+  50% { transform: scale(1.4); opacity: 0; }
+}
+
+.tl-status-dot {
+  position: relative;
+}
+
+/* Vehicle card enhanced hover */
+.tl-vehicle-card {
+  transition: all 0.25s ease;
+  border: 1px solid transparent;
+}
+
+.tl-vehicle-card:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.1);
+  transform: translateX(4px);
+  box-shadow: -4px 0 16px rgba(255, 107, 53, 0.08);
+}
+
+/* Tip card enhanced border animation */
+.tl-tip-card {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.25s ease;
+}
+
+.tl-tip-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 60%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(251, 191, 36, 0.06), transparent);
+  animation: tipSweep 4s ease-in-out infinite;
+}
+
+@keyframes tipSweep {
+  0%, 100% { left: -100%; }
+  50% { left: 150%; }
+}
+
+.tl-tip-card:hover {
+  border-color: rgba(251, 191, 36, 0.3);
+  box-shadow: 0 0 20px rgba(251, 191, 36, 0.08);
+}
+
+/* Opponent row enhanced hover */
+.tl-opponent-row:hover {
+  background: rgba(255, 255, 255, 0.07);
+  border-color: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.2);
+}
+
+/* Ready screen enhanced entry */
+.ready-content {
+  animation: readyContentFloat 3s ease-in-out infinite;
+}
+
+@keyframes readyContentFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+/* Cancel button enhanced hover */
+.tl-cancel-btn {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.25s ease;
+}
+
+.tl-cancel-btn::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(239, 68, 68, 0.1), transparent);
+  transform: translateX(-100%);
+  transition: transform 0.4s ease;
+}
+
+.tl-cancel-btn:hover::after {
+  transform: translateX(100%);
+}
+
+.tl-cancel-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(239, 68, 68, 0.15);
+}
+
+/* Section title enhanced with accent dot */
+.tl-section-title::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #ff6b35;
+  box-shadow: 0 0 8px rgba(255, 107, 53, 0.5);
+  flex-shrink: 0;
+}
+
+/* Loading percent enhanced glow on high values */
+.loading-percent {
+  transition: text-shadow 0.3s ease;
+}
+
+/* Main content enhanced entry animation */
+.tl-main-content {
+  animation: mainContentFloat 4s ease-in-out infinite, contentGlowPulse 6s ease-in-out infinite;
+}
+
+@keyframes contentGlowPulse {
+  0%, 100% { box-shadow: 0 40px 100px rgba(0, 0, 0, 0.5), 0 0 60px rgba(255, 107, 53, 0.04) inset; }
+  50% { box-shadow: 0 40px 100px rgba(0, 0, 0, 0.5), 0 0 80px rgba(255, 107, 53, 0.08) inset; }
+}
+
+/* Responsive additions */
+@media (max-width: 768px) {
+  .tl-vehicle-card:hover { transform: none; box-shadow: none; }
+  .tl-tip-card::before { animation: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tl-progress-fill::before { animation: none; }
+  .tl-status-dot::after { animation: none; }
+  .tl-tip-card::before { animation: none; }
+  .ready-content { animation: none; }
+  .tl-main-content { animation: none; }
+  .tl-cancel-btn::after { transition: none; }
+}
+

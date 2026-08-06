@@ -1283,3 +1283,155 @@
     animation: none;
   }
 }
+
+/* ============================================
+   CYCLE 44: TOURNAMENT ENHANCEMENTS
+   ============================================ */
+
+/* Tournament bracket match enhanced hover */
+.tournament-match {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.tournament-match::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 40%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.04), transparent);
+  pointer-events: none;
+}
+
+.tournament-match:hover::after {
+  animation: matchSweep 0.6s ease-out;
+}
+
+@keyframes matchSweep {
+  to { left: 200%; }
+}
+
+.tournament-match:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3), 0 0 16px rgba(255, 107, 53, 0.06);
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+/* Tournament card enhanced hover lift */
+.tournament-card {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.tournament-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--accent, #ff6b35), var(--tier-gold, #ffd700), var(--accent, #ff6b35));
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.tournament-card:hover::before {
+  opacity: 1;
+}
+
+.tournament-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4), 0 0 24px rgba(255, 107, 53, 0.08);
+  border-color: rgba(255, 107, 53, 0.25);
+}
+
+/* Participant row enhanced hover */
+.participant-row {
+  transition: all 0.25s ease;
+}
+
+.participant-row:hover {
+  background: rgba(255, 255, 255, 0.05);
+  transform: translateX(4px);
+}
+
+/* Badge enhanced hover lift + glow */
+.tournament-badge {
+  transition: all 0.3s ease;
+}
+
+.tournament-badge:hover {
+  transform: translateY(-3px) scale(1.05);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3), 0 0 16px rgba(255, 210, 63, 0.12);
+}
+
+/* Reward item enhanced hover */
+.reward-item {
+  transition: all 0.25s ease;
+}
+
+.reward-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+  border-color: rgba(255, 210, 63, 0.25);
+}
+
+/* Standing indicator enhanced pulse */
+.standing-1st {
+  animation: standingGoldPulse 2s ease-in-out infinite;
+}
+
+@keyframes standingGoldPulse {
+  0%, 100% { text-shadow: 0 0 12px rgba(255, 215, 0, 0.5); }
+  50% { text-shadow: 0 0 24px rgba(255, 215, 0, 0.8), 0 0 40px rgba(255, 215, 0, 0.3); }
+}
+
+/* Tournament header enhanced with accent underline */
+.tournament-header {
+  position: relative;
+}
+
+.tournament-header::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, var(--accent, #ff6b35), transparent 80%);
+}
+
+/* Timer/countdown enhanced glow */
+.tournament-timer {
+  text-shadow: 0 0 12px rgba(255, 107, 53, 0.4);
+  transition: text-shadow 0.3s ease;
+}
+
+.tournament-timer.urgent {
+  animation: timerUrgentPulse 0.8s ease-in-out infinite;
+  color: #ef4444;
+}
+
+@keyframes timerUrgentPulse {
+  0%, 100% { text-shadow: 0 0 12px rgba(239, 68, 68, 0.4); }
+  50% { text-shadow: 0 0 24px rgba(239, 68, 68, 0.8); }
+}
+
+/* Responsive additions */
+@media (max-width: 768px) {
+  .tournament-card:hover { transform: none; }
+  .tournament-badge:hover { transform: none; }
+  .reward-item:hover { transform: none; }
+  .participant-row:hover { transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tournament-match::after { animation: none; }
+  .standing-1st { animation: none; }
+  .tournament-timer.urgent { animation: none; }
+}
+

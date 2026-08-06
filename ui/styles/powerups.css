@@ -772,3 +772,138 @@
     border: 1px solid #333;
   }
 }
+
+/* ============================================
+   CYCLE 44: POWERUPS ENHANCEMENTS
+   ============================================ */
+
+/* Powerup icon enhanced glow by type */
+.powerup-icon {
+  transition: all 0.3s ease;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+}
+
+.powerup-icon.speed {
+  filter: drop-shadow(0 0 8px rgba(0, 229, 255, 0.5));
+}
+
+.powerup-icon.shield {
+  filter: drop-shadow(0 0 8px rgba(59, 130, 246, 0.5));
+}
+
+.powerup-icon.projectile {
+  filter: drop-shadow(0 0 8px rgba(239, 68, 68, 0.5));
+}
+
+.powerup-icon.oil {
+  filter: drop-shadow(0 0 8px rgba(168, 85, 247, 0.5));
+}
+
+/* Powerup card enhanced hover */
+.powerup-card {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.powerup-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--powerup-color, #ff6b35), transparent);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.powerup-card:hover::before {
+  opacity: 1;
+}
+
+.powerup-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3), 0 0 16px rgba(var(--powerup-rgb, 255, 107, 53), 0.08);
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+/* Powerup active state pulse */
+.powerup-card.active {
+  animation: powerupActivePulse 1.5s ease-in-out infinite;
+}
+
+@keyframes powerupActivePulse {
+  0%, 100% { box-shadow: 0 0 12px rgba(var(--powerup-rgb, 0, 229, 255), 0.15); }
+  50% { box-shadow: 0 0 24px rgba(var(--powerup-rgb, 0, 229, 255), 0.3); }
+}
+
+/* Powerup collect flash overlay */
+.powerup-collect-flash {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  pointer-events: none;
+  animation: collectFlash 0.4s ease-out both;
+}
+
+@keyframes collectFlash {
+  0% { background: rgba(var(--flash-color, 0, 229, 255), 0.2); }
+  100% { background: transparent; }
+}
+
+/* Powerup HUD indicator enhanced */
+.powerup-hud-item {
+  transition: all 0.25s ease;
+}
+
+.powerup-hud-item:hover {
+  transform: scale(1.05);
+}
+
+.powerup-hud-item.active {
+  animation: hudItemPulse 2s ease-in-out infinite;
+}
+
+@keyframes hudItemPulse {
+  0%, 100% { box-shadow: 0 0 8px rgba(var(--powerup-rgb, 0, 229, 255), 0.2); }
+  50% { box-shadow: 0 0 16px rgba(var(--powerup-rgb, 0, 229, 255), 0.4); }
+}
+
+/* Powerup timer bar enhanced */
+.powerup-timer-bar {
+  position: relative;
+  overflow: hidden;
+}
+
+.powerup-timer-fill {
+  position: relative;
+  overflow: hidden;
+}
+
+.powerup-timer-fill::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.25), transparent);
+  animation: powerupTimerShimmer 1.5s ease-in-out infinite;
+}
+
+@keyframes powerupTimerShimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(200%); }
+}
+
+/* Responsive additions */
+@media (max-width: 768px) {
+  .powerup-card:hover { transform: none; }
+  .powerup-hud-item:hover { transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .powerup-card.active { animation: none; }
+  .powerup-hud-item.active { animation: none; }
+  .powerup-collect-flash { animation: none; }
+  .powerup-timer-fill::after { animation: none; }
+}
+
