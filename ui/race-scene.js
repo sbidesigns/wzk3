@@ -233,8 +233,11 @@ export class RaceScene {
     // Spoiler
     var spMat = new THREE.MeshStandardMaterial({ color: 0x222233, metalness: 0.7, roughness: 0.3 });
     var sp = new THREE.Mesh(new THREE.BoxGeometry(2.2, 0.08, 0.5), spMat); sp.position.set(0, 1.3, -1.9); cg.add(sp);
-    cg.add(Object.assign(new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.35, 0.1), spMat), { position: new THREE.Vector3(-0.8, 1.1, -1.9) }));
-    cg.add(Object.assign(new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.35, 0.1), spMat), { position: new THREE.Vector3(0.8, 1.1, -1.9) }));
+    // Spoiler supports (avoid Object.assign on read-only 'position' property)
+    var spSupL = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.35, 0.1), spMat);
+    spSupL.position.set(-0.8, 1.1, -1.9); cg.add(spSupL);
+    var spSupR = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.35, 0.1), spMat);
+    spSupR.position.set(0.8, 1.1, -1.9); cg.add(spSupR);
     // Side skirts
     var skMat = new THREE.MeshBasicMaterial({ color: 0x00e5ff, transparent: true, opacity: 0.8 });
     var skGeo = new THREE.BoxGeometry(0.08, 0.15, 3.5);
@@ -252,8 +255,9 @@ export class RaceScene {
     // Headlights
     var hlGeo = new THREE.SphereGeometry(0.25, 8, 8);
     var hlMat = new THREE.MeshBasicMaterial({ color: 0xffffcc });
-    cg.add(Object.assign(new THREE.Mesh(hlGeo, hlMat), { position: new THREE.Vector3(-0.7, 0.8, 2) }));
-    cg.add(Object.assign(new THREE.Mesh(hlGeo, hlMat), { position: new THREE.Vector3(0.7, 0.8, 2) }));
+    // Headlights (avoid Object.assign on read-only 'position' property)
+    var hlL = new THREE.Mesh(hlGeo, hlMat); hlL.position.set(-0.7, 0.8, 2); cg.add(hlL);
+    var hlR = new THREE.Mesh(hlGeo, hlMat); hlR.position.set(0.7, 0.8, 2); cg.add(hlR);
     // Headlight spots
     var hlSL = new THREE.SpotLight(0xffffcc, 3, 50, Math.PI / 5, 0.6);
     hlSL.position.set(-0.7, 0.8, 2); hlSL.target.position.set(-0.7, 0, 20); cg.add(hlSL); cg.add(hlSL.target);
@@ -262,8 +266,9 @@ export class RaceScene {
     this._lights.spotLights.push(hlSL, hlSR);
     // Taillights
     var tlMat = new THREE.MeshBasicMaterial({ color: 0xff0000 });
-    cg.add(Object.assign(new THREE.Mesh(hlGeo, tlMat), { position: new THREE.Vector3(-0.7, 0.8, -2) }));
-    cg.add(Object.assign(new THREE.Mesh(hlGeo, tlMat), { position: new THREE.Vector3(0.7, 0.8, -2) }));
+    // Taillights (avoid Object.assign on read-only 'position' property)
+    var tlL = new THREE.Mesh(hlGeo, tlMat); tlL.position.set(-0.7, 0.8, -2); cg.add(tlL);
+    var tlR = new THREE.Mesh(hlGeo, tlMat); tlR.position.set(0.7, 0.8, -2); cg.add(tlR);
     // Undercar glow
     this._underGlowLight = new THREE.PointLight(0x00e5ff, 1.5, 8);
     this._underGlowLight.position.set(0, 0.2, 0); cg.add(this._underGlowLight);

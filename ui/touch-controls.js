@@ -79,11 +79,16 @@ const TouchControls = (() => {
   // =========================================================================
 
   function isTouchDevice() {
-    return (
-      'ontouchstart' in window ||
-      navigator.maxTouchPoints > 0 ||
-      navigator.msMaxTouchPoints > 0
-    );
+    // Primary check: use pointer: coarse media query (accurate for touchscreens vs touchpads)
+    if (window.matchMedia && window.matchMedia('(pointer: coarse)').matches) {
+      return true;
+    }
+    // Secondary check: only trust maxTouchPoints if it's a high number (actual touchscreen)
+    if (navigator.maxTouchPoints > 5) {
+      return true;
+    }
+    // Don't rely on ontouchstart alone - it's true on many desktop browsers
+    return false;
   }
 
   function isHapticAvailable() {
