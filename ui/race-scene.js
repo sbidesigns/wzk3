@@ -86,6 +86,7 @@ export class RaceScene {
     this._currentItem = null; // { type, timer, duration }
     this._shieldMesh = null;
     this._shieldActive = false;
+  }
 
   _setupInputListeners() {
     if (this._inputListenersAdded) return;
