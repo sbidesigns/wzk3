@@ -69,35 +69,31 @@
   /**
    * Create the UI container
    */
-  function createUI() {
-    container = document.createElement('div');
-    container.id = 'wzk3-debug-console';
-    container.innerHTML = `
-      <style>
-        #wzk3-debug-console {
-          position: fixed;
-          bottom: 12px;
-          right: 12px;
-          width: 420px;
-          max-height: 320px;
-          background: rgba(8, 10, 18, 0.95);
-          border: 1px solid rgba(100, 120, 180, 0.25);
-          border-radius: 10px;
-          font-family: 'JetBrains Mono', 'Consolas', monospace;
-          font-size: 11px;
-          z-index: 99999;
-          display: flex;
-          flex-direction: column;
-          box-shadow: 
-            0 8px 32px rgba(0, 0, 0, 0.6),
-            0 0 60px rgba(0, 200, 255, 0.05);
-          backdrop-filter: blur(12px);
-          transition: height 0.25s ease, opacity 0.25s ease;
-          overflow: hidden;
-        }
-        #wzk3-debug-console.minimized {
-          max-height: 36px;
-        }
+  const DEBUG_CSS = `
+    #wzk3-debug-console {
+      position: fixed;
+      top: 12px;
+      right: 12px;
+      width: 420px;
+      max-height: 320px;
+      background: rgba(8, 10, 18, 0.95);
+      border: 1px solid rgba(100, 120, 180, 0.25);
+      border-radius: 10px;
+      font-family: 'JetBrains Mono', 'Consolas', monospace;
+      font-size: 11px;
+      z-index: 99999;
+      display: flex;
+      flex-direction: column;
+      box-shadow:
+        0 8px 32px rgba(0, 0, 0, 0.6),
+        0 0 60px rgba(0, 200, 255, 0.05);
+      backdrop-filter: blur(12px);
+      transition: height 0.25s ease, opacity 0.25s ease;
+      overflow: hidden;
+    }
+    #wzk3-debug-console.minimized {
+      max-height: 36px;
+    }
         #wzk3-debug-console .dbg-header {
           display: flex;
           align-items: center;
@@ -302,10 +298,21 @@
           transition: all 0.15s ease;
           font-family: inherit;
         }
-        #wzk3-debug-console .dbg-clear-btn:hover {
-          background: rgba(255, 80, 80, 0.25);
-        }
-      </style>
+    #wzk3-debug-console .dbg-clear-btn:hover {
+      background: rgba(255, 80, 80, 0.25);
+    }
+  `;
+
+  function createUI() {
+    // Inject CSS into <head> to prevent raw style text leaking into the container
+    const styleEl = document.createElement('style');
+    styleEl.id = 'wzk3-debug-console-css';
+    styleEl.textContent = DEBUG_CSS;
+    document.head.appendChild(styleEl);
+
+    container = document.createElement('div');
+    container.id = 'wzk3-debug-console';
+    container.innerHTML = `
       <div class="dbg-header" id="dbg-header">
         <span class="dbg-title">🔧 WZK3 DEBUG</span>
         <div class="dbg-stats">
@@ -520,7 +527,7 @@
       id: ++state.stats.total,
       severity,
       text: text.slice(0, 500),
-      source: meta.source || source,
+      source: meta.source || 'unknown',
       time,
       timestamp: now,
       stack: meta.stack,
@@ -630,11 +637,7 @@
    * Toggle visibility entirely
    */
   function toggleVisibility() {
-    if (container.style.display === 'none') {
-      container.style.display = '';
-    } else {
-      container.style.display = container.style.display === 'none' ? '' : 'none';
-    }
+    container.style.display = container.style.display === 'none' ? '' : 'none';
   }
 
   /**

@@ -204,11 +204,17 @@ export class HUDSystem {
    */
   startCountdown(duration = 3) {
     return new Promise((resolve) => {
-      const countdownEl = document.getElementById('hud-countdown');
+      let countdownEl = document.getElementById('hud-countdown');
+      
+      // Auto-create countdown element if missing (HUD may not be mounted yet)
       if (!countdownEl) {
-        console.warn('[HUD] Countdown element not found, skipping countdown');
-        resolve();
-        return;
+        countdownEl = document.createElement('div');
+        countdownEl.className = 'hud-countdown';
+        countdownEl.id = 'hud-countdown';
+        countdownEl.setAttribute('aria-hidden', 'false');
+        countdownEl.innerHTML = '<div class="countdown-number">3</div>';
+        countdownEl.style.cssText = 'position:fixed;inset:0;display:flex;align-items:center;justify-content:center;z-index:1000;pointer-events:none;';
+        document.body.appendChild(countdownEl);
       }
       
       // Reset and show countdown

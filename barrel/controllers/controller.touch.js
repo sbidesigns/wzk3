@@ -5,11 +5,15 @@
 let _active = false;
 let _container = null;
 
+// Public accessor for activation state
+export function isActive() { return _active; }
+
 export function activate(inputManager) {
   _active = true;
   _container = document.createElement('div');
   _container.id = 'touch-controls';
-  _container.style.cssText = 'position:fixed;inset:0;pointer-events:none;z-index:50;display:none';
+  // Start hidden - only show if touch device detected
+  _container.style.cssText = 'position:fixed;inset:0;pointer-events:none;z-index:50;display:none;visibility:hidden';
   document.body.appendChild(_container);
 
   const layout = inputManager._bindings?.controllers?.touch?.layout || {
@@ -35,7 +39,24 @@ export function activate(inputManager) {
   }
   _container.appendChild(rightGroup);
 
-  _container.style.display = 'block';
+  // Only show on actual touch devices (not desktop with mouse)
+  // Use a more reliable check: wait for first touch event before showing
+  const hasFinePointer = window.matchMedia('(pointer: fine)').matches;
+  const hasCoarsePointer = window.matchMedia('(pointer: coarse)').matches;
+  const isTouchDevice = hasCoarsePointer || (!hasFinePointer && (('ontouchstart' in window) || (navigator.maxTouchPoints > 0)));
+  if (isTouchDevice) {
+    _container.style.display = 'block';
+    _container.style.visibility = 'visible';
+  }
+  // Listen for first touch as fallback detection
+  const onFirstTouch = function() {
+    _container.style.display = 'block';
+    _container.style.visibility = 'visible';
+    document.removeEventListener('touchstart', onFirstTouch, { once: true });
+  };
+  if (!isTouchDevice) {
+    document.addEventListener('touchstart', onFirstTouch, { once: true });
+  }
   inputManager.ctx?.engine?.bus?.emit('controller:activated', { id: 'touch' });
 }
 
@@ -49,6 +70,14 @@ export function deactivate(inputManager) {
 }
 
 export function poll(inputManager, dt) { /* no-op; touch events are immediate */ }
+
+// Call this when actual touch input is detected to show controls
+export function show() {
+  if (_container) {
+    _container.style.display = 'block';
+    _container.style.visibility = 'visible';
+  }
+}
 
 function _makeButton(action, size, opacity, inputManager) {
   const btn = document.createElement('div');
@@ -81,4 +110,4 @@ function _makeButton(action, size, opacity, inputManager) {
   return btn;
 }
 
-export default { activate, deactivate, poll };
+export default { activate, deactivate, poll, isActive, show };

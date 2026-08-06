@@ -4,6 +4,9 @@
 
 let _active = false;
 
+// Public accessor for activation state
+export function isActive() { return _active; }
+
 export function activate(inputManager) {
   _active = true;
   inputManager.ctx?.engine?.bus?.emit('controller:activated', { id: 'gamepad' });
@@ -21,4 +24,4 @@ export function poll(inputManager, dt) {
   // per-platform vibration / LED effects.
 }
 
-export default { activate, deactivate, poll };
+export default { activate, deactivate, poll, isActive };

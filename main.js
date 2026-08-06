@@ -448,12 +448,18 @@ async function main() {
       console.log(`[main] Activating ${controllers.length} controllers...`);
       for (const { entry, module } of controllers) {
         if (module.activate || module.deactivate || module.poll) {
-          engine.input.registerController(entry.id, module);
-          console.log(`[main] ✓ Controller activated: ${entry.displayName || entry.id}`);
+          try {
+            engine.input.registerController(entry.id, module);
+            console.log(`[main] ✓ Controller activated: ${entry.displayName || entry.id}`);
+          } catch (ctrlErr) {
+            console.error(`[main] ✗ Controller "${entry.id}" failed:`, ctrlErr.message);
+            console.error(`[main]   Module type:`, typeof module, Object.keys(module));
+            // Continue activating other controllers - don't let one failure block others
+          }
         }
       }
     } catch (err) {
-      trackWarning(`Controller activation failed: ${err.message}`);
+      trackWarning(`Controller activation loop failed: ${err.message}`);
     }
 
     // --- BASIC REGISTRIES (no saveSystem dependency) ---
@@ -1121,7 +1127,7 @@ async function main() {
     // 19.5 Initialize Race Scene for 3D gameplay
     let raceScene = null;
     try {
-      const { getRaceScene } = await import('./ui/race-scene.js');
+      const { getRaceScene } = await import('./ui/race-scene.js?v=41');
       raceScene = getRaceScene();
       window.__raceScene = raceScene;
       console.log('[main] Race Scene system ready');
