@@ -732,3 +732,183 @@
     font-size: 70px;
   }
 }
+
+
+/* ============================================
+   CYCLE 46: RACE COUNTDOWN ENHANCEMENTS
+   ============================================ */
+
+/* Countdown container background particle effect */
+.countdown-overlay {
+  position: relative;
+  overflow: hidden;
+}
+
+.countdown-overlay::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: 
+    radial-gradient(ellipse at 30% 20%, rgba(255, 107, 53, 0.08) 0%, transparent 50%),
+    radial-gradient(ellipse at 70% 80%, rgba(0, 229, 255, 0.06) 0%, transparent 50%);
+  pointer-events: none;
+  animation: countdownBgPulse 3s ease-in-out infinite alternate;
+}
+
+@keyframes countdownBgPulse {
+  0% { opacity: 0.5; }
+  100% { opacity: 1; }
+}
+
+/* Enhanced countdown number with multi-layer glow */
+.countdown-number-container {
+  position: relative;
+}
+
+.countdown-number-container::after {
+  content: '';
+  position: absolute;
+  inset: -20px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  border-top-color: rgba(255, 107, 53, 0.4);
+  border-bottom-color: rgba(0, 229, 255, 0.3);
+  animation: countdownRingSpin 1s linear infinite;
+  pointer-events: none;
+}
+
+.countdown-number-container::before {
+  content: '';
+  position: absolute;
+  inset: -35px;
+  border-radius: 50%;
+  border: 1px solid transparent;
+  border-left-color: rgba(255, 210, 63, 0.2);
+  border-right-color: rgba(168, 85, 247, 0.15);
+  animation: countdownRingSpin 2s linear infinite reverse;
+  pointer-events: none;
+}
+
+@keyframes countdownRingSpin {
+  to { transform: rotate(360deg); }
+}
+
+/* Countdown number shockwave on each count */
+.countdown-number.shockwave {
+  animation: countdownShockwave 0.6s ease-out;
+}
+
+@keyframes countdownShockwave {
+  0% { transform: scale(1); text-shadow: 0 0 20px currentColor; }
+  30% { transform: scale(1.3); text-shadow: 0 0 60px currentColor, 0 0 120px currentColor; }
+  100% { transform: scale(1); text-shadow: 0 0 20px currentColor; }
+}
+
+/* GO text enhanced with fire trail */
+.go-text {
+  position: relative;
+  filter: drop-shadow(0 0 30px rgba(34, 197, 94, 0.6));
+}
+
+.go-text::after {
+  content: '';
+  position: absolute;
+  bottom: -10px;
+  left: 10%;
+  right: 10%;
+  height: 4px;
+  background: linear-gradient(90deg, transparent, rgba(34, 197, 94, 0.6), rgba(255, 210, 63, 0.4), transparent);
+  border-radius: 2px;
+  animation: goTrailGlow 0.8s ease-out forwards;
+}
+
+@keyframes goTrailGlow {
+  0% { opacity: 0; transform: scaleX(0.3); }
+  50% { opacity: 1; transform: scaleX(1); }
+  100% { opacity: 0.6; transform: scaleX(1.2); }
+}
+
+/* Racer grid enhanced stagger entrance */
+.racer-item {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.25s ease;
+}
+
+.racer-item::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 60%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.04), transparent);
+  pointer-events: none;
+}
+
+.racer-item:hover::before {
+  animation: racerRowSweep 0.6s ease-out;
+}
+
+@keyframes racerRowSweep {
+  to { left: 200%; }
+}
+
+.racer-item:hover {
+  background: rgba(255, 255, 255, 0.06) !important;
+  transform: translateX(4px);
+  border-color: rgba(255, 255, 255, 0.12) !important;
+}
+
+/* Track preview section enhanced glass effect */
+.track-preview-section {
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  position: relative;
+  overflow: hidden;
+}
+
+.track-preview-section::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 107, 53, 0.4), rgba(0, 229, 255, 0.3), transparent);
+}
+
+/* Countdown info bar enhanced */
+.countdown-info-bar {
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  position: relative;
+}
+
+.countdown-info-bar::before {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 10%;
+  right: 10%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(0, 229, 255, 0.3), transparent);
+}
+
+/* Responsive additions */
+@media (max-width: 768px) {
+  .countdown-number-container::after,
+  .countdown-number-container::before {
+    display: none;
+  }
+  .racer-item:hover { transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .countdown-overlay::before { animation: none; }
+  .countdown-number-container::after,
+  .countdown-number-container::before { animation: none; display: none; }
+  .countdown-number.shockwave { animation: none; }
+  .go-text::after { animation: none; display: none; }
+  .racer-item::before { animation: none; }
+}

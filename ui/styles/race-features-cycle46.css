@@ -1,0 +1,148 @@
+/* ui/styles/race-features-cycle46.css — Cycle 46 In-Race Feature Styling */
+
+/* ============================================
+   POSITION CHANGE NOTIFICATION
+   ============================================ */
+.position-notification {
+  animation: posNotifSlideIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+@keyframes posNotifSlideIn {
+  from { transform: translateX(-50%) translateY(-20px) scale(0.8); opacity: 0; }
+  to { transform: translateX(-50%) translateY(0) scale(1); opacity: 1; }
+}
+
+/* ============================================
+   NEAR MISS POPUP
+   ============================================ */
+@keyframes nearMissPop {
+  0% { transform: translate(-50%, -50%) scale(0.5); opacity: 0; }
+  20% { transform: translate(-50%, -50%) scale(1.2); opacity: 1; }
+  40% { transform: translate(-50%, -55%) scale(1.0); opacity: 1; }
+  100% { transform: translate(-50%, -70%) scale(0.9); opacity: 0; }
+}
+
+/* ============================================
+   SPEED TRAIL GLOW ON HUD
+   ============================================ */
+.game-hud.speed-trail-active .hud-speed-value {
+  text-shadow: 0 0 30px rgba(255, 107, 53, 0.6), 0 0 60px rgba(255, 107, 53, 0.3);
+}
+
+.game-hud.boost-active .hud-speed-value {
+  text-shadow: 0 0 30px rgba(0, 229, 255, 0.8), 0 0 60px rgba(0, 229, 255, 0.4);
+}
+
+/* ============================================
+   DRIFT SCORE ENHANCED POPUP
+   ============================================ */
+.drift-popup {
+  position: fixed;
+  top: 40%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-family: var(--font-display);
+  font-size: 28px;
+  font-weight: 900;
+  color: #fbbf24;
+  text-shadow: 0 0 20px rgba(251, 191, 36, 0.5);
+  pointer-events: none;
+  z-index: 950;
+  letter-spacing: 2px;
+  animation: driftScorePop 1.2s ease-out both;
+}
+
+@keyframes driftScorePop {
+  0% { transform: translate(-50%, -50%) scale(0.5); opacity: 0; }
+  15% { transform: translate(-50%, -50%) scale(1.3); opacity: 1; }
+  30% { transform: translate(-50%, -50%) scale(1.0); opacity: 1; }
+  100% { transform: translate(-50%, -60%) scale(0.9); opacity: 0; }
+}
+
+/* ============================================
+   ITEM PICKUP FLASH ENHANCED
+   ============================================ */
+.item-pickup-flash {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 900;
+  animation: itemFlash 0.4s ease-out both;
+}
+
+@keyframes itemFlash {
+  0% { opacity: 0.3; }
+  100% { opacity: 0; }
+}
+
+.item-pickup-flash.flash-boost { background: radial-gradient(ellipse at center, rgba(0, 229, 255, 0.15), transparent 70%); }
+.item-pickup-flash.flash-shield { background: radial-gradient(ellipse at center, rgba(59, 130, 246, 0.15), transparent 70%); }
+.item-pickup-flash.flash-missile { background: radial-gradient(ellipse at center, rgba(239, 68, 68, 0.15), transparent 70%); }
+.item-pickup-flash.flash-speed { background: radial-gradient(ellipse at center, rgba(251, 191, 36, 0.15), transparent 70%); }
+
+/* ============================================
+   OPPONENT PROXIMITY WARNING ENHANCED
+   ============================================ */
+.opponent-proximity-warning {
+  position: fixed;
+  top: 50%;
+  left: 20px;
+  transform: translateY(-50%);
+  pointer-events: none;
+  z-index: 800;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border-radius: 8px;
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: #ef4444;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  animation: proximityPulse 0.8s ease-in-out infinite alternate;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+@keyframes proximityPulse {
+  0% { opacity: 0.6; border-color: rgba(239, 68, 68, 0.2); }
+  100% { opacity: 1; border-color: rgba(239, 68, 68, 0.5); }
+}
+
+/* ============================================
+   BOOST ACTIVATION SCREEN FLASH
+   ============================================ */
+.boost-activation-flash {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 850;
+  background: radial-gradient(ellipse at 50% 80%, rgba(0, 229, 255, 0.12), transparent 60%);
+  animation: boostFlash 0.5s ease-out both;
+}
+
+@keyframes boostFlash {
+  0% { opacity: 0; }
+  30% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+/* ============================================
+   REDUCED MOTION
+   ============================================ */
+@media (prefers-reduced-motion: reduce) {
+  .position-notification { animation: none; opacity: 1; }
+  .drift-popup { animation: none; }
+  .item-pickup-flash { animation: none; }
+  .opponent-proximity-warning { animation: none; }
+  .boost-activation-flash { animation: none; }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .drift-popup { font-size: 22px; }
+  .opponent-proximity-warning { left: 10px; font-size: 10px; padding: 6px 10px; }
+}

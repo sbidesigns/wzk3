@@ -54,16 +54,29 @@
   /**
    * Initialize the debug console
    */
+  // Only initialize in debug mode (URL must contain ?debug=true or &debug=true)
+  const _isDebugMode = /[?&]debug=true(?:&|$)/.test(location.search);
+
+  if (!_isDebugMode) {
+    // In production, still intercept errors but don't create UI
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', interceptErrors);
+    } else {
+      interceptErrors();
+    }
+    return;
+  }
+
   function init() {
     if (isInitialized) return;
-    
+
     createUI();
     interceptConsole();
     interceptErrors();
     setupKeyboardShortcut();
-    
+
     isInitialized = true;
-    log('system', '[WZK3 Debug Console initialized]');
+    log('system', '[WZK3 Debug Console initialized — debug mode]');
   }
 
   /**
@@ -720,21 +733,24 @@
   }
 
   // === Initialize when DOM is ready ===
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
-  } else {
-    init();
-  }
+  // (only runs in debug mode — early return above handles production)
+  if (_isDebugMode) {
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', init);
+    } else {
+      init();
+    }
 
-  // Expose API globally for programmatic access
-  window.__WZK3_DEBUG = {
-    log,
-    clear: clearLog,
-    show: () => { container.style.display = ''; },
-    hide: () => { container.style.display = 'none'; },
-    getStats: () => ({ ...state.stats }),
-    getMessages: () => [...state.messages],
-    setEnabled: (v) => { CONFIG.enabled = v; }
-  };
+    // Expose API globally for programmatic access
+    window.__WZK3_DEBUG = {
+      log,
+      clear: clearLog,
+      show: () => { if (container) container.style.display = ''; },
+      hide: () => { if (container) container.style.display = 'none'; },
+      getStats: () => ({ ...state.stats }),
+      getMessages: () => [...state.messages],
+      setEnabled: (v) => { CONFIG.enabled = v; }
+    };
+  }
 
 })();

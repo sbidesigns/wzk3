@@ -86,7 +86,16 @@ export async function mount(root, payload, ctx) {
       const hero = root.querySelector('.main-menu-hero-content');
       const ticker = root.querySelector('.season-ticker');
 
-      var tl = gsap.timeline({ defaults: { ease: 'expo.out' } });
+      var tl = gsap.timeline({ defaults: { ease: 'expo.out' },
+        onComplete: function() {
+          // Safety: force all animated elements visible after animation
+          root.querySelectorAll('.main-menu-left *, .main-menu-right *').forEach(function(el) {
+            el.style.opacity = '';
+            el.style.transform = '';
+            el.style.filter = '';
+          });
+        }
+      });
 
       if (eyebrow) tl.fromTo(eyebrow, { opacity: 0, x: -30 }, { opacity: 1, x: 0, duration: 0.7 }, 0.1);
       if (title) tl.fromTo(title, { opacity: 0, y: 40, scale: 0.95, filter: 'blur(10px)' }, { opacity: 1, y: 0, scale: 1, filter: 'blur(0px)', duration: 1.0 }, 0.2);
@@ -108,6 +117,25 @@ export async function mount(root, payload, ctx) {
       if (right) tl.fromTo(right, { opacity: 0, y: 60, scale: 0.92, filter: 'blur(16px)' }, { opacity: 1, y: 0, scale: 1, filter: 'blur(0px)', duration: 1.0 }, 0.5);
       if (ticker) tl.fromTo(ticker, { opacity: 0, scale: 0.8 }, { opacity: 1, scale: 1, duration: 0.4 }, 0.8);
       if (hero) tl.fromTo(hero, { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.6 }, 0.7);
+
+      // Safety timeout: if GSAP doesn't complete within 2.5s, force all elements visible
+      setTimeout(function() {
+        root.querySelectorAll('.main-menu-left *, .main-menu-right *').forEach(function(el) {
+          var cs = getComputedStyle(el);
+          if (parseFloat(cs.opacity) < 0.5) {
+            el.style.opacity = '1';
+            el.style.transform = 'none';
+            el.style.filter = 'none';
+          }
+        });
+      }, 2500);
+    } else {
+      // No GSAP — ensure everything is visible immediately
+      root.querySelectorAll('.main-menu-left *, .main-menu-right *').forEach(function(el) {
+        el.style.opacity = '1';
+        el.style.transform = 'none';
+        el.style.filter = 'none';
+      });
     }
   });
 }

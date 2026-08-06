@@ -162,6 +162,7 @@ export class RaceScene {
       this._spawnInitialObstacles();
       this._createWeatherSystem();
       this._createExhaustFlames();
+      this._initSpeedTrail();
       if (this._vehicle) {
         this._camera.position.copy(this._vehicle.position).add(this._cameraOffset);
         this._camera.lookAt(this._vehicle.position);
@@ -880,7 +881,9 @@ export class RaceScene {
     var canvas = document.getElementById('game-canvas');
     if (canvas) canvas.style.display = 'none';
     // Navigate to main menu
-    if (window.__engine && window.__engine.router) {
+    if (window.__uiRouter) {
+      window.__uiRouter.push('main-menu');
+    } else if (window.__engine && window.__engine.router) {
       window.__engine.router.navigate('main-menu');
     }
   }
@@ -1027,6 +1030,11 @@ export class RaceScene {
     this._updateEdgePulses(dt);
     this._updateExhaustFlames(dt);
     this._updateAudioSpeed();
+    // Cycle 46 features
+    this._updateSpeedTrail(dt);
+    this._checkPositionChange();
+    this._checkNearMiss(dt);
+    this._updateMinimapPing(dt);
   }
 
   // ==================== OPPONENT UPDATE (Cycle 42) ====================
@@ -1809,6 +1817,139 @@ export class RaceScene {
         this._lights.spotLights[i].intensity = targetIntensity;
       }
     }
+  }
+
+  // ==================== CYCLE 46: SPEED TRAIL EFFECT ====================
+
+  _initSpeedTrail() {
+    if (!this._vehicle || !this._scene) return;
+    this._speedTrailPoints = [];
+    this._speedTrailMaxLength = 30;
+    this._speedTrailLine = null;
+
+    var geometry = new THREE.BufferGeometry();
+    var positions = new Float32Array(this._speedTrailMaxLength * 3);
+    var colors = new Float32Array(this._speedTrailMaxLength * 3);
+    geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+    geometry.setDrawRange(0, 0);
+
+    var material = new THREE.LineBasicMaterial({ vertexColors: true, transparent: true, opacity: 0.6, blending: THREE.AdditiveBlending, depthWrite: false });
+    this._speedTrailLine = new THREE.Line(geometry, material);
+    this._scene.add(this._speedTrailLine);
+  }
+
+  _updateSpeedTrail(dt) {
+    if (!this._speedTrailLine || !this._vehicle) return;
+    var speedRatio = Math.min(this._state.speed / 250, 1);
+    if (speedRatio < 0.5) {
+      this._speedTrailLine.visible = false;
+      this._speedTrailPoints = [];
+      return;
+    }
+    this._speedTrailLine.visible = true;
+
+    var pos = this._vehicle.position.clone();
+    pos.y -= 0.3;
+    this._speedTrailPoints.push({ x: pos.x, y: pos.y, z: pos.z, age: 0 });
+    if (this._speedTrailPoints.length > this._speedTrailMaxLength) this._speedTrailPoints.shift();
+
+    for (var i = 0; i < this._speedTrailPoints.length; i++) { this._speedTrailPoints[i].age += dt; }
+
+    var posAttr = this._speedTrailLine.geometry.getAttribute('position');
+    var colAttr = this._speedTrailLine.geometry.getAttribute('color');
+    var count = this._speedTrailPoints.length;
+    for (var j = 0; j < count; j++) {
+      var p = this._speedTrailPoints[j];
+      posAttr.setXYZ(j, p.x, p.y, p.z);
+      var t = j / count;
+      var alpha = t * speedRatio;
+      if (this._boostActive) { colAttr.setXYZ(j, 0.0, alpha * 0.9, alpha); }
+      else { colAttr.setXYZ(j, alpha * 1.0, alpha * 0.42, alpha * 0.21); }
+    }
+    posAttr.needsUpdate = true;
+    colAttr.needsUpdate = true;
+    this._speedTrailLine.geometry.setDrawRange(0, count);
+  }
+
+  // ==================== CYCLE 46: POSITION CHANGE NOTIFICATIONS ====================
+
+  _lastNotifiedPosition = 0;
+  _checkPositionChange() {
+    var pos = this._state.position;
+    if (pos !== this._lastNotifiedPosition && this._lastNotifiedPosition !== 0) {
+      var gained = this._lastNotifiedPosition - pos;
+      if (gained > 0) {
+        this._showPositionNotification('Position Up!', 'P' + this._lastNotifiedPosition + ' \u2192 P' + pos, '#22c55e');
+      } else if (gained < 0) {
+        this._showPositionNotification('Position Lost', 'P' + this._lastNotifiedPosition + ' \u2192 P' + pos, '#ef4444');
+      }
+    }
+    this._lastNotifiedPosition = pos;
+  }
+
+  _showPositionNotification(title, msg, color) {
+    var existing = document.querySelector('.position-notification');
+    if (existing) existing.remove();
+    var notif = document.createElement('div');
+    notif.className = 'position-notification';
+    notif.style.cssText = 'position:fixed;top:80px;left:50%;transform:translateX(-50%);padding:10px 24px;border-radius:10px;font-family:var(--font-heading);font-size:14px;font-weight:700;letter-spacing:1px;text-transform:uppercase;z-index:950;pointer-events:none;text-align:center;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid ' + color + '33;background:rgba(5,6,10,0.85);color:' + color + ';box-shadow:0 4px 20px ' + color + '22;';
+    notif.innerHTML = '<div style="font-size:11px;opacity:0.7;margin-bottom:2px">' + title + '</div><div>' + msg + '</div>';
+    document.body.appendChild(notif);
+    setTimeout(function() { if (notif.parentNode) notif.remove(); }, 2500);
+  }
+
+  // ==================== CYCLE 46: NEAR-MISS DETECTION ====================
+
+  _nearMissTimer = 0;
+  _nearMissStreak = 0;
+  _checkNearMiss(dt) {
+    if (!this._obstacles || !this._vehicle) return;
+    this._nearMissTimer -= dt;
+    if (this._nearMissTimer > 0) return;
+    var vPos = this._vehicle.position;
+    for (var i = 0; i < this._obstacles.length; i++) {
+      var obs = this._obstacles[i];
+      if (!obs.mesh || !obs.mesh.position) continue;
+      var dist = vPos.distanceTo(obs.mesh.position);
+      if (dist < 4.0 && dist > 1.5) {
+        this._nearMissStreak++;
+        this._nearMissTimer = 1.5;
+        var bonus = Math.round(50 * this._nearMissStreak);
+        this._showNearMissPopup(bonus, this._nearMissStreak);
+        break;
+      }
+    }
+  }
+
+  _showNearMissPopup(points, streak) {
+    var popup = document.createElement('div');
+    popup.style.cssText = 'position:fixed;top:45%;left:50%;transform:translate(-50%,-50%);font-family:var(--font-display);font-size:24px;font-weight:900;color:#fbbf24;text-shadow:0 0 20px rgba(251,191,36,0.5);pointer-events:none;z-index:950;animation:nearMissPop 1s ease-out both;letter-spacing:2px;';
+    popup.textContent = 'NEAR MISS x' + streak + '  +' + points;
+    document.body.appendChild(popup);
+    setTimeout(function() { if (popup.parentNode) popup.remove(); }, 1000);
+  }
+
+  // ==================== CYCLE 46: MINIMAP PLAYER PING ====================
+
+  _minimapPingTimer = 0;
+  _updateMinimapPing(dt) {
+    if (!this._minimapCtx || !this._vehicle) return;
+    this._minimapPingTimer += dt;
+    if (this._minimapPingTimer < 3.0) return;
+    this._minimapPingTimer = 0;
+    var ctx = this._minimapCtx;
+    var cx = this._minimapSize / 2;
+    var cy = this._minimapSize / 2;
+    var px = cx + (this._vehicle.position.x / this._trackLength) * (this._minimapSize - 20);
+    var pz = cy + (this._vehicle.position.z / this._trackLength) * (this._minimapSize - 20);
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(px, pz, 4, 0, Math.PI * 2);
+    ctx.strokeStyle = 'rgba(0, 229, 255, 0.8)';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+    ctx.restore();
   }
 
   // ==================== CLEANUP ====================

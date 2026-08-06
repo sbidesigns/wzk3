@@ -1399,3 +1399,128 @@
   .stat-card:hover .stat-value { text-shadow: none; }
 }
 
+
+
+/* ============================================
+   CYCLE 46: PROFILE ENHANCEMENTS
+   ============================================ */
+
+/* Profile header banner enhanced parallax glow */
+.profile-banner {
+  position: relative;
+  overflow: hidden;
+}
+
+.profile-banner::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: 
+    radial-gradient(ellipse at 20% 50%, rgba(255, 107, 53, 0.12) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 30%, rgba(0, 229, 255, 0.08) 0%, transparent 50%);
+  pointer-events: none;
+  animation: bannerGlowShift 8s ease-in-out infinite alternate;
+}
+
+@keyframes bannerGlowShift {
+  0% { opacity: 0.5; }
+  50% { opacity: 1; }
+  100% { opacity: 0.7; }
+}
+
+/* Avatar enhanced ring animation */
+.profile-avatar {
+  position: relative;
+}
+
+.profile-avatar::after {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  border-top-color: rgba(255, 107, 53, 0.6);
+  border-bottom-color: rgba(0, 229, 255, 0.4);
+  animation: avatarRingSpin 4s linear infinite;
+  pointer-events: none;
+}
+
+@keyframes avatarRingSpin {
+  to { transform: rotate(360deg); }
+}
+
+/* Stat card hover lift enhanced */
+.profile-stat-card {
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.profile-stat-card:hover {
+  transform: translateY(-4px) scale(1.02);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.3);
+}
+
+/* XP progress bar enhanced with traveling glow */
+.profile-xp-bar-fill {
+  position: relative;
+  overflow: hidden;
+}
+
+.profile-xp-bar-fill::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -40px;
+  width: 40px;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+  animation: xpTravelingGlow 2s linear infinite;
+}
+
+@keyframes xpTravelingGlow {
+  0% { left: -40px; }
+  100% { left: calc(100% + 40px); }
+}
+
+/* Achievement badge hover enhanced */
+.profile-achievement-badge {
+  transition: all 0.25s ease;
+}
+
+.profile-achievement-badge:hover {
+  transform: scale(1.08) rotate(2deg);
+  box-shadow: 0 4px 16px rgba(251, 191, 36, 0.2);
+}
+
+/* Profile tab active indicator enhanced */
+.profile-tab.active {
+  position: relative;
+}
+
+.profile-tab.active::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 20%;
+  right: 20%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #ff6b35, transparent);
+  animation: tabIndicatorGlow 2s ease-in-out infinite alternate;
+}
+
+@keyframes tabIndicatorGlow {
+  0% { opacity: 0.5; }
+  100% { opacity: 1; }
+}
+
+/* Responsive additions */
+@media (max-width: 768px) {
+  .profile-avatar::after { display: none; }
+  .profile-stat-card:hover { transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .profile-banner::after { animation: none; }
+  .profile-avatar::after { animation: none; display: none; }
+  .profile-xp-bar-fill::after { animation: none; }
+  .profile-tab.active::after { animation: none; }
+}

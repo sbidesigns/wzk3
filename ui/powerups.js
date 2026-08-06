@@ -775,6 +775,8 @@ class PowerUpSystem {
       this._itemSlotElement = document.createElement('div');
       this._itemSlotElement.id = 'powerup-item-slot';
       this._itemSlotElement.className = 'powerup-item-slot';
+      // Hidden by default — only shown during active gameplay
+      this._itemSlotElement.style.display = 'none';
       document.body.appendChild(this._itemSlotElement);
     }
     
@@ -1291,6 +1293,9 @@ class PowerUpSystem {
    */
   _updateItemSlotDisplay() {
     if (!this._itemSlotElement) return;
+
+    // Show the slot element when updating (race is active)
+    this._itemSlotElement.style.display = '';
 
     const currentItem = this._inventory[0];
     

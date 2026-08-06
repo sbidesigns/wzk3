@@ -1169,3 +1169,144 @@
     height: 20%;
   }
 }
+
+
+/* ============================================
+   CYCLE 46: AMBIENT ENHANCEMENTS
+   ============================================ */
+
+/* Screen-level ambient glow that follows the current screen theme */
+.screen-mount::before {
+  content: '';
+  position: fixed;
+  top: -200px;
+  right: -200px;
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, rgba(255, 77, 46, 0.04) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+  animation: ambientGlowDrift 12s ease-in-out infinite alternate;
+}
+
+.screen-mount::after {
+  content: '';
+  position: fixed;
+  bottom: -200px;
+  left: -200px;
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, rgba(0, 229, 255, 0.03) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+  animation: ambientGlowDrift2 15s ease-in-out infinite alternate;
+}
+
+@keyframes ambientGlowDrift {
+  0% { transform: translate(0, 0); }
+  33% { transform: translate(-50px, 30px); }
+  66% { transform: translate(30px, -20px); }
+  100% { transform: translate(-20px, 50px); }
+}
+
+@keyframes ambientGlowDrift2 {
+  0% { transform: translate(0, 0); }
+  50% { transform: translate(40px, -30px); }
+  100% { transform: translate(-30px, 20px); }
+}
+
+/* Floating particles overlay for menu screens */
+.ambient-particles {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  overflow: hidden;
+}
+
+.ambient-particle {
+  position: absolute;
+  width: var(--p-size, 2px);
+  height: var(--p-size, 2px);
+  background: var(--p-color, rgba(255, 107, 53, 0.4));
+  border-radius: 50%;
+  left: var(--p-x, 50%);
+  top: var(--p-y, 50%);
+  animation: 
+    particleFloat var(--p-dur, 8s) ease-in-out infinite alternate,
+    particleFade var(--p-fade, 6s) ease-in-out infinite;
+  animation-delay: var(--p-delay, 0s);
+}
+
+@keyframes particleFloat {
+  0% { transform: translate(0, 0); }
+  25% { transform: translate(var(--p-dx1, 20px), var(--p-dy1, -30px)); }
+  50% { transform: translate(var(--p-dx2, -10px), var(--p-dy2, -60px)); }
+  75% { transform: translate(var(--p-dx3, 30px), var(--p-dy3, -20px)); }
+  100% { transform: translate(var(--p-dx4, -20px), var(--p-dy4, -50px)); }
+}
+
+@keyframes particleFade {
+  0%, 100% { opacity: 0.2; }
+  50% { opacity: 0.8; }
+}
+
+/* Screen transition ambient flash */
+.screen-mount.entering {
+  animation: screenEnterAmbient 0.6s ease-out;
+}
+
+@keyframes screenEnterAmbient {
+  0% { filter: brightness(0.7) saturate(0.5); }
+  50% { filter: brightness(1.1) saturate(1.1); }
+  100% { filter: brightness(1) saturate(1); }
+}
+
+/* Screen mount leaving animation enhanced */
+.screen-mount.leaving {
+  animation: screenLeaveAmbient 0.4s ease-in forwards;
+}
+
+@keyframes screenLeaveAmbient {
+  0% { filter: brightness(1) saturate(1); opacity: 1; }
+  100% { filter: brightness(0.5) saturate(0.3); opacity: 0; }
+}
+
+/* Cursor glow effect on interactive elements */
+.btn, .pause-menu-btn, .mode-card, .garage-vehicle-card {
+  position: relative;
+}
+
+/* Global scanline overlay (very subtle) */
+#screen-mount-point::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 3px,
+    rgba(0, 0, 0, 0.015) 3px,
+    rgba(0, 0, 0, 0.015) 6px
+  );
+  pointer-events: none;
+  z-index: 99998;
+  opacity: 0.4;
+}
+
+/* Responsive additions */
+@media (max-width: 768px) {
+  .screen-mount::before,
+  .screen-mount::after {
+    width: 300px;
+    height: 300px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .screen-mount::before,
+  .screen-mount::after { animation: none; }
+  .ambient-particle { animation: none !important; opacity: 0.3; }
+  .screen-mount.entering { animation: none; }
+  .screen-mount.leaving { animation: none; }
+}
