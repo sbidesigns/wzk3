@@ -4,36 +4,37 @@
 
 const OutputShader = {
 
-	name: 'OutputShader',
+        name: 'OutputShader',
 
-	uniforms: {
+        uniforms: {
 
-		'tDiffuse': { value: null }
+                'tDiffuse': { value: null },
+                'toneMappingExposure': { value: 1.0 }
 
-	},
+        },
 
-	vertexShader: /* glsl */`
+        vertexShader: /* glsl */`
 
-		varying vec2 vUv;
+                varying vec2 vUv;
 
-		void main() {
+                void main() {
 
-			vUv = uv;
-			gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
+                        vUv = uv;
+                        gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
 
-		}`,
+                }`,
 
-	fragmentShader: /* glsl */`
+        fragmentShader: /* glsl */`
 
-		uniform sampler2D tDiffuse;
+                uniform sampler2D tDiffuse;
 
-		varying vec2 vUv;
+                varying vec2 vUv;
 
-		void main() {
+                void main() {
 
-			gl_FragColor = texture2D( tDiffuse, vUv );
+                        gl_FragColor = texture2D( tDiffuse, vUv );
 
-		}`
+                }`
 
 };
 

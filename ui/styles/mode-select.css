@@ -1793,7 +1793,101 @@
   to { transform: scaleX(1); }
 }
 
-/* Reduced motion for mode-select */
+/* === CYCLE 42: MODE SELECT ENHANCEMENTS === */
+
+/* Mode card enhanced border animation */
+.mode-card {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.mode-card:hover {
+  transform: translateY(-3px) !important;
+}
+
+.mode-card.selected {
+  border-color: var(--ms-accent) !important;
+}
+
+/* Track card hover parallax effect */
+.track-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.track-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at var(--mx, 50%) var(--my, 50%), rgba(255,255,255,0.06) 0%, transparent 60%);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.track-card:hover::after {
+  opacity: 1;
+}
+
+/* Action button enhanced ripple */
+.ms-action-btn.primary {
+  position: relative;
+  overflow: hidden;
+}
+
+.ms-action-btn.primary:hover {
+  box-shadow: 0 0 30px rgba(255, 77, 46, 0.4), 0 8px 32px rgba(0,0,0,0.3);
+}
+
+/* Back button enhanced */
+.ms-back-btn {
+  transition: all 0.2s ease;
+}
+
+.ms-back-btn:hover {
+  color: var(--ms-accent-secondary) !important;
+  transform: translateX(-3px);
+}
+
+/* Mode icon container pulse */
+.mode-icon {
+  animation: modeIconFloat 4s ease-in-out infinite alternate;
+}
+
+@keyframes modeIconFloat {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(-4px); }
+}
+
+/* Difficulty selector enhanced */
+.difficulty-option {
+  transition: all 0.25s ease;
+}
+
+.difficulty-option:hover {
+  transform: scale(1.02);
+}
+
+.difficulty-option.selected {
+  animation: diffSelectPop 0.3s ease-out;
+}
+
+@keyframes diffSelectPop {
+  0% { transform: scale(0.95); }
+  50% { transform: scale(1.03); }
+  100% { transform: scale(1); }
+}
+
+/* Lap count selector */
+.lap-option {
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.lap-option:hover {
+  background: rgba(255,255,255,0.06) !important;
+}
+
+/* === REDUCED MOTION === */
 @media (prefers-reduced-motion: reduce) {
   .mode-card.selected::before,
   .mode-card.selected::after,
@@ -1805,5 +1899,14 @@
   }
   .track-card:hover {
     transform: none;
+  }
+  .mode-card:hover {
+    transform: none !important;
+  }
+  .mode-icon {
+    animation: none !important;
+  }
+  .difficulty-option.selected {
+    animation: none !important;
   }
 }

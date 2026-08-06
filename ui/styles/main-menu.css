@@ -1815,3 +1815,251 @@
 .main-menu-system.reduced-motion .quick-start-btn::after {
   animation: none !important;
 }
+
+/* ============================================================================
+   CYCLE 42: ADDITIONAL STYLING ENHANCEMENTS
+   ============================================================================ */
+
+/* === BUTTON GLOW PULSE ANIMATION === */
+.btn-primary {
+  position: relative;
+  animation: btnGlowPulse 3s ease-in-out infinite;
+}
+
+@keyframes btnGlowPulse {
+  0%, 100% { box-shadow: 0 0 15px rgba(255, 77, 46, 0.3), 0 4px 20px rgba(0,0,0,0.3); }
+  50% { box-shadow: 0 0 25px rgba(255, 77, 46, 0.5), 0 4px 30px rgba(0,0,0,0.3); }
+}
+
+/* === MAIN MENU ACTIONS BUTTON HOVER EFFECTS === */
+.main-menu-actions .btn {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.main-menu-actions .btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.06), transparent);
+  transition: left 0.4s ease;
+}
+
+.main-menu-actions .btn:hover::before {
+  left: 100%;
+}
+
+.main-menu-actions .btn:hover {
+  transform: translateX(4px);
+  border-color: rgba(255,255,255,0.15) !important;
+  background: rgba(255,255,255,0.04) !important;
+}
+
+.main-menu-actions .btn:active {
+  transform: translateX(2px) scale(0.98);
+}
+
+/* === HERO SECTION ENHANCEMENT === */
+.main-menu-hero {
+  position: relative;
+  overflow: hidden;
+}
+
+.main-menu-hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(135deg, rgba(255,77,46,0.1) 0%, transparent 50%, rgba(0,229,255,0.05) 100%);
+  pointer-events: none;
+  animation: heroGradientShift 8s ease-in-out infinite alternate;
+}
+
+@keyframes heroGradientShift {
+  0% { opacity: 0.6; }
+  50% { opacity: 1; }
+  100% { opacity: 0.6; }
+}
+
+/* === EYEBROW ANIMATED DOTS === */
+.main-menu-eyebrow {
+  position: relative;
+}
+
+.main-menu-eyebrow::after {
+  content: '';
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  background: #ff4d2e;
+  border-radius: 50%;
+  margin-left: 8px;
+  vertical-align: middle;
+  animation: liveDotPulse 2s ease-in-out infinite;
+  box-shadow: 0 0 8px rgba(255,77,46,0.6);
+}
+
+@keyframes liveDotPulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(0.7); }
+}
+
+/* === TITLE SHIMMER EFFECT === */
+.main-menu-title {
+  position: relative;
+  background: linear-gradient(
+    90deg,
+    #ffffff 0%,
+    #ffffff 40%,
+    #00e5ff 50%,
+    #ffffff 60%,
+    #ffffff 100%
+  );
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: titleShimmer 6s ease-in-out infinite;
+}
+
+@keyframes titleShimmer {
+  0%, 100% { background-position: 100% 50%; }
+  50% { background-position: -100% 50%; }
+}
+
+/* === SEASON TICKER ENHANCEMENT === */
+.season-ticker {
+  position: relative;
+  overflow: hidden;
+}
+
+.season-ticker::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+  animation: tickerSweep 4s ease-in-out infinite;
+}
+
+@keyframes tickerSweep {
+  0%, 100% { left: -100%; }
+  50% { left: 200%; }
+}
+
+/* === BADGE HOVER ENHANCEMENTS === */
+.badge {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.badge:hover {
+  transform: translateY(-1px);
+}
+
+.badge-accent:hover {
+  box-shadow: 0 0 12px rgba(255, 77, 46, 0.4);
+}
+
+.badge-secondary:hover {
+  box-shadow: 0 0 12px rgba(0, 229, 255, 0.3);
+}
+
+/* === BUILD INFO ENHANCEMENT === */
+.main-menu-left > div:last-child {
+  position: relative;
+  padding-top: var(--space-s);
+}
+
+.main-menu-left > div:last-child::before {
+  content: '';
+  display: block;
+  width: 40px;
+  height: 1px;
+  background: linear-gradient(90deg, rgba(255,77,46,0.4), transparent);
+  margin-bottom: var(--space-s);
+}
+
+/* === BACKGROUND GRID ENHANCEMENT === */
+.bg-grid {
+  position: relative;
+}
+
+.bg-grid::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 30% 40%, rgba(255,77,46,0.08) 0%, transparent 40%),
+              radial-gradient(circle at 70% 60%, rgba(0,229,255,0.05) 0%, transparent 40%);
+  pointer-events: none;
+  animation: bgGridPulse 10s ease-in-out infinite alternate;
+}
+
+@keyframes bgGridPulse {
+  0% { opacity: 0.6; }
+  100% { opacity: 1; }
+}
+
+/* === MAIN MENU HERO LABEL ENHANCEMENT === */
+.main-menu-hero-label {
+  position: relative;
+  letter-spacing: 3px;
+}
+
+.main-menu-hero-label::before,
+.main-menu-hero-label::after {
+  content: '---';
+  margin: 0 8px;
+  opacity: 0.3;
+}
+
+/* === RESPONSIVE ADDITIONS === */
+@media (max-width: 768px) {
+  .main-menu-title {
+    font-size: 48px !important;
+  }
+  
+  .main-menu-actions .btn::before {
+    display: none;
+  }
+  
+  .main-menu-actions .btn:hover {
+    transform: none;
+  }
+}
+
+/* === REDUCED MOTION ADDITIONS === */
+.main-menu-system.reduced-motion .btn-primary {
+  animation: none !important;
+}
+
+.main-menu-system.reduced-motion .main-menu-actions .btn::before {
+  display: none;
+}
+
+.main-menu-system.reduced-motion .main-menu-title {
+  animation: none;
+  -webkit-text-fill-color: unset;
+  background: none;
+}
+
+.main-menu-system.reduced-motion .main-menu-eyebrow::after {
+  animation: none !important;
+}
+
+.main-menu-system.reduced-motion .main-menu-hero::before {
+  animation: none !important;
+}
+
+.main-menu-system.reduced-motion .season-ticker::before {
+  animation: none !important;
+}
+
+.main-menu-system.reduced-motion .bg-grid::after {
+  animation: none !important;
+}
