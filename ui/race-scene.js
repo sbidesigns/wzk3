@@ -1335,6 +1335,57 @@ export class RaceScene {
 
   _updateRearViewMirror() {
     if (!this._rearViewCamera || !this._rearViewCtx || !this._vehicle || !this._renderer) return;
+    // Check if renderer supports setRenderTarget
+    if (typeof this._renderer.setRenderTarget !== 'function') {
+      // Fallback: draw a simple rear indicator on the canvas instead
+      var ctx = this._rearViewCtx, sz = this._rearViewSize;
+      ctx.fillStyle = 'rgba(10,12,20,0.95)';
+      ctx.fillRect(0, 0, sz, sz);
+      // Draw simple representation of what's behind
+      ctx.fillStyle = 'rgba(255,255,255,0.06)';
+      ctx.fillRect(0, 0, sz, sz);
+      // Draw track edges
+      ctx.strokeStyle = 'rgba(255,0,255,0.3)'; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.moveTo(sz * 0.3, 0); ctx.lineTo(sz * 0.3, sz); ctx.stroke();
+      ctx.strokeStyle = 'rgba(0,255,255,0.3)';
+      ctx.beginPath(); ctx.moveTo(sz * 0.7, 0); ctx.lineTo(sz * 0.7, sz); ctx.stroke();
+      // Draw opponents behind as colored dots
+      for (var i = 0; i < this._opponents.length; i++) {
+        var opp = this._opponents[i];
+        var behind = opp.mesh.position.z - this._vehicle.position.z;
+        if (behind < 0 && behind > -100) {
+          var relX = sz * 0.5 + (opp.mesh.position.x / (this._trackWidth / 2)) * (sz * 0.3);
+          var relY = sz - Math.abs(behind / 100) * sz;
+          var col = '#' + this._opponentColors[i].toString(16).padStart(6, '0');
+          ctx.fillStyle = col;
+          ctx.beginPath(); ctx.arc(relX, relY, 5, 0, Math.PI * 2); ctx.fill();
+          ctx.fillStyle = col; ctx.globalAlpha = 0.3;
+          ctx.beginPath(); ctx.arc(relX, relY, 10, 0, Math.PI * 2); ctx.fill();
+          ctx.globalAlpha = 1;
+        }
+      }
+      // Draw obstacles behind
+      for (var j = 0; j < this._obstacles.length; j++) {
+        var ob = this._obstacles[j];
+        if (!ob.userData.active || !ob.visible) continue;
+        var obBehind = ob.position.z - this._vehicle.position.z;
+        if (obBehind < 0 && obBehind > -80) {
+          var ox = sz * 0.5 + (ob.position.x / (this._trackWidth / 2)) * (sz * 0.3);
+          var oy = sz - Math.abs(obBehind / 80) * sz;
+          ctx.fillStyle = 'rgba(255,77,46,0.7)';
+          ctx.fillRect(ox - 3, oy - 2, 6, 4);
+        }
+      }
+      // Label
+      ctx.fillStyle = 'rgba(255,255,255,0.3)';
+      ctx.font = '9px Inter, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('REAR VIEW', sz / 2, sz - 4);
+      // Vehicle indicator (always at bottom center)
+      ctx.fillStyle = '#00e5ff';
+      ctx.beginPath(); ctx.arc(sz / 2, sz - 10, 4, 0, Math.PI * 2); ctx.fill();
+      return;
+    }
     // Position camera behind and above vehicle, looking backward
     var behind = this._vehicle.position.clone();
     behind.z -= 12;
