@@ -622,7 +622,40 @@ export class RaceScene {
   // ==================== HUD SETUP ====================
 
   _setupHUD() {
-    if (document.getElementById('game-hud-root')) { this._hudElement = document.getElementById('game-hud-root'); return; }
+    if (document.getElementById('game-hud-root')) {
+      this._hudElement = document.getElementById('game-hud-root');
+      // Ensure Cycle 44 elements exist (may be missing from prior race sessions)
+      var rv = document.getElementById('hud-rearview-container');
+      if (!rv) {
+        var hud = this._hudElement;
+        var rvDiv = document.createElement('div'); rvDiv.id = 'hud-rearview-container';
+        rvDiv.style.cssText = 'position:fixed;top:24px;left:50%;transform:translateX(-50%) translateY(60px);z-index:100;background:rgba(10,12,20,0.8);backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:4px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,0.4);';
+        var rvCvs = document.createElement('canvas'); rvCvs.id = 'hud-rearview-canvas'; rvCvs.width = 160; rvCvs.height = 160;
+        rvCvs.style.cssText = 'display:block;border-radius:7px;width:120px;height:120px;';
+        rvDiv.appendChild(rvCvs); hud.appendChild(rvDiv);
+      }
+      var is = document.getElementById('hud-item-slot');
+      if (!is) {
+        var hud2 = this._hudElement;
+        var itemSlot = document.createElement('div'); itemSlot.id = 'hud-item-slot';
+        itemSlot.style.cssText = 'position:fixed;bottom:24px;right:180px;z-index:100;width:56px;height:56px;background:rgba(10,12,20,0.8);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,0.1);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:24px;transition:all 0.3s ease;box-shadow:0 2px 12px rgba(0,0,0,0.3);';
+        var itemIcon = document.createElement('span'); itemIcon.id = 'hud-item-icon'; itemIcon.textContent = '?'; itemIcon.style.opacity = '0.3';
+        itemSlot.appendChild(itemIcon); hud2.appendChild(itemSlot);
+        var itemLabel = document.createElement('div'); itemLabel.id = 'hud-item-label';
+        itemLabel.style.cssText = 'position:fixed;bottom:84px;right:174px;z-index:100;font-family:Inter,sans-serif;font-size:9px;color:rgba(255,255,255,0.3);letter-spacing:2px;text-transform:uppercase;';
+        itemLabel.textContent = 'ITEM [E]'; hud2.appendChild(itemLabel);
+      }
+      var ow = document.getElementById('hud-obstacle-warn');
+      if (!ow) {
+        var warn = document.createElement('div'); warn.id = 'hud-obstacle-warn';
+        warn.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-80px);z-index:100;pointer-events:none;opacity:0;transition:opacity 0.3s;font-family:Bebas Neue,sans-serif;font-size:20px;color:#ff4d2e;letter-spacing:4px;text-shadow:0 0 20px rgba(255,77,46,0.6);';
+        warn.textContent = 'OBSTACLE AHEAD'; this._hudElement.appendChild(warn);
+      }
+      // Re-grab refs
+      this._rearViewCanvas = document.getElementById('hud-rearview-canvas');
+      if (this._rearViewCanvas) this._rearViewCtx = this._rearViewCanvas.getContext('2d');
+      return;
+    }
     var hud = document.createElement('div'); hud.id = 'game-hud-root';
     var s = '';
     // Speed panel with arc gauge
