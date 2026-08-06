@@ -94,6 +94,15 @@ export class RaceScene {
     this._exhaustCones = [];
     // === Headlight Toggle ===
     this._headlightsOn = true;
+    // === Cycle 47: New state vars ===
+    this._lastPosition = 0;
+    this._positionArrowTimer = 0;
+    // === Boost Chain Bonus ===
+    this._boostChainCount = 0;
+    this._boostChainTimer = 0;
+    this._boostChainWindow = 8; // seconds to chain next boost
+    // === Race Stats Tracker ===
+    this._raceStats = { topSpeed: 0, totalDriftTime: 0, isDrifting: false, driftStartTime: 0, boostsUsed: 0, itemsCollected: 0, nearMisses: 0, distanceTraveled: 0 };
   }
 
   _setupInputListeners() {
@@ -743,6 +752,16 @@ export class RaceScene {
     s += '<div id="hud-item-label" style="position:fixed;bottom:84px;right:174px;z-index:100;font-family:Inter,sans-serif;font-size:9px;color:rgba(255,255,255,0.3);letter-spacing:2px;text-transform:uppercase;transition:all 0.3s;">ITEM [E]</div>';
     // Obstacle warning (Cycle 44)
     s += '<div id="hud-obstacle-warn" style="position:fixed;top:50%;left:50%;transform:translate(-50%,-80px);z-index:100;pointer-events:none;opacity:0;transition:opacity 0.3s;font-family:Bebas Neue,sans-serif;font-size:20px;color:#ff4d2e;letter-spacing:4px;text-shadow:0 0 20px rgba(255,77,46,0.6);">OBSTACLE AHEAD</div>';
+    // Lap progress bar (Cycle 47)
+    s += '<div class="hud-lap-progress" id="hud-lap-progress" style="position:fixed;top:0;left:0;right:0;z-index:101;pointer-events:none;height:4px;">';
+    s += '<div class="hud-lap-progress__track" style="position:absolute;inset:0;background:rgba(255,255,255,0.06);height:100%;"></div>';
+    s += '<div class="hud-lap-progress__fill" id="hud-lap-progress-fill" style="position:absolute;top:0;left:0;height:100%;width:0%;background:linear-gradient(90deg,#00e5ff,#00ff88);border-radius:0 2px 2px 0;transition:width 0.3s ease;box-shadow:0 0 8px rgba(0,229,255,0.5);"></div>';
+    s += '<div class="hud-lap-progress__marker" id="hud-lap-marker" style="position:absolute;top:-2px;width:2px;height:8px;background:#fbbf24;border-radius:1px;box-shadow:0 0 6px rgba(251,191,36,0.8);transition:left 0.3s ease;left:0%;"></div>';
+    s += '</div>';
+    // Position change arrow (Cycle 47)
+    s += '<div id="hud-pos-arrow" style="position:fixed;top:80px;right:24px;z-index:101;pointer-events:none;opacity:0;font-family:Bebas Neue,sans-serif;font-size:22px;letter-spacing:2px;transition:opacity 0.3s;"></div>';
+    // Speed critical overlay (Cycle 47)
+    s += '<div class="hud-speed-critical" id="hud-speed-critical" style="position:fixed;inset:0;z-index:89;pointer-events:none;opacity:0;transition:opacity 0.5s;box-shadow:inset 0 0 150px rgba(255,20,20,0.15),inset 0 0 60px rgba(255,100,0,0.08);"></div>';
     hud.innerHTML = s;
     document.body.appendChild(hud);
     this._hudElement = hud;
@@ -770,7 +789,11 @@ export class RaceScene {
       itemIcon: hud.querySelector('#hud-item-icon'),
       itemSlot: hud.querySelector('#hud-item-slot'),
       obstacleWarn: hud.querySelector('#hud-obstacle-warn'),
-      rearViewContainer: hud.querySelector('#hud-rearview-container')
+      rearViewContainer: hud.querySelector('#hud-rearview-container'),
+      lapProgressFill: hud.querySelector('#hud-lap-progress-fill'),
+      lapMarker: hud.querySelector('#hud-lap-marker'),
+      posArrow: hud.querySelector('#hud-pos-arrow'),
+      speedCritical: hud.querySelector('#hud-speed-critical')
     };
     for (var os = 0; os < 3; os++) {
       var oppEl = hud.querySelector('#hud-opp-' + os);
@@ -824,10 +847,38 @@ export class RaceScene {
           self._startRaceTime = performance.now();
           self._lastLapStartTime = performance.now();
           if (window.__engine && window.__engine.bus) window.__engine.bus.emit('race:go');
+          // === Cycle 47: Show controls hint ===
+          self._showControlsHint();
         }, 800);
       }
     }
     setTimeout(next, 1000);
+  }
+
+  // === Cycle 47: Controls Hint Overlay ===
+  _showControlsHint() {
+    var hint = document.createElement('div');
+    hint.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%);z-index:200;pointer-events:none;display:flex;gap:12px;align-items:center;opacity:0;transition:opacity 0.5s;font-family:Inter,sans-serif;';
+    var keys = [
+      { label: 'W/↑', desc: 'Accelerate', color: '#00e5ff' },
+      { label: 'S/↓', desc: 'Brake', color: '#ff4d2e' },
+      { label: 'A/D', desc: 'Steer', color: '#fbbf24' },
+      { label: 'SPACE', desc: 'Drift', color: '#e040fb' },
+      { label: 'SHIFT', desc: 'Boost', color: '#22c55e' },
+      { label: 'ESC', desc: 'Pause', color: 'rgba(255,255,255,0.5)' }
+    ];
+    for (var k = 0; k < keys.length; k++) {
+      var item = document.createElement('div');
+      item.style.cssText = 'display:flex;flex-direction:column;align-items:center;gap:4px;';
+      item.innerHTML = '<div style="background:rgba(10,12,20,0.8);border:1px solid ' + keys[k].color + '33;border-radius:6px;padding:6px 10px;font-size:12px;font-weight:700;color:' + keys[k].color + ';letter-spacing:1px;backdrop-filter:blur(8px);box-shadow:0 0 10px ' + keys[k].color + '22;">' + keys[k].label + '</div><div style="font-size:9px;color:rgba(255,255,255,0.4);letter-spacing:1px;">' + keys[k].desc + '</div>';
+      hint.appendChild(item);
+    }
+    document.body.appendChild(hint);
+    requestAnimationFrame(function() { hint.style.opacity = '1'; });
+    setTimeout(function() {
+      hint.style.opacity = '0';
+      setTimeout(function() { if (hint.parentNode) hint.remove(); }, 600);
+    }, 4000);
   }
 
   // ==================== PAUSE ====================
@@ -880,6 +931,16 @@ export class RaceScene {
     // Hide canvas
     var canvas = document.getElementById('game-canvas');
     if (canvas) canvas.style.display = 'none';
+    // Hide race HUD overlays that live outside the main HUD element
+    var itemSlot = document.getElementById('powerup-item-slot');
+    if (itemSlot) itemSlot.style.display = 'none';
+    var activeDisplay = document.getElementById('powerup-active-display');
+    if (activeDisplay) activeDisplay.style.display = 'none';
+    var countdown = document.getElementById('hud-countdown');
+    if (countdown) countdown.style.display = 'none';
+    // Restore UI shell (hidden by mode-select.js when race started)
+    var uiShell = document.getElementById('ui-shell');
+    if (uiShell) uiShell.style.display = '';
     // Navigate to main menu
     if (window.__uiRouter) {
       window.__uiRouter.push('main-menu');
@@ -895,7 +956,45 @@ export class RaceScene {
       this._boostActive = true; this._boostCharges--; this._boostTimer = this._boostDuration;
       this._updateBoostPips();
       this._cameraShakeIntensity = 0.3; // Camera shake on boost
+      this._raceStats.boostsUsed++;
+      // === Cycle 47: Boost Chain Bonus ===
+      if (this._boostChainTimer > 0) {
+        this._boostChainCount++;
+        var chainBonus = this._boostChainCount * 500;
+        this._showChainPopup(this._boostChainCount, chainBonus);
+        this._driftScore += chainBonus; // Add chain bonus to score
+      } else {
+        this._boostChainCount = 1;
+      }
+      this._boostChainTimer = this._boostChainWindow;
       if (window.__engine && window.__engine.bus) window.__engine.bus.emit('player:boostStart', { charges: this._boostCharges });
+    }
+  }
+
+  // === Cycle 47: Boost Chain Popup ===
+  _showChainPopup(chain, bonus) {
+    var popup = document.createElement('div');
+    popup.style.cssText = 'position:fixed;top:40%;left:50%;transform:translate(-50%,-50%);font-family:Bebas Neue,sans-serif;font-size:28px;color:#00e5ff;text-shadow:0 0 20px rgba(0,229,255,0.8),0 0 40px rgba(0,229,255,0.4);pointer-events:none;z-index:950;animation:countPulse 0.5s ease-out both;letter-spacing:3px;white-space:nowrap;';
+    popup.textContent = 'BOOST CHAIN x' + chain + '  +' + bonus;
+    document.body.appendChild(popup);
+    setTimeout(function() { if (popup.parentNode) popup.remove(); }, 2000);
+  }
+
+  // === Cycle 47: Update Race Stats ===
+  _updateRaceStats(dt) {
+    if (this._state.speed > this._raceStats.topSpeed) this._raceStats.topSpeed = this._state.speed;
+    if (this._vehicle) this._raceStats.distanceTraveled += this._state.speed * dt * 0.5;
+    // Boost chain timer
+    if (this._boostChainTimer > 0) {
+      this._boostChainTimer -= dt;
+      if (this._boostChainTimer <= 0) this._boostChainCount = 0;
+    }
+    // Drift time tracking
+    if (this._keys.drift && this._state.speed > 20 && this._state.raceStarted) {
+      if (!this._raceStats.isDrifting) { this._raceStats.isDrifting = true; this._raceStats.driftStartTime = performance.now(); }
+    } else if (this._raceStats.isDrifting) {
+      this._raceStats.totalDriftTime += (performance.now() - this._raceStats.driftStartTime) / 1000;
+      this._raceStats.isDrifting = false;
     }
   }
 
@@ -940,6 +1039,8 @@ export class RaceScene {
     // Speed
     var ts = 0; if (this._keys.throttle) ts += dt * 60; if (this._keys.brake) ts -= dt * 80; if (this._boostActive) ts *= this._boostMultiplier;
     ts = Math.max(0, Math.min(220, ts)); this._state.speed += (ts - this._state.speed) * Math.min(1, dt * 3);
+    // === Cycle 47: Update race stats ===
+    this._updateRaceStats(dt);
     // Vehicle
     if (this._vehicle && this._state.raceStarted) {
       var ms = this._state.speed * dt * 0.5; this._vehicle.position.z += ms;
@@ -1314,6 +1415,7 @@ export class RaceScene {
         if (!this._currentItem) {
           this._currentItem = { type: item };
           this._updateItemHUD();
+          this._raceStats.itemsCollected++;
         }
         // Trigger pickup flash
         this._itemPickupFlash = 1.0;
@@ -1351,6 +1453,42 @@ export class RaceScene {
       this._hudRefs.progressFill.style.width = pr + '%';
       if (this._hudRefs.progressText) this._hudRefs.progressText.textContent = Math.floor(pr) + '%';
     }
+    // === Cycle 47: Lap progress bar (per-lap) ===
+    if (this._hudRefs.lapProgressFill && this._vehicle) {
+      var lapProgress = (this._vehicle.position.z + this._trackLength / 2) / this._trackLength;
+      lapProgress = Math.max(0, Math.min(1, lapProgress));
+      this._hudRefs.lapProgressFill.style.width = (lapProgress * 100) + '%';
+      if (this._hudRefs.lapMarker) {
+        this._hudRefs.lapMarker.style.left = (lapProgress * 100) + '%';
+      }
+    }
+    // === Cycle 47: Position change arrow ===
+    if (this._positionArrowTimer > 0) {
+      this._positionArrowTimer -= dt;
+      if (this._positionArrowTimer <= 0 && this._hudRefs.posArrow) {
+        this._hudRefs.posArrow.style.opacity = '0';
+      }
+    }
+    if (this._lastPosition > 0 && this._lastPosition !== this._state.position && this._hudRefs.posArrow) {
+      var gained = this._state.position < this._lastPosition;
+      this._hudRefs.posArrow.textContent = gained ? ('P' + this._state.position + ' ↑') : ('P' + this._state.position + ' ↓');
+      this._hudRefs.posArrow.style.color = gained ? '#22c55e' : '#ff4d2e';
+      this._hudRefs.posArrow.style.textShadow = gained ? '0 0 15px rgba(34,197,94,0.8)' : '0 0 15px rgba(255,77,46,0.8)';
+      this._hudRefs.posArrow.style.opacity = '1';
+      this._hudRefs.posArrow.style.animation = 'none'; this._hudRefs.posArrow.offsetHeight;
+      this._hudRefs.posArrow.style.animation = (gained ? 'posUp' : 'posDown') + ' 0.4s ease-out both';
+      this._positionArrowTimer = 2.5;
+      this._lastPosition = this._state.position;
+    } else if (this._lastPosition === 0 && this._state.position > 0) {
+      this._lastPosition = this._state.position;
+    }
+    // === Cycle 47: Speed critical overlay ===
+    if (this._hudRefs.speedCritical) {
+      var criticalThreshold = 180;
+      var critSpeed = this._state.speed > criticalThreshold;
+      var targetOp = critSpeed ? Math.min(0.6, (this._state.speed - criticalThreshold) / 80) : 0;
+      this._hudRefs.speedCritical.style.opacity = String(targetOp);
+    }
   }
 
   _formatTime(ms) {
@@ -1372,9 +1510,17 @@ export class RaceScene {
     if (window.__engine && window.__engine.bus) window.__engine.bus.emit('race:end', {
       result: {
         finished: true, timeMs: ft, lapsCompleted: this._state.lap - 1,
-        position: this._state.position, totalTime: ft, topSpeed: this._state.speed,
+        position: this._state.position, totalTime: ft, topSpeed: Math.round(this._raceStats.topSpeed),
         driftScore: this._totalDriftScore,
-        lapSplits: this._lapSplits, bestLap: this._bestLapTime
+        lapSplits: this._lapSplits, bestLap: this._bestLapTime,
+        // Cycle 47: Enhanced race stats
+        raceStats: {
+          topSpeed: Math.round(this._raceStats.topSpeed),
+          totalDriftTime: Math.round(this._raceStats.totalDriftTime * 10) / 10,
+          boostsUsed: this._raceStats.boostsUsed,
+          itemsCollected: this._raceStats.itemsCollected,
+          distanceTraveled: Math.round(this._raceStats.distanceTraveled)
+        }
       }
     });
     console.log('[RaceScene] Race finished! Time:', this._formatTime(ft), 'Best Lap:', this._bestLapTime < Infinity ? this._formatTime(this._bestLapTime) : 'N/A');

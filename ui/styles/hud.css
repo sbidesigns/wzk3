@@ -4574,3 +4574,529 @@
 }
 
 /* ==================== END CYCLE 42 ADDITIONS ==================== */
+
+/* ====================================================================
+   CYCLE 43 — HUD ENHANCEMENTS: Lap Progress, Position Arrows,
+   Speed Critical, Minimap Radar, Drift Combo, Responsive Overrides
+   ==================================================================== */
+
+/* -------------------- 1. LAP PROGRESS BAR -------------------- */
+.hud-lap-progress {
+  position: fixed;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(80vw, 720px);
+  height: 6px;
+  z-index: calc(var(--z-hud, 10) + 2);
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 0 0 var(--radius-pill, 999px) var(--radius-pill, 999px);
+  overflow: visible;
+  border: 1px solid rgba(0, 229, 255, 0.12);
+  box-shadow:
+    0 0 8px rgba(0, 229, 255, 0.08),
+    0 2px 12px rgba(0, 0, 0, 0.5);
+}
+
+.hud-lap-progress__track {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  border-radius: inherit;
+}
+
+.hud-lap-progress__fill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 0%;
+  border-radius: inherit;
+  background: linear-gradient(
+    90deg,
+    var(--cyan, #00e5ff) 0%,
+    var(--magenta, #e040fb) 50%,
+    var(--cyan, #00e5ff) 100%
+  );
+  background-size: 200% 100%;
+  animation: lapProgressShimmer 2.4s linear infinite;
+  box-shadow:
+    0 0 6px rgba(0, 229, 255, 0.5),
+    0 0 16px rgba(224, 64, 251, 0.25);
+  transition: width 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes lapProgressShimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* Checkpoint position markers along the bar */
+.hud-lap-progress__marker {
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 4px;
+  height: 14px;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 2px;
+  pointer-events: none;
+  transition: background 0.3s, box-shadow 0.3s;
+}
+
+.hud-lap-progress__marker.passed {
+  background: var(--cyan, #00e5ff);
+  box-shadow: 0 0 6px var(--cyan, #00e5ff);
+}
+
+/* Leading edge glow dot */
+.hud-lap-progress__fill::after {
+  content: '';
+  position: absolute;
+  right: -3px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 8px;
+  height: 8px;
+  background: #fff;
+  border-radius: 50%;
+  box-shadow: 0 0 8px var(--cyan, #00e5ff), 0 0 18px var(--magenta, #e040fb);
+}
+
+/* Lap-complete flash overlay */
+.hud-lap-progress__flash {
+  position: absolute;
+  inset: -4px -8px;
+  border-radius: inherit;
+  background: var(--cyan, #00e5ff);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.hud-lap-progress__flash.active {
+  animation: lapCompleteFlash 0.6s ease-out forwards;
+}
+
+@keyframes lapCompleteFlash {
+  0%   { opacity: 0.85; box-shadow: 0 0 40px var(--cyan, #00e5ff), 0 0 80px var(--magenta, #e040fb); }
+  100% { opacity: 0;    box-shadow: 0 0 0 transparent; }
+}
+
+/* -------------------- 2. POSITION CHANGE ARROW -------------------- */
+.hud-position-arrow {
+  position: absolute;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1;
+  border-radius: var(--radius-s, 6px);
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Green up-arrow (gained position) */
+.hud-position-arrow--up {
+  color: #00ff88;
+  background: rgba(0, 255, 136, 0.1);
+  border: 1px solid rgba(0, 255, 136, 0.3);
+  text-shadow: 0 0 8px rgba(0, 255, 136, 0.7);
+}
+
+.hud-position-arrow--up.visible {
+  animation: posUp 2.5s ease-out forwards;
+}
+
+@keyframes posUp {
+  0%   { opacity: 0; transform: translateY(12px) scale(0.5); }
+  12%  { opacity: 1; transform: translateY(-4px) scale(1.2); }
+  25%  { transform: translateY(0) scale(1); }
+  70%  { opacity: 1; transform: translateY(0) scale(1); }
+  100% { opacity: 0; transform: translateY(-8px) scale(0.85); }
+}
+
+/* Red down-arrow (lost position) */
+.hud-position-arrow--down {
+  color: var(--accent, #ff4d2e);
+  background: rgba(255, 77, 46, 0.1);
+  border: 1px solid rgba(255, 77, 46, 0.3);
+  text-shadow: 0 0 8px rgba(255, 77, 46, 0.7);
+}
+
+.hud-position-arrow--down.visible {
+  animation: posDown 2.5s ease-out forwards;
+}
+
+@keyframes posDown {
+  0%   { opacity: 0; transform: translateY(-12px) scale(0.5); }
+  12%  { opacity: 1; transform: translateY(4px) scale(1.2); }
+  25%  { transform: translateY(0) scale(1); }
+  70%  { opacity: 1; transform: translateY(0) scale(1); }
+  100% { opacity: 0; transform: translateY(8px) scale(0.85); }
+}
+
+/* -------------------- 3. SPEED CRITICAL OVERLAY -------------------- */
+.hud-speed-critical {
+  position: fixed;
+  inset: 0;
+  z-index: calc(var(--z-hud, 10) - 1);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  background: radial-gradient(
+    ellipse at center,
+    transparent 40%,
+    rgba(255, 30, 10, 0.25) 70%,
+    rgba(180, 0, 0, 0.55) 100%
+  );
+  box-shadow:
+    inset 6px 0 40px rgba(255, 0, 60, 0.3),
+    inset -6px 0 40px rgba(0, 80, 255, 0.2),
+    inset 0 6px 40px rgba(0, 255, 120, 0.15),
+    inset 0 -6px 40px rgba(255, 120, 0, 0.15);
+}
+
+.hud-speed-critical.active {
+  opacity: 1;
+  animation: speedCriticalPulse 0.8s ease-in-out infinite alternate;
+}
+
+@keyframes speedCriticalPulse {
+  0%   { opacity: 0.6; }
+  50%  { opacity: 0.9; }
+  100% { opacity: 0.65; }
+}
+
+/* Chromatic aberration intensity layer */
+.hud-speed-critical::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border: 3px solid transparent;
+  border-image: linear-gradient(
+    135deg,
+    rgba(255, 0, 60, 0.35),
+    transparent 30%,
+    transparent 70%,
+    rgba(0, 100, 255, 0.35)
+  ) 1;
+  animation: chromaticBorder 1.2s linear infinite;
+  pointer-events: none;
+}
+
+@keyframes chromaticBorder {
+  0%   { filter: hue-rotate(0deg); opacity: 0.5; }
+  50%  { filter: hue-rotate(15deg); opacity: 0.9; }
+  100% { filter: hue-rotate(0deg); opacity: 0.5; }
+}
+
+/* -------------------- 4. MINIMAP ENHANCEMENT -------------------- */
+.minimap-container {
+  position: relative;
+  overflow: hidden;
+}
+
+/* Animated glassmorphism border */
+.minimap-container::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: inherit;
+  padding: 2px;
+  background: conic-gradient(
+    from 0deg,
+    var(--cyan, #00e5ff),
+    var(--magenta, #e040fb),
+    var(--accent, #ff4d2e),
+    var(--gold, #fbbf24),
+    var(--cyan, #00e5ff)
+  );
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  animation: minimapBorderSpin 6s linear infinite;
+  z-index: 1;
+  pointer-events: none;
+}
+
+@keyframes minimapBorderSpin {
+  0%   { filter: hue-rotate(0deg); }
+  100% { filter: hue-rotate(360deg); }
+}
+
+/* Radar sweep line */
+.minimap-container__sweep {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 50%;
+  height: 2px;
+  transform-origin: 0 50%;
+  background: linear-gradient(90deg, var(--cyan, #00e5ff), transparent);
+  opacity: 0.35;
+  animation: radarSweep 3s linear infinite;
+  pointer-events: none;
+  z-index: 2;
+}
+
+@keyframes radarSweep {
+  0%   { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Pulsing player dot */
+.minimap-container__player {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  background: var(--cyan, #00e5ff);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  box-shadow:
+    0 0 4px var(--cyan, #00e5ff),
+    0 0 12px var(--cyan, #00e5ff);
+  animation: playerDotPulse 1.2s ease-in-out infinite alternate;
+  z-index: 3;
+}
+
+@keyframes playerDotPulse {
+  0%   { box-shadow: 0 0 4px var(--cyan, #00e5ff), 0 0 10px var(--cyan, #00e5ff); transform: translate(-50%, -50%) scale(1); }
+  100% { box-shadow: 0 0 8px var(--cyan, #00e5ff), 0 0 20px var(--cyan, #00e5ff); transform: translate(-50%, -50%) scale(1.3); }
+}
+
+/* Opponent dot with trailing afterimage */
+.minimap-container__opponent {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  background: var(--accent, #ff4d2e);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 0 4px var(--accent, #ff4d2e);
+  z-index: 2;
+}
+
+.minimap-container__opponent::after {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: var(--accent, #ff4d2e);
+  opacity: 0.35;
+  animation: opponentTrail 1.5s ease-out infinite;
+}
+
+@keyframes opponentTrail {
+  0%   { transform: scale(1); opacity: 0.35; }
+  100% { transform: scale(2.5); opacity: 0; }
+}
+
+/* -------------------- 5. DRIFT SCORE COMBO DISPLAY -------------------- */
+.hud-drift-combo {
+  position: fixed;
+  top: 30%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0.7);
+  z-index: calc(var(--z-hud, 10) + 3);
+  text-align: center;
+  pointer-events: none;
+  opacity: 0;
+  font-family: var(--font-display, sans-serif);
+  transition: opacity 0.2s ease, transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.hud-drift-combo.active {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1);
+}
+
+/* Scaling text animation on streak increase */
+.hud-drift-combo__score {
+  font-size: clamp(32px, 6vw, 56px);
+  font-weight: 900;
+  color: var(--gold, #fbbf24);
+  text-shadow:
+    0 0 10px rgba(251, 191, 36, 0.7),
+    0 0 30px rgba(251, 191, 36, 0.3),
+    0 2px 4px rgba(0, 0, 0, 0.6);
+  letter-spacing: 0.04em;
+  line-height: 1.1;
+}
+
+.hud-drift-combo__score.bump {
+  animation: driftScoreBump 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes driftScoreBump {
+  0%   { transform: scale(1); }
+  40%  { transform: scale(1.25); }
+  100% { transform: scale(1); }
+}
+
+/* Streak counter with fire glow */
+.hud-drift-combo__streak {
+  font-size: clamp(14px, 2.5vw, 20px);
+  font-weight: 600;
+  color: var(--accent, #ff4d2e);
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  margin-top: 4px;
+  text-shadow:
+    0 0 8px rgba(255, 77, 46, 0.8),
+    0 0 20px rgba(255, 140, 0, 0.4);
+}
+
+/* Fire glow behind streak at high multiplier */
+.hud-drift-combo__streak.hot {
+  animation: streakFireGlow 0.4s ease-in-out infinite alternate;
+}
+
+@keyframes streakFireGlow {
+  0%   { text-shadow: 0 0 8px rgba(255, 77, 46, 0.8), 0 0 20px rgba(255, 140, 0, 0.4); color: var(--accent, #ff4d2e); }
+  100% { text-shadow: 0 0 14px rgba(255, 200, 0, 0.95), 0 0 35px rgba(255, 77, 46, 0.6), 0 0 60px rgba(255, 0, 0, 0.3); color: var(--gold, #fbbf24); }
+}
+
+/* Score increment fly-up element */
+.hud-drift-combo__increment {
+  position: absolute;
+  font-size: clamp(16px, 2.8vw, 24px);
+  font-weight: 700;
+  color: var(--gold, #fbbf24);
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.hud-drift-combo__increment.fly {
+  animation: scoreFlyUp 1s ease-out forwards;
+}
+
+@keyframes scoreFlyUp {
+  0%   { opacity: 1; transform: translateY(0) scale(1); }
+  60%  { opacity: 0.8; }
+  100% { opacity: 0; transform: translateY(-60px) scale(0.7); }
+}
+
+/* -------------------- 6. RESPONSIVE + REDUCED MOTION -------------------- */
+@media (max-width: 768px) {
+  .hud-lap-progress {
+    width: 90vw;
+    height: 5px;
+  }
+
+  .hud-lap-progress__marker {
+    height: 10px;
+    width: 3px;
+  }
+
+  .hud-position-arrow {
+    width: 22px;
+    height: 22px;
+    font-size: 14px;
+  }
+
+  .hud-drift-combo__score {
+    font-size: clamp(26px, 5vw, 40px);
+  }
+
+  .minimap-container__sweep {
+    opacity: 0.2;
+  }
+}
+
+@media (max-width: 480px) {
+  .hud-lap-progress {
+    width: 96vw;
+    height: 4px;
+  }
+
+  .hud-lap-progress__marker {
+    height: 8px;
+    width: 2px;
+  }
+
+  .hud-drift-combo {
+    top: 25%;
+  }
+
+  .hud-drift-combo__score {
+    font-size: 24px;
+  }
+
+  .hud-drift-combo__streak {
+    font-size: 12px;
+  }
+
+  .minimap-container::before {
+    animation: none;
+  }
+
+  .minimap-container__sweep {
+    display: none;
+  }
+}
+
+/* Reduced-motion overrides for all new Cycle 43 elements */
+.reduced-motion .hud-lap-progress__fill,
+.reduced-motion .hud-lap-progress__fill::after {
+  animation: none !important;
+}
+
+.reduced-motion .hud-lap-progress__flash.active {
+  animation: none !important;
+  opacity: 0;
+}
+
+.reduced-motion .hud-position-arrow--up.visible,
+.reduced-motion .hud-position-arrow--down.visible {
+  animation: none !important;
+  opacity: 1;
+  transition: opacity 0.3s ease;
+}
+
+.reduced-motion .hud-speed-critical.active {
+  animation: none !important;
+  opacity: 0.75;
+}
+
+.reduced-motion .hud-speed-critical::after {
+  animation: none !important;
+}
+
+.reduced-motion .minimap-container::before,
+.reduced-motion .minimap-container__sweep,
+.reduced-motion .minimap-container__player,
+.reduced-motion .minimap-container__opponent::after {
+  animation: none !important;
+}
+
+.reduced-motion .hud-drift-combo {
+  transition: opacity 0.15s ease !important;
+  transform: translate(-50%, -50%) scale(1) !important;
+}
+
+.reduced-motion .hud-drift-combo__score.bump {
+  animation: none !important;
+}
+
+.reduced-motion .hud-drift-combo__streak.hot {
+  animation: none !important;
+  color: var(--gold, #fbbf24);
+}
+
+.reduced-motion .hud-drift-combo__increment.fly {
+  animation: none !important;
+  opacity: 0;
+}
+
+/* ==================== END CYCLE 43 ADDITIONS ==================== */

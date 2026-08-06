@@ -1042,3 +1042,756 @@
 }
 
 /* === END CYCLE 43 ADDITIONS === */
+
+/* ============================================
+   CYCLE 44: ENHANCED RACE RESULTS — HERO, STATS,
+   TIMELINE, REWARDS, ACTIONS & RESPONSIVE
+   ============================================ */
+
+/* --------------------------------------------
+   1. RESULTS HERO BANNER
+   -------------------------------------------- */
+@keyframes rrHeroReveal {
+  0% {
+    opacity: 0;
+    transform: translateY(-30px) scale(0.9);
+    filter: blur(12px);
+  }
+  60% {
+    opacity: 1;
+    filter: blur(0);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+  }
+}
+
+.rr-hero-banner {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: var(--space-sm, 8px);
+  padding: var(--space-xl, 48px) var(--space-lg, 32px);
+  margin-bottom: var(--space-lg, 32px);
+  border-radius: var(--radius-md, 20px);
+  background: radial-gradient(ellipse at 50% 120%, rgba(0, 229, 255, 0.06) 0%, transparent 60%),
+              linear-gradient(180deg, rgba(17, 19, 29, 0.8), rgba(10, 12, 20, 0.6));
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  overflow: hidden;
+  animation: rrHeroReveal 0.8s var(--ease-out-expo, cubic-bezier(0.16, 1, 0.3, 1)) both;
+}
+
+.rr-hero-position {
+  font-family: var(--font-display, 'Bebas Neue', Impact, sans-serif);
+  font-size: clamp(64px, 14vw, 120px);
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: 4px;
+  background: linear-gradient(180deg, #ffffff 20%, var(--cyan, #00e5ff) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  filter: drop-shadow(0 0 30px rgba(0, 229, 255, 0.35));
+}
+
+/* Podium glow — gold for 1st, silver for 2nd, bronze for 3rd */
+.rr-hero-banner.podium-1 {
+  border-color: rgba(251, 191, 36, 0.2);
+  box-shadow: 0 0 60px rgba(251, 191, 36, 0.12), 0 0 120px rgba(251, 191, 36, 0.06) inset;
+}
+.rr-hero-banner.podium-1 .rr-hero-position {
+  background: linear-gradient(180deg, #ffffff 10%, var(--gold, #fbbf24) 80%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  filter: drop-shadow(0 0 40px rgba(251, 191, 36, 0.5));
+}
+
+.rr-hero-banner.podium-2 {
+  border-color: rgba(192, 192, 192, 0.15);
+  box-shadow: 0 0 50px rgba(192, 192, 192, 0.08);
+}
+.rr-hero-banner.podium-2 .rr-hero-position {
+  background: linear-gradient(180deg, #ffffff 15%, #c0c0c0 85%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  filter: drop-shadow(0 0 30px rgba(192, 192, 192, 0.35));
+}
+
+.rr-hero-banner.podium-3 {
+  border-color: rgba(205, 127, 50, 0.15);
+  box-shadow: 0 0 40px rgba(205, 127, 50, 0.08);
+}
+.rr-hero-banner.podium-3 .rr-hero-position {
+  background: linear-gradient(180deg, #ffffff 15%, #cd7f32 85%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  filter: drop-shadow(0 0 30px rgba(205, 127, 50, 0.35));
+}
+
+/* Confetti-like particle dots for 1st place via box-shadow pseudo-elements */
+.rr-hero-banner.podium-1::before,
+.rr-hero-banner.podium-1::after {
+  content: '';
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+.rr-hero-banner.podium-1::before {
+  top: 18%;
+  left: 12%;
+  background: var(--gold, #fbbf24);
+  box-shadow:
+    60px 20px 0 var(--cyan, #00e5ff),
+    140px -10px 0 var(--magenta, #e040fb),
+    220px 15px 0 var(--gold, #fbbf24),
+    300px -5px 0 var(--accent, #ff4d2e),
+    50px 45px 0 var(--cyan, #00e5ff),
+    180px 50px 0 var(--magenta, #e040fb),
+    260px 40px 0 var(--gold, #fbbf24),
+    340px 55px 0 var(--accent, #ff4d2e),
+    100px 70px 0 var(--cyan, #00e5ff),
+    200px 75px 0 var(--gold, #fbbf24),
+    310px 80px 0 var(--magenta, #e040fb),
+    30px 90px 0 var(--accent, #ff4d2e),
+    160px 95px 0 var(--cyan, #00e5ff),
+    280px 100px 0 var(--gold, #fbbf24);
+  animation: rrParticleDrift 6s ease-in-out infinite alternate;
+}
+
+.rr-hero-banner.podium-1::after {
+  top: 25%;
+  right: 10%;
+  background: var(--magenta, #e040fb);
+  box-shadow:
+    -70px 25px 0 var(--gold, #fbbf24),
+    -150px 10px 0 var(--cyan, #00e5ff),
+    -230px 30px 0 var(--accent, #ff4d2e),
+    -310px 5px 0 var(--gold, #fbbf24),
+    -80px 60px 0 var(--magenta, #e040fb),
+    -200px 55px 0 var(--cyan, #00e5ff),
+    -280px 65px 0 var(--accent, #ff4d2e),
+    -40px 85px 0 var(--gold, #fbbf24),
+    -120px 90px 0 var(--cyan, #00e5ff),
+    -250px 95px 0 var(--magenta, #e040fb),
+    -340px 80px 0 var(--gold, #fbbf24);
+  animation: rrParticleDrift 6s ease-in-out infinite alternate-reverse;
+}
+
+@keyframes rrParticleDrift {
+  0%   { transform: translateY(0) scale(1);   opacity: 0.6; }
+  100% { transform: translateY(-8px) scale(1.15); opacity: 0.9; }
+}
+
+.rr-hero-subtitle {
+  font-family: var(--font-body, sans-serif);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-secondary, rgba(255,255,255,0.5));
+  letter-spacing: 3px;
+  text-transform: uppercase;
+}
+
+/* --------------------------------------------
+   2. STATS COMPARISON BARS
+   -------------------------------------------- */
+@keyframes statBarGrow {
+  from { width: 0%; }
+  to   { width: var(--bar-fill, 0%); }
+}
+
+.rr-stat-compare {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md, 16px);
+  padding: var(--space-md, 16px);
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  border-radius: var(--radius-md, 16px);
+}
+
+.rr-stat-row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.rr-stat-label-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.rr-stat-label {
+  color: var(--text-secondary, rgba(255,255,255,0.45));
+}
+
+.rr-stat-value {
+  font-family: var(--font-body, 'JetBrains Mono', monospace);
+  color: var(--text-primary, #fff);
+  font-size: 12px;
+}
+
+.rr-stat-dual-bar {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.rr-bar-track {
+  position: relative;
+  height: 8px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.06);
+  overflow: hidden;
+}
+
+.rr-bar-fill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  border-radius: 4px;
+  width: var(--bar-fill, 0%);
+  animation: statBarGrow 1s var(--ease-out-expo, cubic-bezier(0.16, 1, 0.3, 1)) both;
+  animation-delay: var(--bar-delay, 0s);
+}
+
+/* Player bar — accent color */
+.rr-bar-fill.player {
+  background: linear-gradient(90deg, var(--accent, #ff4d2e), var(--cyan, #00e5ff));
+  box-shadow: 0 0 10px rgba(0, 229, 255, 0.25);
+}
+
+/* Average bar — muted */
+.rr-bar-fill.average {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+/* Color-coded performance: green above avg, red below */
+.rr-stat-row.above-average .rr-bar-fill.player {
+  background: linear-gradient(90deg, #22c55e, #4ade80);
+  box-shadow: 0 0 10px rgba(34, 197, 94, 0.3);
+}
+
+.rr-stat-row.below-average .rr-bar-fill.player {
+  background: linear-gradient(90deg, #ef4444, #f87171);
+  box-shadow: 0 0 10px rgba(239, 68, 68, 0.3);
+}
+
+.rr-bar-legend {
+  display: flex;
+  gap: 16px;
+  margin-top: 4px;
+  font-size: 10px;
+  color: var(--text-secondary, rgba(255,255,255,0.4));
+}
+
+.rr-bar-legend span::before {
+  content: '';
+  display: inline-block;
+  width: 10px;
+  height: 6px;
+  border-radius: 2px;
+  margin-right: 5px;
+  vertical-align: middle;
+}
+
+.rr-bar-legend .legend-player::before {
+  background: var(--accent, #ff4d2e);
+}
+
+.rr-bar-legend .legend-avg::before {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+/* --------------------------------------------
+   3. LAP TIMELINE
+   -------------------------------------------- */
+@keyframes timelineDotPop {
+  0%   { transform: scale(0); opacity: 0; }
+  60%  { transform: scale(1.4); opacity: 1; }
+  100% { transform: scale(1);   opacity: 1; }
+}
+
+.rr-lap-timeline {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding-left: 28px;
+}
+
+/* Vertical spine line */
+.rr-lap-timeline::before {
+  content: '';
+  position: absolute;
+  left: 10px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: linear-gradient(
+    180deg,
+    var(--cyan, #00e5ff) 0%,
+    var(--gold, #fbbf24) 50%,
+    var(--accent, #ff4d2e) 100%
+  );
+  border-radius: 1px;
+  opacity: 0.4;
+}
+
+.rr-lap-node {
+  position: relative;
+  padding: var(--space-sm, 8px) 0 var(--space-md, 16px);
+}
+
+/* Timeline dot — color based on lap quality */
+.rr-lap-node::before {
+  content: '';
+  position: absolute;
+  left: -24px;
+  top: 12px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 2px solid var(--bg-primary, #0a0c14);
+  z-index: 2;
+  animation: timelineDotPop 0.4s var(--ease-out-expo, cubic-bezier(0.16, 1, 0.3, 1)) both;
+  animation-delay: var(--dot-delay, 0s);
+}
+
+.rr-lap-node.fastest::before {
+  background: var(--cyan, #00e5ff);
+  box-shadow: 0 0 10px rgba(0, 229, 255, 0.5), 0 0 20px rgba(0, 229, 255, 0.2);
+}
+
+.rr-lap-node.average::before {
+  background: var(--gold, #fbbf24);
+  box-shadow: 0 0 8px rgba(251, 191, 36, 0.4);
+}
+
+.rr-lap-node.slowest::before {
+  background: var(--accent, #ff4d2e);
+  box-shadow: 0 0 8px rgba(255, 77, 46, 0.4);
+}
+
+.rr-lap-node.best::before {
+  width: 16px;
+  height: 16px;
+  left: -26px;
+  top: 10px;
+  background: var(--gold, #fbbf24);
+  box-shadow: 0 0 14px rgba(251, 191, 36, 0.6), 0 0 28px rgba(251, 191, 36, 0.25);
+}
+
+/* Glassmorphism lap time card */
+.rr-lap-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: var(--radius-sm, 10px);
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.rr-lap-card:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.rr-lap-card-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-secondary, rgba(255,255,255,0.45));
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.rr-lap-card-time {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-primary, #fff);
+}
+
+.rr-lap-node.fastest .rr-lap-card-time { color: var(--cyan, #00e5ff); }
+.rr-lap-node.average .rr-lap-card-time { color: var(--gold, #fbbf24); }
+.rr-lap-node.slowest .rr-lap-card-time { color: var(--accent, #ff4d2e); }
+.rr-lap-node.best .rr-lap-card-time    { color: var(--gold, #fbbf24); }
+
+.rr-lap-card-delta {
+  font-size: 11px;
+  font-weight: 600;
+  margin-left: 8px;
+}
+
+.rr-lap-card-delta.positive { color: #22c55e; }
+.rr-lap-card-delta.negative { color: #ef4444; }
+
+/* --------------------------------------------
+   4. REWARDS UNVEIL — FLIP CARDS
+   -------------------------------------------- */
+@keyframes rewardFlip {
+  0%   { transform: rotateY(0deg); }
+  50%  { transform: rotateY(90deg); }
+  100% { transform: rotateY(0deg); }
+}
+
+.rr-reward-card {
+  position: relative;
+  width: 100%;
+  max-width: 160px;
+  aspect-ratio: 3 / 4;
+  perspective: 600px;
+  animation: rewardFlip 1.2s cubic-bezier(0.4, 0, 0.2, 1) both;
+  animation-delay: var(--flip-delay, 0s);
+}
+
+.rr-reward-card-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: var(--radius-md, 16px);
+  overflow: hidden;
+}
+
+/* Front face — mystery "?" with shimmer */
+.rr-reward-front {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, rgba(17, 19, 29, 0.95), rgba(10, 12, 20, 0.98));
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-md, 16px);
+  backface-visibility: hidden;
+  overflow: hidden;
+}
+
+.rr-reward-front .rr-reward-question {
+  font-family: var(--font-display, 'Bebas Neue', Impact, sans-serif);
+  font-size: 48px;
+  font-weight: 900;
+  color: rgba(255, 255, 255, 0.1);
+  user-select: none;
+}
+
+/* Shimmer sweep on front face */
+.rr-reward-front::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.05) 40%,
+    rgba(255, 255, 255, 0.1) 50%,
+    rgba(255, 255, 255, 0.05) 60%,
+    transparent 100%
+  );
+  animation: rrRewardShimmer 2.5s ease-in-out infinite;
+}
+
+@keyframes rrRewardShimmer {
+  0%, 100% { left: -100%; }
+  50%      { left: 100%; }
+}
+
+/* Back face — revealed reward with glow */
+.rr-reward-back {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: linear-gradient(160deg, rgba(251, 191, 36, 0.08), rgba(17, 19, 29, 0.97));
+  border: 1px solid rgba(251, 191, 36, 0.2);
+  border-radius: var(--radius-md, 16px);
+  backface-visibility: hidden;
+  box-shadow: 0 0 30px rgba(251, 191, 36, 0.1), 0 0 60px rgba(251, 191, 36, 0.05) inset;
+}
+
+.rr-reward-back .rr-reward-icon {
+  font-size: 32px;
+  filter: drop-shadow(0 0 12px rgba(251, 191, 36, 0.5));
+}
+
+.rr-reward-back .rr-reward-amount {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--gold, #fbbf24);
+  text-shadow: 0 0 16px rgba(251, 191, 36, 0.4);
+}
+
+.rr-reward-back .rr-reward-name {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--text-secondary, rgba(255,255,255,0.5));
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+}
+
+/* --------------------------------------------
+   5. ACTION BUTTONS ENHANCEMENT
+   -------------------------------------------- */
+@keyframes btnGlowPulse {
+  0%, 100% {
+    box-shadow:
+      0 4px 20px rgba(255, 77, 46, 0.3),
+      0 0 0 0 rgba(255, 77, 46, 0);
+  }
+  50% {
+    box-shadow:
+      0 6px 30px rgba(255, 77, 46, 0.5),
+      0 0 20px 4px rgba(255, 77, 46, 0.15);
+  }
+}
+
+.rr-actions {
+  display: flex;
+  justify-content: center;
+  gap: var(--space-md, 16px);
+  flex-wrap: wrap;
+  margin-top: var(--space-lg, 32px);
+  padding-top: var(--space-lg, 32px);
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.rr-actions .rr-action-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 32px;
+  font-family: var(--font-body, sans-serif);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  border: none;
+  border-radius: var(--radius-sm, 12px);
+  cursor: pointer;
+  overflow: hidden;
+  transition: transform 0.25s ease, box-shadow 0.3s ease;
+  background: var(--bg-secondary, #11131d);
+  color: var(--text-primary, #fff);
+}
+
+/* Gradient border via pseudo-element */
+.rr-actions .rr-action-btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 2px;
+  background: linear-gradient(135deg, var(--accent, #ff4d2e), var(--cyan, #00e5ff), var(--magenta, #e040fb));
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0.6;
+  transition: opacity 0.3s ease;
+}
+
+.rr-actions .rr-action-btn:hover::before {
+  opacity: 1;
+}
+
+/* Hover glow lift */
+.rr-actions .rr-action-btn:hover {
+  transform: translateY(-3px);
+  box-shadow:
+    0 8px 30px rgba(0, 229, 255, 0.15),
+    0 0 16px rgba(255, 77, 46, 0.2);
+}
+
+.rr-actions .rr-action-btn:active {
+  transform: translateY(-1px);
+}
+
+/* Primary "NEXT RACE" button — continuous glow pulse */
+.rr-actions .rr-action-btn.primary {
+  background: linear-gradient(135deg, var(--accent, #ff4d2e), #ff8c00);
+  color: #000;
+  font-weight: 800;
+  animation: btnGlowPulse 2.5s ease-in-out infinite;
+}
+
+.rr-actions .rr-action-btn.primary::before {
+  background: linear-gradient(135deg, #fff, var(--gold, #fbbf24), #fff);
+  opacity: 0.3;
+}
+
+.rr-actions .rr-action-btn.primary:hover {
+  animation: none;
+  box-shadow:
+    0 10px 40px rgba(255, 77, 46, 0.45),
+    0 0 24px rgba(255, 77, 46, 0.3);
+}
+
+.rr-actions .rr-action-btn.primary:hover::before {
+  opacity: 0.7;
+}
+
+/* --------------------------------------------
+   6. RESPONSIVE + REDUCED MOTION OVERRIDES
+   -------------------------------------------- */
+
+/* Tablet / narrow desktop */
+@media (max-width: 768px) {
+  .rr-hero-banner {
+    padding: var(--space-lg, 32px) var(--space-md, 16px);
+  }
+
+  .rr-hero-position {
+    font-size: clamp(48px, 12vw, 80px);
+  }
+
+  .rr-hero-banner.podium-1::before,
+  .rr-hero-banner.podium-1::after {
+    display: none; /* Hide particle dots on smaller screens */
+  }
+
+  .rr-stat-compare {
+    padding: var(--space-sm, 8px);
+  }
+
+  .rr-lap-timeline {
+    padding-left: 24px;
+  }
+
+  .rr-reward-card {
+    max-width: 130px;
+  }
+
+  .rr-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .rr-actions .rr-action-btn {
+    justify-content: center;
+    width: 100%;
+  }
+}
+
+/* Mobile */
+@media (max-width: 480px) {
+  .rr-hero-banner {
+    padding: var(--space-md, 16px) var(--space-sm, 8px);
+    border-radius: var(--radius-sm, 12px);
+  }
+
+  .rr-hero-position {
+    font-size: clamp(40px, 10vw, 64px);
+  }
+
+  .rr-hero-subtitle {
+    font-size: 11px;
+    letter-spacing: 2px;
+  }
+
+  .rr-stat-row {
+    gap: 4px;
+  }
+
+  .rr-bar-track {
+    height: 6px;
+  }
+
+  .rr-lap-card {
+    padding: 8px 12px;
+  }
+
+  .rr-lap-card-time {
+    font-size: 12px;
+  }
+
+  .rr-lap-node::before {
+    width: 10px;
+    height: 10px;
+    left: -22px;
+  }
+
+  .rr-lap-node.best::before {
+    width: 14px;
+    height: 14px;
+    left: -24px;
+  }
+
+  .rr-reward-card {
+    max-width: 110px;
+    aspect-ratio: 5 / 6;
+  }
+
+  .rr-reward-front .rr-reward-question {
+    font-size: 36px;
+  }
+
+  .rr-reward-back .rr-reward-icon {
+    font-size: 24px;
+  }
+
+  .rr-reward-back .rr-reward-amount {
+    font-size: 16px;
+  }
+}
+
+/* Reduced motion */
+.reduced-motion .rr-hero-banner,
+.reduced-motion .rr-bar-fill,
+.reduced-motion .rr-lap-node::before,
+.reduced-motion .rr-reward-card,
+.reduced-motion .rr-actions .rr-action-btn.primary {
+  animation: none !important;
+}
+
+.reduced-motion .rr-bar-fill {
+  width: var(--bar-fill, 0%) !important;
+}
+
+.reduced-motion .rr-lap-node::before {
+  transform: scale(1) !important;
+  opacity: 1 !important;
+}
+
+.reduced-motion .rr-hero-banner.podium-1::before,
+.reduced-motion .rr-hero-banner.podium-1::after {
+  display: none !important;
+}
+
+.reduced-motion .rr-reward-front::after {
+  animation: none !important;
+}
+
+.reduced-motion .rr-actions .rr-action-btn,
+.reduced-motion .rr-lap-card {
+  transition: none !important;
+}
+
+/* === END CYCLE 44 ENHANCEMENTS === */

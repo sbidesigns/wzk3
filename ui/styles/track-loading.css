@@ -919,3 +919,411 @@
   .tl-cancel-btn::after { transition: none; }
 }
 
+/* ============================================
+   CYCLE 52: TRACK PREVIEW 3D CARD
+   ============================================ */
+
+.tl-preview-card {
+  position: relative;
+  perspective: 800px;
+  transform-style: preserve-3d;
+  border-radius: var(--radius-md, 16px);
+  overflow: visible;
+}
+
+.tl-preview-card-inner {
+  position: relative;
+  padding: var(--space-md, 16px);
+  background: linear-gradient(
+    145deg,
+    rgba(17, 19, 29, 0.95),
+    rgba(10, 12, 20, 0.98)
+  );
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: var(--radius-md, 16px);
+  transition: transform var(--duration-normal, 0.3s) var(--ease-out-expo, cubic-bezier(0.16, 1, 0.3, 1)),
+              box-shadow var(--duration-normal, 0.3s) ease;
+  transform-style: preserve-3d;
+  will-change: transform;
+  overflow: hidden;
+}
+
+.tl-preview-card:hover .tl-preview-card-inner {
+  box-shadow:
+    0 20px 60px rgba(0, 0, 0, 0.5),
+    0 0 40px rgba(255, 77, 46, 0.08),
+    0 0 80px rgba(0, 229, 255, 0.04);
+}
+
+/* Animated conic-gradient border glow */
+.tl-preview-card::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: calc(var(--radius-md, 16px) + 2px);
+  padding: 2px;
+  background: conic-gradient(
+    from var(--preview-angle, 0deg),
+    rgba(255, 77, 46, 0.0),
+    rgba(0, 229, 255, 0.5),
+    rgba(255, 77, 46, 0.0),
+    rgba(251, 191, 36, 0.3),
+    rgba(255, 77, 46, 0.0)
+  );
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+  pointer-events: none;
+  animation: previewBorderSpin 6s linear infinite;
+}
+
+.tl-preview-card:hover::before {
+  opacity: 1;
+}
+
+@property --preview-angle {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
+}
+
+@keyframes previewBorderSpin {
+  to { --preview-angle: 360deg; }
+}
+
+/* Reflection shine sweep across the card */
+.tl-preview-card-inner::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -60%;
+  width: 40%;
+  height: 200%;
+  background: linear-gradient(
+    105deg,
+    transparent 40%,
+    rgba(255, 255, 255, 0.04) 45%,
+    rgba(255, 255, 255, 0.08) 50%,
+    rgba(255, 255, 255, 0.04) 55%,
+    transparent 60%
+  );
+  transform: rotate(25deg);
+  transition: none;
+  pointer-events: none;
+  animation: previewShineSweep 5s ease-in-out infinite;
+}
+
+@keyframes previewShineSweep {
+  0%, 100% { left: -60%; opacity: 0; }
+  10% { opacity: 1; }
+  50% { left: 120%; opacity: 1; }
+  60% { opacity: 0; }
+}
+
+/* ============================================
+   CYCLE 52: LOADING STATS BAR
+   ============================================ */
+
+.tl-loading-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-sm, 8px);
+  padding: var(--space-md, 16px);
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: var(--radius-sm, 10px);
+}
+
+.tl-stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 4px;
+}
+
+.tl-stat-label {
+  font-size: 9px;
+  font-weight: 700;
+  color: var(--text-secondary, rgba(255, 255, 255, 0.4));
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  font-family: var(--font-body, inherit);
+}
+
+.tl-stat-value {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--cyan, #00e5ff);
+  font-family: 'JetBrains Mono', monospace;
+  text-shadow: 0 0 12px rgba(0, 229, 255, 0.3);
+  transition: color 0.3s ease, text-shadow 0.3s ease;
+  min-width: 48px;
+  text-align: center;
+}
+
+.tl-stat-value.complete {
+  color: var(--gold, #fbbf24);
+  text-shadow: 0 0 12px rgba(251, 191, 36, 0.4);
+}
+
+/* Micro-progress bar beneath each stat */
+.tl-stat-bar-track {
+  width: 100%;
+  height: 3px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 2px;
+  overflow: hidden;
+  margin-top: 2px;
+}
+
+.tl-stat-bar-fill {
+  height: 100%;
+  width: 0%;
+  border-radius: 2px;
+  background: linear-gradient(90deg, var(--accent, #ff4d2e), var(--cyan, #00e5ff));
+  transition: width 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.tl-stat-bar-fill.complete {
+  background: linear-gradient(90deg, var(--gold, #fbbf24), #22c55e);
+}
+
+/* Animated counter tick effect */
+.tl-stat-value.updating {
+  animation: statCounterTick 0.15s ease-out;
+}
+
+@keyframes statCounterTick {
+  0% { transform: translateY(-4px); opacity: 0.5; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+
+/* Items remaining uses magenta accent */
+.tl-stat-item:nth-child(3) .tl-stat-value {
+  color: var(--magenta, #e040fb);
+  text-shadow: 0 0 12px rgba(224, 64, 251, 0.3);
+}
+
+.tl-stat-item:nth-child(3) .tl-stat-bar-fill {
+  background: linear-gradient(90deg, var(--magenta, #e040fb), var(--accent, #ff4d2e));
+}
+
+/* ============================================
+   CYCLE 52: RACER GRID ENHANCED
+   ============================================ */
+
+.tl-racer-row {
+  display: grid;
+  grid-template-columns: 28px 32px 1fr auto;
+  align-items: center;
+  gap: var(--space-sm, 8px);
+  padding: 10px 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  border-radius: var(--radius-sm, 8px);
+  font-size: 13px;
+  color: var(--text-secondary, rgba(255, 255, 255, 0.6));
+  position: relative;
+  transition: all 0.25s var(--ease-out-expo, cubic-bezier(0.16, 1, 0.3, 1));
+  animation: racerSlideIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) backwards both;
+  animation-delay: var(--racer-delay, 0ms);
+}
+
+@keyframes racerSlideIn {
+  from {
+    opacity: 0;
+    transform: translateX(30px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+
+/* Lane position indicator */
+.tl-racer-lane {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 800;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.4);
+  transition: all 0.25s ease;
+}
+
+.tl-racer-row:nth-child(1) .tl-racer-lane {
+  background: rgba(251, 191, 36, 0.15);
+  border-color: rgba(251, 191, 36, 0.3);
+  color: var(--gold, #fbbf24);
+}
+
+.tl-racer-row:nth-child(2) .tl-racer-lane {
+  background: rgba(192, 192, 192, 0.12);
+  border-color: rgba(192, 192, 192, 0.25);
+  color: #c0c0c0;
+}
+
+.tl-racer-row:nth-child(3) .tl-racer-lane {
+  background: rgba(205, 127, 50, 0.12);
+  border-color: rgba(205, 127, 50, 0.25);
+  color: #cd7f32;
+}
+
+/* Racer avatar with color ring */
+.tl-racer-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.25s ease;
+}
+
+/* Hover glow effect */
+.tl-racer-row:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.1);
+  transform: translateX(4px);
+  box-shadow:
+    -4px 0 20px rgba(255, 77, 46, 0.06),
+    0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.tl-racer-row:hover .tl-racer-avatar {
+  border-color: var(--cyan, #00e5ff);
+  box-shadow: 0 0 12px rgba(0, 229, 255, 0.2);
+}
+
+/* Player-highlighted row */
+.tl-racer-row.is-player {
+  background: linear-gradient(90deg, rgba(255, 77, 46, 0.1), rgba(0, 229, 255, 0.05), transparent);
+  border-color: rgba(255, 77, 46, 0.2);
+}
+
+.tl-racer-row.is-player .tl-racer-lane {
+  background: rgba(255, 77, 46, 0.2);
+  border-color: rgba(255, 77, 46, 0.4);
+  color: var(--accent, #ff4d2e);
+  box-shadow: 0 0 8px rgba(255, 77, 46, 0.3);
+}
+
+.tl-racer-row.is-player .tl-racer-name {
+  color: var(--text-primary, #fff);
+  font-weight: 700;
+}
+
+.tl-racer-name {
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tl-racer-vehicle-tag {
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.3);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 600;
+}
+
+/* ============================================
+   CYCLE 52: RESPONSIVE + REDUCED MOTION
+   ============================================ */
+
+@media (max-width: 768px) {
+  .tl-loading-stats {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+    padding: 12px;
+  }
+
+  .tl-stat-value {
+    font-size: 15px;
+  }
+
+  .tl-racer-row {
+    padding: 8px 10px;
+    grid-template-columns: 24px 28px 1fr auto;
+  }
+
+  .tl-racer-lane {
+    width: 24px;
+    height: 24px;
+    font-size: 10px;
+  }
+
+  .tl-racer-avatar {
+    width: 28px;
+    height: 28px;
+    font-size: 14px;
+  }
+
+  .tl-racer-row:hover {
+    transform: none;
+    box-shadow: none;
+  }
+
+  .tl-preview-card-inner::after {
+    animation: none;
+  }
+
+  .tl-preview-card:hover .tl-preview-card-inner {
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+  }
+}
+
+@media (max-width: 480px) {
+  .tl-loading-stats {
+    gap: 4px;
+    padding: 10px 8px;
+  }
+
+  .tl-stat-label {
+    font-size: 8px;
+    letter-spacing: 0.8px;
+  }
+
+  .tl-stat-value {
+    font-size: 14px;
+    min-width: 36px;
+  }
+
+  .tl-racer-row {
+    font-size: 12px;
+    padding: 7px 8px;
+    gap: 6px;
+  }
+
+  .tl-racer-vehicle-tag {
+    display: none;
+  }
+
+  .tl-preview-card::before {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tl-preview-card::before { animation: none; opacity: 0.5; }
+  .tl-preview-card-inner::after { animation: none; opacity: 0; }
+  .tl-preview-card-inner { transition: none; }
+  .tl-stat-value.updating { animation: none; }
+  .tl-stat-bar-fill { transition: none; }
+  .tl-racer-row { animation: none; opacity: 1; transform: none; }
+  .tl-racer-row:hover { transform: none; }
+}
+

@@ -1127,7 +1127,7 @@ async function main() {
     // 19.5 Initialize Race Scene for 3D gameplay
     let raceScene = null;
     try {
-      const { getRaceScene } = await import('./ui/race-scene.js?v=46');
+      const { getRaceScene } = await import('./ui/race-scene.js?v=47');
       raceScene = getRaceScene();
       window.__raceScene = raceScene;
       console.log('[main] Race Scene system ready');
@@ -1170,9 +1170,16 @@ async function main() {
         // Remove race HUD if present
         var raceHud = document.getElementById('game-hud-root');
         if (raceHud && raceHud.parentNode) raceHud.remove();
+        // Hide race HUD overlays that live outside the main HUD element
+        var itemSlot = document.getElementById('powerup-item-slot');
+        if (itemSlot) itemSlot.style.display = 'none';
+        var activeDisplay = document.getElementById('powerup-active-display');
+        if (activeDisplay) activeDisplay.style.display = 'none';
+        var countdown = document.getElementById('hud-countdown');
+        if (countdown) countdown.style.display = 'none';
         // Show UI shell and navigate to race results
         var uiShell = document.getElementById('ui-shell');
-        if (uiShell) uiShell.style.display = 'block';
+        if (uiShell) uiShell.style.display = '';
  try {
           await uiRouter.push('race-results', { result });
         } catch (e) {
