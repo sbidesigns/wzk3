@@ -1,0 +1,273 @@
+/* ui/styles/race-intro.css — Race start dramatic intro sequence
+ * Features: Camera swoosh overlay, GO flash, track name splash, speed lines burst
+ */
+
+/* ==================== RACE INTRO OVERLAY ==================== */
+.race-intro-overlay {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: calc(var(--z-modal) + 5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.8);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.race-intro-overlay.active {
+  opacity: 1;
+  animation: introFadeIn 0.4s ease-out forwards;
+}
+
+.race-intro-overlay.hiding {
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+
+@keyframes introFadeIn {
+   from { opacity: 0; backdrop-filter: blur(8px); }
+  to { opacity: 1; backdrop-filter: blur(0px); }
+}
+
+/* ==================== TRACK NAME SPLASH ==================== */
+.race-track-splash {
+  position: absolute;
+  text-align: center;
+  pointer-events: none;
+}
+
+.race-track-splash .track-name {
+  font-family: var(--font-display);
+  font-size: clamp(36px, 6vw, 64px);
+  color: var(--text-primary);
+  letter-spacing: 0.15em;
+ text-transform: uppercase;
+  text-shadow:
+    0 0 30px rgba(var(--accent-secondary-rgb), 0.6),
+    0 0 60px rgba(var(--accent-secondary-rgb), 0.3),
+    0 2px 0 rgba(0, 0, 0, 0.8);
+  opacity: 0;
+  transform: scale(0.8) translateY(20px);
+  animation: trackNameReveal 0.8s var(--ease-out-expo) 0.2s forwards;
+}
+
+.race-track-splash .track-subtitle {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: var(--text-body-s);
+  color: var(--text-secondary);
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  margin-top: 4px;
+  opacity: 0;
+  animation: subtitleFade 0.6s ease 0.6s forwards;
+}
+
+.race-track-splash .track-mode-badge {
+  display: inline-block;
+  margin-top: var(--space-s);
+  padding: 3px 12px;
+  border-radius: var(--radius-pill);
+  background: rgba(var(--accent-primary-rgb), 0.15);
+  border: 1px solid rgba(var(--accent-primary-rgb), 0.3);
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: var(--accent-primary);
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  opacity: 0;
+  animation: badgeFade 0.5s ease 0.8s forwards;
+}
+
+@keyframes trackNameReveal {
+  0% { opacity: 0; transform: scale(0.8) translateY(20px); filter: blur(8px); }
+  60% { opacity: 1; transform: scale(1.02) translateY(-2px); filter: blur(0); }
+  100% { opacity: 1; transform: scale(1) translateY(0); filter: blur(0); }
+}
+
+@keyframes subtitleFade {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 0.8; transform: translateY(0); }
+}
+
+@keyframes badgeFade {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ==================== GO FLASH ==================== */
+.race-go-flash {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.race-go-flash.active {
+  animation: goFlashSequence 1.2s ease-out forwards;
+}
+
+@keyframes goFlashSequence {
+  0% { opacity: 0; }
+  15% {
+    opacity: 1;
+    background: radial-gradient(ellipse at center, rgba(var(--accent-secondary-rgb), 0.15), transparent 60%);
+  }
+  40% {
+    opacity: 1;
+    background: radial-gradient(ellipse at center, rgba(var(--accent-secondary-rgb), 0.25), transparent 70%);
+  }
+  100% {
+    opacity: 0;
+    background: radial-gradient(ellipse at center, transparent, transparent 100%);
+  }
+}
+
+.race-go-flash .go-text {
+  font-family: var(--font-display);
+  font-size: clamp(80px, 12vw, 140px);
+  color: #fff;
+  letter-spacing: 0.2em;
+  text-shadow:
+    0 0 40px rgba(var(--accent-secondary-rgb), 0.8),
+    0 0 80px rgba(var(--accent-secondary-rgb), 0.4),
+    0 4px 0 rgba(0, 0, 0, 0.9);
+  transform: scale(0.5);
+  animation: goTextSlam 0.6s var(--ease-back-out) 0.1s forwards;
+}
+
+@keyframes goTextSlam {
+  0% { transform: scale(0.5) rotateX(30deg); opacity: 0; filter: blur(6px); }
+ 50% { transform: scale(1.1) rotateX(-5deg); opacity: 1; filter: blur(0); }
+ 70% { transform: scale(1) rotateX(0deg); opacity: 1; }
+ 100% { transform: scale(1.3) rotateX(-10deg); opacity: 0; }
+}
+
+/* ==================== SPEED LINES BURST ==================== */
+.speed-lines-burst {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.speed-lines-burst.active {
+  opacity: 1;
+  animation: speedBurstFade 1.5s ease-out 0.3s forwards;
+}
+
+.speed-line-streak {
+  position: absolute;
+  left: 50%;
+  width: 2px;
+ height: 100%;
+ background: linear-gradient(to bottom, transparent, rgba(255, 255, 255, 0.6), transparent);
+  transform-origin: top center;
+ border-radius: 1px;
+ animation: speedLineShoot var(--duration, 0.6s) var(--ease-out-expo) var(--delay, 0s) forwards;
+}
+
+@keyframes speedLineShoot {
+  0% { transform: scaleY(0) translateY(0); opacity: 0; }
+ 20% { opacity: 1; }
+  100% { transform: scaleY(1) translateY(80vh); opacity: 0; }
+}
+
+/* ==================== COUNTDOWN ENHANCEMENT ==================== */
+.race-countdown-overlay {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: calc(var(--z-modal) + 4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(4px);
+  opacity: 0;
+ transition: opacity 0.3s ease;
+}
+
+.race-countdown-overlay.active { opacity: 1; }
+
+.countdown-number {
+  font-family: var(--font-display);
+  font-size: clamp(100px, 18vw, 180px);
+  color: #fff;
+  line-height: 1;
+  text-shadow:
+    0 0 40px rgba(var(--accent-secondary-rgb), 0.7),
+    0 0 80px rgba(var(--accent-secondary-rgb), 0.3);
+  position: relative;
+}
+
+/* Shrink pulse on each count */
+.countdown-number.count-pulse {
+  animation: countPulse 0.4s var(--ease-back-out);
+}
+
+@keyframes countPulse {
+  0% { transform: scale(1.3); opacity: 0.7; }
+ 100% { transform: scale(1); opacity: 1; }
+}
+
+.countdown-label {
+  font-family: var(--font-mono);
+  font-size: var(--text-heading-m);
+  color: var(--text-secondary);
+  letter-spacing: var(--tracking-ultra-wide);
+  text-transform: uppercase;
+ margin-top: var(--space-m);
+  opacity: 0;
+  animation: countdownLabelIn 0.5s ease 0.1s forwards;
+}
+
+@keyframes countdownLabelIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ==================== RESPONSIVE ==================== */
+@media (max-width: 768px) {
+  .race-track-splash .track-name { font-size: clamp(28px, 5vw, 48px); }
+  .race-go-flash .go-text { font-size: clamp(60px, 10vw, 100px); }
+  .countdown-number { font-size: clamp(72px, 14vw, 130px); }
+  .speed-lines-burst { display: none; }
+}
+
+@media (max-width: 480px) {
+  .race-track-splash .track-mode-badge { display: none; }
+}
+
+/* ==================== REDUCED MOTION ==================== */
+@media (prefers-reduced-motion: reduce) {
+  .race-intro-overlay.active { animation: none; opacity: 1; }
+  .race-track-splash .track-name, .race-track-splash .track-subtitle,
+  .race-track-splash .track-mode-badge { animation: none; opacity: 1; transform: none; filter: none; }
+  .race-go-flash.active { animation: none; opacity: 0; }
+  .race-go-flash .go-text { animation: none; opacity: 1; transform: scale(1); }
+  .speed-lines-burst.active { animation: none; }
+  .speed-line-streak { animation: none !important; }
+  .countdown-number.count-pulse { animation: none; }
+}
+
+/* ==================== HIGH CONTRAST ==================== */
+@media (forced-colors: active) or (-ms-high-contrast: active) {
+  .race-intro-overlay { background: rgba(0, 0, 0, 0.95); backdrop-filter: none; }
+  .race-go-flash .go-text { text-shadow: none; }
+  .speed-line-streak { background: CanvasText; }
+}
+
+/* ==================== DARK MODE ==================== */
+.race-intro-overlay, .race-track-splash, .race-go-flash,
+.speed-lines-burst, .race-countdown-overlay {
+  color-scheme: dark;
+}

@@ -1,6 +1,6 @@
 /**
  * Output Shader - Three.js r160 compatible output shader for RawShaderMaterial
- * Includes proper GLSL 300 es declarations (precision, uniforms, attributes)
+ * Includes #version 300 es directive and all required GLSL declarations
  */
 
 const OutputShader = {
@@ -14,7 +14,7 @@ const OutputShader = {
 
 	},
 
-	vertexShader: /* glsl */`
+	vertexShader: /* glsl */`#version 300 es
 
 		precision highp float;
 
@@ -33,7 +33,7 @@ const OutputShader = {
 
 		}`,
 
-	fragmentShader: /* glsl */`
+	fragmentShader: /* glsl */`#version 300 es
 
 		precision highp float;
 

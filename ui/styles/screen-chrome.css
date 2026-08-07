@@ -1,0 +1,322 @@
+/* ui/styles/screen-chrome.css — Screen-edge decorative chrome, vignettes, and ambient frame effects
+ * Features: Cinematic vignette, corner accents, edge light leaks, scanline overlay,
+ *          screen border glow, ambient color temperature shift
+ */
+
+/* ==================== CINEMATIC VIGNETTE ==================== */
+.screen-vignette {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: calc(var(--z-overlay) - 2);
+  background: radial-gradient(ellipse at 50% 50%, transparent 50%, rgba(0, 0, 0, 0.4) 100%);
+  opacity: 0;
+  transition: opacity 1s ease;
+}
+
+.screen-vignette.active {
+  opacity: 1;
+}
+
+/* Intense vignette for dramatic moments */
+.screen-vignette.intense {
+  background: radial-gradient(ellipse at 50% 50%, transparent 35%, rgba(0, 0, 0, 0.6) 100%);
+}
+
+/* Speed-adaptive vignette (driven by JS class change) */
+.screen-vignette.speed-adaptive {
+  transition: opacity 0.8s ease, background 0.8s ease;
+}
+
+.screen-vignette.speed-adaptive.speed-high {
+  background: radial-gradient(ellipse at 50% 50%, transparent 40%, rgba(0, 0, 0, 0.35) 100%);
+}
+
+.screen-vignette.speed-critical {
+  background: radial-gradient(ellipse at 50% 50%, transparent 30%, rgba(20, 0, 0, 0.5) 100%),
+                radial-gradient(ellipse at 50% 50%, transparent 50%, rgba(255, 20, 20, 0.15) 100%);
+}
+
+/* ==================== CORNER ACCENT BRACKETS ==================== */
+.corner-brackets {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: calc(var(--z-overlay) - 1);
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+
+.corner-brackets.active {
+  opacity: 1;
+}
+
+.corner-brackets::before,
+.corner-brackets::after {
+  content: '';
+  position: absolute;
+  width: 40px;
+  height: 40px;
+  border-color: rgba(var(--accent-secondary-rgb), 0.3);
+  border-style: solid;
+  transition: border-color 0.3s ease, opacity 0.3s ease;
+}
+
+.corner-brackets::before {
+  top: 16px;
+  left: 16px;
+  border-width: 2px 0 0 0;
+}
+
+.corner-brackets::after {
+  bottom: 16px;
+  right: 16px;
+  border-width: 0 0 0 2px;
+}
+
+/* Hover to brighten */
+@media (hover: hover) and (pointer: fine) {
+  .corner-brackets.active:hover::before,
+  .corner-brackets.active:hover::after {
+    border-color: rgba(var(--accent-secondary-rgb), 0.6);
+    filter: drop-shadow(0 0 6px rgba(var(--accent-secondary-rgb), 0.3));
+  }
+}
+
+/* Color variant: gold */
+.corner-brackets.gold::before,
+.corner-brackets.gold::after {
+  border-color: rgba(var(--accent-tertiary-rgb), 0.3);
+}
+
+/* Color variant: red/alert */
+.corner-brackets.alert::before,
+.corner-brackets.alert::after {
+  border-color: rgba(var(--accent-primary-rgb), 0.4);
+  animation: cornerAlertPulse 1s ease-in-out infinite alternate;
+}
+
+@keyframes cornerAlertPulse {
+  0% { border-color: rgba(var(--accent-primary-rgb), 0.4); }
+  100% { border-color: rgba(var(--accent-primary-rgb), 0.7); }
+}
+
+/* ==================== EDGE LIGHT LEAKS ==================== */
+.edge-light {
+  position: fixed;
+  pointer-events: none;
+  z-index: calc(var(--z-overlay) - 3);
+  opacity: 0;
+  transition: opacity 0.6s ease;
+}
+
+.edge-light.active { opacity: 1; }
+
+/* Top edge */
+.edge-light.top {
+  top: 0;
+  left: 10%;
+  right: 10%;
+ height: 2px;
+  background: linear-gradient(90deg, transparent 10%, rgba(var(--accent-secondary-rgb), 0.3) 30%, rgba(var(--accent-primary-rgb), 0.3) 50%, rgba(var(--accent-secondary-rgb), 0.3) 70%, transparent 90%);
+  box-shadow: 0 0 20px rgba(var(--accent-secondary-rgb), 0.15);
+}
+
+/* Bottom edge */
+.edge-light.bottom {
+  bottom: 0;
+  left: 10%;
+  right: 10%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent 10%, rgba(var(--accent-tertiary-rgb), 0.2) 30%, rgba(var(--accent-primary-rgb), 0.25) 50%, rgba(var(--accent-tertiary-rgb), 0.2) 70%, transparent 90%);
+  box-shadow: 0 0 20px rgba(var(--accent-tertiary-rgb), 0.1);
+}
+/* Left edge */
+.edge-light.left {
+  left: 0;
+  top: 10%;
+  bottom: 10%;
+  width: 2px;
+  background: linear-gradient(180deg, transparent 10%, rgba(var(--accent-primary-rgb), 0.25) 30%, rgba(var(--accent-secondary-rgb), 0.25) 50%, rgba(var(--accent-primary-rgb), 0.25) 70%, transparent 90%);
+  box-shadow: 0 0 20px rgba(var(--accent-primary-rgb), 0.1);
+}
+
+/* Right edge */
+.edge-light.right {
+  right: 0;
+  top: 10%;
+ bottom: 10%;
+  width: 2px;
+  background: linear-gradient(180deg, transparent 10%, rgba(var(--accent-tertiary-rgb), 0.2) 30%, rgba(var(--accent-secondary-rgb), 0.2) 50%, rgba(var(--accent-tertiary-rgb), 0.2) 70%, transparent 90%);
+  box-shadow: 0 0 20px rgba(var(--accent-secondary-rgb), 0.1);
+}
+
+/* Animated sweep */
+.edge-light.top.active { animation: edgeSweepTop 4s linear infinite; }
+.edge-light.bottom.active { animation: edgeSweepBottom 4s linear infinite 0.5s; }
+.edge-light.left.active { animation: edgeSweepLeft 4s linear infinite 1s; }
+.edge-light.right.active { animation: edgeSweepRight 4s linear infinite 1.5s; }
+
+@keyframes edgeSweepTop {
+  0% { background-position: -200% 0; opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+ 100% { background-position: 200% 0; opacity: 0; }
+}
+
+@keyframes edgeSweepBottom {
+ 0% { background-position: -200% 0; opacity: 0; }
+ 10% { opacity: 1; }
+ 90% { opacity: 1; }
+ 100% { background-position: 200% 0; opacity: 0; }
+}
+
+@keyframes edgeSweepLeft {
+ 0% { background-position: 0 -200%; opacity: 0; }
+ 10% { opacity: 1; }
+ 90% { opacity: 1; }
+ 100% { background-position: 0 200%; opacity: 0; }
+}
+
+@keyframes edgeSweepRight {
+ 0% { background-position: 0 -200%; opacity: 0; }
+ 10% { opacity: 1; }
+ 90% { opacity: 1; }
+ 100% { background-position: 0 200%; opacity: 0; }
+}
+
+/* ==================== SCANLINE OVERLAY ==================== */
+.scanline-overlay {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: calc(var(--z-overlay) - 4);
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 0, 0, 0.03) 2px,
+    transparent 2px
+  );
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+
+.scanline-overlay.active { opacity: 1; }
+
+.scanline-overlay.crt {
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 1px,
+    rgba(0, 0, 0, 0.04) 1px,
+    transparent 1px
+  );
+  animation: scanlineScroll 8s linear infinite;
+}
+
+@keyframes scanlineScroll {
+  0% { background-position: 0 0; }
+ 100% { background-position: 0 100vh; }
+}
+
+/* ==================== SCREEN BORDER GLOW ==================== */
+.screen-border-glow {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  border: 1px solid transparent;
+  z-index: calc(var(--z-overlay) - 1);
+  transition: border-color 0.5s ease, box-shadow 0.5s ease;
+}
+
+.screen-border-glow.active {
+  border-color: rgba(var(--accent-secondary-rgb), 0.15);
+  box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.3),
+                inset 0 0 80px rgba(0, 0, 0, 0.1),
+                0 0 1px rgba(var(--accent-secondary-rgb), 0.1);
+}
+
+.screen-border-glow.glow-alert {
+  border-color: rgba(var(--accent-primary-rgb), 0.25);
+  box-shadow: inset 0 0 40px rgba(255, 0, 0, 0.15),
+                0 0 1px rgba(var(--accent-primary-rgb), 0.15);
+  animation: borderAlertGlow 0.8s ease-in-out infinite alternate;
+}
+
+@keyframes borderAlertGlow {
+  0% { box-shadow: inset 0 0 40px rgba(255, 0, 0, 0.1); }
+ 100% { box-shadow: inset 0 0 60px rgba(255, 0, 0, 0.2); }
+}
+
+/* ==================== AMBIENT COLOR TEMPERATURE ==================== */
+.ambient-temp {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: calc(var(--z-bg) + 1);
+  transition: background 2s ease;
+  mix-blend-mode: soft-light;
+}
+
+.ambient-temp.warm { background: radial-gradient(ellipse at 50% 80%, rgba(255, 150, 50, 0.04) 0%, transparent 70%); }
+.ambient-temp.cool { background: radial-gradient(ellipse at 50% 20%, rgba(50, 100, 255, 0.04) 0%, transparent 70%); }
+.ambient-temp.neutral { background: transparent; }
+
+/* ==================== FILM GRAIN OVERLAY ==================== */
+.film-grain {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: calc(var(--z-overlay) - 5);
+  opacity: 0.04;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+  background-size: 200px 200px;
+  animation: grainShift 0.3s steps(4) infinite;
+}
+
+.film-grain.strong { opacity: 0.08; }
+
+@keyframes grainShift {
+  0% { transform: translate(0, 0); }
+  25% { transform: translate(-5px, 5px); }
+  50% { transform: translate(5px, -5px); }
+ 75% { transform: translate(-5px, -5px); }
+ 100% { transform: translate(5px, 5px); }
+}
+
+/* ==================== RESPONSIVE ==================== */
+@media (max-width: 768px) {
+  .corner-brackets::before, .corner-brackets::after { width: 24px; height: 24px; }
+  .corner-brackets::before { top: 10px; left: 10px; }
+  .corner-brackets::after { bottom: 10px; right: 10px; }
+}
+
+@media (max-width: 480px) {
+  .corner-brackets { display: none; }
+  .edge-light { display: none; }
+}
+
+/* ==================== REDUCED MOTION ==================== */
+@media (prefers-reduced-motion: reduce) {
+  .screen-vignette { transition: none; }
+  .edge-light.top.active, .edge-light.bottom.active, .edge-light.left.active, .edge-light.right.active { animation: none; opacity: 1; }
+  .scanline-overlay.crt { animation: none; }
+  .screen-border-glow.glow-alert { animation: none; }
+  .film-grain { animation: none; }
+}
+
+/* ==================== HIGH CONTRAST ==================== */
+@media (forced-colors: active) or (-ms-high-contrast: active) {
+  .screen-vignette, .scanline-overlay, .film-grain, .ambient-temp { display: none; }
+  .corner-brackets::before, .corner-brackets::after { border-width: 3px; border-color: CanvasText; box-shadow: none; filter: none; }
+  .edge-light { display: none; }
+  .screen-border-glow { border: 2px solid CanvasText; box-shadow: none; }
+}
+
+/* ==================== DARK MODE ==================== */
+.screen-vignette, .corner-brackets, .edge-light, .scanline-overlay,
+.screen-border-glow, .ambient-temp, .film-grain {
+  color-scheme: dark;
+}

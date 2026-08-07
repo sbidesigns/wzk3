@@ -1127,7 +1127,7 @@ async function main() {
     // 19.5 Initialize Race Scene for 3D gameplay
     let raceScene = null;
     try {
-      const { getRaceScene } = await import('./ui/race-scene.js?v=49');
+      const { getRaceScene } = await import('./ui/race-scene.js?v=50');
       raceScene = getRaceScene();
       window.__raceScene = raceScene;
       console.log('[main] Race Scene system ready');
