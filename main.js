@@ -13,9 +13,9 @@
 //  11. Navigate to splash screen
 //  12. Start main loop
 
-import { engine } from './core/Engine.js?v=51';
-import { uiShell } from './ui/ui-shell.js?v=51';
-import { uiRouter } from './ui/ui-router.js?v=51';
+import { engine } from './core/Engine.js?v=52';
+import { uiShell } from './ui/ui-shell.js?v=52';
+import { uiRouter } from './ui/ui-router.js?v=52';
 
 // CYCLE 33: PATCH SceneManager.update at runtime to isolate dt errors
 // (bypasses ES module cache issues on GitHub Pages)
@@ -1052,7 +1052,7 @@ async function main() {
     // 19.5 Initialize Race Scene for 3D gameplay
     let raceScene = null;
     try {
-      const { getRaceScene, createRaceScene, RaceScene } = await import('./ui/race-scene.js?v=51');
+      const { getRaceScene, createRaceScene, RaceScene } = await import('./ui/race-scene.js?v=52');
       
       // Create default instance
       raceScene = getRaceScene({ 
