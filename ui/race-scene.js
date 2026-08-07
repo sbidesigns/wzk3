@@ -175,6 +175,8 @@ export class RaceScene {
       this._createWeatherSystem();
       this._createExhaustFlames();
       this._initSpeedTrail();
+      // Initialize weather controller (Cycle 51)
+      this._initWeatherController();
       if (this._vehicle) {
         this._camera.position.copy(this._vehicle.position).add(this._cameraOffset);
         this._camera.lookAt(this._vehicle.position);
@@ -894,8 +896,48 @@ export class RaceScene {
     if (window.__engine && window.__engine.bus) window.__engine.bus.emit(this._paused ? 'race:paused' : 'race:resumed');
   }
 
-  _showPauseOverlay() {
+  async _showPauseOverlay() {
     if (this._pauseElement) return;
+    // Try to use the enhanced PauseMenuSystem (pause-menu.js)
+    try {
+      const { getPauseMenu } = await import('./pause-menu.js?v=51');
+      const pm = getPauseMenu();
+      // Listen for resume/quit/restart events from the pause menu
+      this._pauseMenuHandler = (e) => {
+        switch (e.type) {
+          case 'pausemenu:resume':
+            this._togglePause();
+            break;
+          case 'pausemenu:quit':
+            this._quitToMenu();
+            break;
+          case 'pausemenu:restart':
+            this._restartRace();
+            break;
+        }
+      };
+      document.addEventListener('pausemenu:resume', this._pauseMenuHandler);
+      document.addEventListener('pausemenu:quit', this._pauseMenuHandler);
+      document.addEventListener('pausemenu:restart', this._pauseMenuHandler);
+      // Build race data for the telemetry panel
+      var raceTime = this._formatTime(this._startRaceTime ? (performance.now() - this._startRaceTime) : 0);
+      pm.show({
+        position: this._state.position,
+        totalRacers: 4,
+        currentLap: this._state.lap,
+        totalLaps: this._state.totalLaps,
+        raceTime: raceTime,
+        bestLapTime: this._bestLapTime < Infinity ? this._formatTime(this._bestLapTime) : '--:--.---',
+        speed: Math.round(this._state.speed) + ' km/h',
+        trackName: 'DOWNTOWN UNDERGROUND',
+        modeName: 'QUICK RACE'
+      });
+      this._pauseElement = document.getElementById('pause-menu-container');
+      return;
+    } catch (e) {
+      console.warn('[RaceScene] Enhanced pause menu not available, using fallback:', e.message);
+    }
+    // Fallback: simple inline pause overlay
     var ov = document.createElement('div'); ov.id = 'pause-overlay';
     ov.style.cssText = 'position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.85);z-index:999;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);animation:pauseFadeIn 0.2s ease-out;';
     ov.innerHTML = '<div style="padding:48px 60px;background:linear-gradient(145deg,rgba(26,26,46,0.95),rgba(13,13,20,0.98));border:1px solid rgba(0,229,255,0.15);border-radius:20px;text-align:center;box-shadow:0 0 80px rgba(0,229,255,0.08);">' +
@@ -917,7 +959,22 @@ export class RaceScene {
     ov.addEventListener('click', (e) => { if (e.target === ov) this._togglePause(); });
   }
 
-  _removePauseOverlay() { if (this._pauseElement) { this._pauseElement.remove(); this._pauseElement = null; } }
+  _removePauseOverlay() {
+    if (this._pauseMenuHandler) {
+      document.removeEventListener('pausemenu:resume', this._pauseMenuHandler);
+      document.removeEventListener('pausemenu:quit', this._pauseMenuHandler);
+      document.removeEventListener('pausemenu:restart', this._pauseMenuHandler);
+      this._pauseMenuHandler = null;
+    }
+    // Try to hide enhanced pause menu
+    if (window.__pauseMenu && window.__pauseMenu.isVisible) {
+      window.__pauseMenu.hide();
+    }
+    // Also remove container if present
+    var pmc = document.getElementById('pause-menu-container');
+    if (pmc) pmc.remove();
+    if (this._pauseElement) { this._pauseElement.remove(); this._pauseElement = null; }
+  }
 
   _quitToMenu() {
     this._paused = false;
@@ -932,6 +989,11 @@ export class RaceScene {
     this._scene = null; this._camera = null; this._vehicle = null;
     this._opponents = []; this._itemBoxes = []; this._boostPads = []; this._obstacles = [];
     this._particlePool = []; this._trackMarkerMeshes = []; this._centerLineDashes = [];
+    // Cleanup weather controller (Cycle 51)
+    if (this._weatherController) { this._weatherController.destroy(); this._weatherController = null; }
+    // Cleanup dynamic HUD elements (Cycle 51)
+    document.querySelectorAll('.hud-boost-flash,.hud-pos-change,.hud-lap-transition,.hud-race-event,.hud-proximity-indicator').forEach(function(el) { el.remove(); });
+    document.body.classList.remove('weather-rain','weather-sandstorm','weather-fog','weather-snow','weather-wind','weather-clear');
     // Hide canvas
     var canvas = document.getElementById('game-canvas');
     if (canvas) canvas.style.display = 'none';
@@ -953,6 +1015,40 @@ export class RaceScene {
     }
   }
 
+  _restartRace() {
+    this._paused = false;
+    this._removePauseOverlay();
+    if (window.__engine && window.__engine.bus) {
+      window.__engine.bus.emit('race:start', window.__engine.state.get('selectedMode') || { mode: 'quick-race', track: 'downtown' });
+    }
+  }
+
+  // ==================== HUD HELPERS (Cycle 51) ====================
+
+  _showBoostFlash() {
+    var existing = document.getElementById('hud-boost-flash');
+    if (existing) existing.remove();
+    var flash = document.createElement('div');
+    flash.id = 'hud-boost-flash';
+    flash.className = 'hud-boost-flash active';
+    document.body.appendChild(flash);
+    setTimeout(() => { if (flash.parentNode) flash.remove(); }, 700);
+  }
+
+  _showPositionChange(gained) {
+    var existing = document.querySelector('.hud-pos-change');
+    if (existing) existing.remove();
+    var el = document.createElement('div');
+    el.className = 'hud-pos-change ' + (gained ? 'gained' : 'lost');
+    el.innerHTML = '<span class="pos-arrow">' + (gained ? '\u2191' : '\u2193') + '</span> ' + (gained ? 'OVERTAKE' : 'OVERTAKEN');
+    document.body.appendChild(el);
+    requestAnimationFrame(() => el.classList.add('visible'));
+    setTimeout(() => {
+      el.classList.remove('visible');
+      setTimeout(() => { if (el.parentNode) el.remove(); }, 400);
+    }, 2000);
+  }
+
   // ==================== BOOST ====================
 
   _tryActivateBoost() {
@@ -961,6 +1057,8 @@ export class RaceScene {
       this._updateBoostPips();
       this._cameraShakeIntensity = 0.3; // Camera shake on boost
       this._raceStats.boostsUsed++;
+      // Cycle 51: Boost flash effect
+      this._showBoostFlash();
       // === Cycle 47: Boost Chain Bonus ===
       if (this._boostChainTimer > 0) {
         this._boostChainCount++;
@@ -1052,8 +1150,12 @@ export class RaceScene {
     // Boost
     if (this._boostActive) { this._boostTimer -= dt; if (this._boostTimer <= 0) { this._boostActive = false; this._boostRefillTimer = 0; } }
     else { this._boostRefillTimer += dt; if (this._boostRefillTimer >= this._boostRefillInterval && this._boostCharges < this._boostMaxCharges) { this._boostCharges++; this._boostRefillTimer = 0; this._updateBoostPips(); if (window.__engine && window.__engine.bus) window.__engine.bus.emit('player:boostRecharged', { charges: this._boostCharges }); } }
+    // Weather controller update
+    if (this._weatherController) this._weatherController.update(dt);
     // Speed
+    var weatherPhys = this._weatherController ? this._weatherController.getPhysicsParams() : { grip: 1, maxSpeed: 1, drag: 1 };
     var ts = 0; if (this._keys.throttle) ts += dt * 60; if (this._keys.brake) ts -= dt * 80; if (this._boostActive) ts *= this._boostMultiplier;
+    ts *= weatherPhys.maxSpeed;
     ts = Math.max(0, Math.min(220, ts)); this._state.speed += (ts - this._state.speed) * Math.min(1, dt * 3);
     // === Cycle 47: Update race stats ===
     this._updateRaceStats(dt);
@@ -1456,6 +1558,15 @@ export class RaceScene {
 
   _updateHUD(dt) {
     if (this._hudRefs.speed) this._hudRefs.speed.textContent = String(Math.round(this._state.speed));
+    // Cycle 51: Speed panel class toggling for dynamic CSS effects
+    var speedPanel = document.getElementById('hud-speed-panel');
+    if (speedPanel) {
+      var spd = this._state.speed;
+      speedPanel.classList.toggle('speed-low', spd < 80);
+      speedPanel.classList.toggle('speed-medium', spd >= 80 && spd < 140);
+      speedPanel.classList.toggle('speed-high', spd >= 140 && spd < 180);
+      speedPanel.classList.toggle('speed-critical', spd >= 180);
+    }
     if (this._hudRefs.time && this._startRaceTime) this._hudRefs.time.textContent = this._formatTime(performance.now() - this._startRaceTime);
     if (this._hudRefs.posNum) {
       var p = this._state.position, sfx = p === 1 ? 'st' : (p === 2 ? 'nd' : (p === 3 ? 'rd' : 'th'));
@@ -1487,13 +1598,15 @@ export class RaceScene {
     }
     if (this._lastPosition > 0 && this._lastPosition !== this._state.position && this._hudRefs.posArrow) {
       var gained = this._state.position < this._lastPosition;
-      this._hudRefs.posArrow.textContent = gained ? ('P' + this._state.position + ' ↑') : ('P' + this._state.position + ' ↓');
+      this._hudRefs.posArrow.textContent = gained ? ('P' + this._state.position + ' \u2191') : ('P' + this._state.position + ' \u2193');
       this._hudRefs.posArrow.style.color = gained ? '#22c55e' : '#ff4d2e';
       this._hudRefs.posArrow.style.textShadow = gained ? '0 0 15px rgba(34,197,94,0.8)' : '0 0 15px rgba(255,77,46,0.8)';
       this._hudRefs.posArrow.style.opacity = '1';
       this._hudRefs.posArrow.style.animation = 'none'; this._hudRefs.posArrow.offsetHeight;
       this._hudRefs.posArrow.style.animation = (gained ? 'posUp' : 'posDown') + ' 0.4s ease-out both';
       this._positionArrowTimer = 2.5;
+      // Cycle 51: Show position change notification
+      this._showPositionChange(gained);
       this._lastPosition = this._state.position;
     } else if (this._lastPosition === 0 && this._state.position > 0) {
       this._lastPosition = this._state.position;
@@ -1821,6 +1934,26 @@ export class RaceScene {
   }
 
   // ==================== CLEANUP ====================
+
+  // === Cycle 51: Weather Controller (CSS-based effects + physics) ===
+  async _initWeatherController() {
+    try {
+      const { getWeatherController } = await import('./weather-controller.js?v=51');
+      this._weatherController = getWeatherController();
+      this._weatherController.init();
+      // Listen for weather changes to sync 3D particles
+      document.addEventListener('weather:change', (e) => {
+        var type = e.detail.type;
+        // Map weather types to 3D particle system
+        if (type === 'rain' || type === 'sandstorm') this._setWeather('rain');
+        else if (type === 'snow') this._setWeather('snow');
+        else this._setWeather('clear');
+      });
+      console.log('[RaceScene] Weather controller initialized');
+    } catch (e) {
+      console.warn('[RaceScene] Weather controller not available:', e.message);
+    }
+  }
 
   // ==================== WEATHER SYSTEM ====================
 

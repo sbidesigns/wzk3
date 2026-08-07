@@ -1,0 +1,194 @@
+/* ui/styles/main-menu-enhanced.css — Enhanced main menu visual effects (Cycle 51)
+ * Animated background grid glow, menu item hover effects,
+ * version badge, subtle ambient animations.
+ */
+
+/* ==================== ANIMATED GRID BACKGROUND ==================== */
+.bg-grid {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(rgba(0,229,255,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,229,255,0.03) 1px, transparent 1px);
+  background-size: 60px 60px;
+  animation: gridPulse 8s ease-in-out infinite;
+}
+
+@keyframes gridPulse {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 0.7; }
+}
+
+/* ==================== GLOW ORB FLOATING ==================== */
+.bg-glow-orb {
+  position: fixed;
+  z-index: 0;
+  pointer-events: none;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.15;
+}
+
+.bg-glow-orb.orb-1 {
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, rgba(0,229,255,0.3), transparent 70%);
+  top: -10%;
+  right: -5%;
+  animation: orbFloat1 12s ease-in-out infinite;
+}
+
+.bg-glow-orb.orb-2 {
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, rgba(255,77,46,0.2), transparent 70%);
+  bottom: -15%;
+  left: -8%;
+  animation: orbFloat2 15s ease-in-out infinite;
+}
+
+.bg-glow-orb.orb-3 {
+  width: 300px;
+  height: 300px;
+  background: radial-gradient(circle, rgba(255,210,63,0.15), transparent 70%);
+  top: 40%;
+  left: 30%;
+  animation: orbFloat3 18s ease-in-out infinite;
+}
+
+@keyframes orbFloat1 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(-40px, 30px) scale(1.1); }
+  66% { transform: translate(20px, -20px) scale(0.95); }
+}
+
+@keyframes orbFloat2 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(30px, -40px) scale(1.05); }
+  66% { transform: translate(-20px, 20px) scale(0.9); }
+}
+
+@keyframes orbFloat3 {
+  0%, 100% { transform: translate(0, 0) scale(0.9); }
+  50% { transform: translate(40px, 40px) scale(1.15); }
+}
+
+/* ==================== VERSION BADGE ==================== */
+.version-badge {
+  position: fixed;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 50;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.15);
+  letter-spacing: 1px;
+  pointer-events: none;
+  transition: color 0.3s ease;
+}
+
+.version-badge:hover {
+  color: rgba(255, 255, 255, 0.35);
+}
+
+/* ==================== MENU BUTTON GLOW LINES ==================== */
+.menu-glow-line {
+  position: absolute;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(0,229,255,0.3), transparent);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+/* ==================== AMBIENT PARTICLE DOTS ==================== */
+.ambient-dot {
+  position: fixed;
+  width: 2px;
+  height: 2px;
+  border-radius: 50%;
+  background: rgba(0, 229, 255, 0.4);
+  pointer-events: none;
+  z-index: 1;
+  animation: ambientDrift 20s linear infinite;
+}
+
+.ambient-dot:nth-child(odd) {
+  background: rgba(255, 210, 63, 0.3);
+  animation-duration: 25s;
+  animation-direction: reverse;
+}
+
+@keyframes ambientDrift {
+  0% { transform: translateY(100vh) translateX(0); opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { transform: translateY(-20px) translateX(40px); opacity: 0; }
+}
+
+/* ==================== SCANLINE OVERLAY ==================== */
+.scanline-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 0, 0, 0.015) 2px,
+    rgba(0, 0, 0, 0.015) 4px
+  );
+  opacity: 0.5;
+}
+
+/* ==================== FOOTER CTA ==================== */
+.footer-cta {
+  position: fixed;
+  bottom: 32px;
+  right: 32px;
+  z-index: 50;
+  font-family: 'Inter', sans-serif;
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.2);
+  letter-spacing: 1px;
+  text-align: right;
+  pointer-events: none;
+}
+
+.footer-cta .cta-key {
+  display: inline-block;
+  padding: 2px 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.3);
+  margin-left: 4px;
+}
+
+/* ==================== RESPONSIVE ==================== */
+@media (max-width: 640px) {
+  .bg-glow-orb.orb-1 { width: 300px; height: 300px; }
+  .bg-glow-orb.orb-2 { width: 250px; height: 250px; }
+  .bg-glow-orb.orb-3 { display: none; }
+  .footer-cta { display: none; }
+}
+
+/* ==================== REDUCED MOTION ==================== */
+@media (prefers-reduced-motion: reduce) {
+  .bg-grid { animation: none; opacity: 0.5; }
+  .bg-glow-orb { animation: none !important; }
+  .ambient-dot { animation: none; display: none; }
+}
+
+/* ==================== DARK MODE ENFORCEMENT ==================== */
+.version-badge,
+.footer-cta,
+.ambient-dot,
+.scanline-overlay {
+  color-scheme: dark;
+}

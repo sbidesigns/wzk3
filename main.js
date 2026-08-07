@@ -13,9 +13,24 @@
 //  11. Navigate to splash screen
 //  12. Start main loop
 
-import { engine } from './core/Engine.js';
-import { uiShell } from './ui/ui-shell.js';
-import { uiRouter } from './ui/ui-router.js';
+import { engine } from './core/Engine.js?v=51';
+import { uiShell } from './ui/ui-shell.js?v=51';
+import { uiRouter } from './ui/ui-router.js?v=51';
+
+// CYCLE 33: PATCH SceneManager.update at runtime to isolate dt errors
+// (bypasses ES module cache issues on GitHub Pages)
+const _origScenesUpdate = engine.scenes.update.bind(engine.scenes);
+engine.scenes.update = function(rawDt) {
+  if (!this._current?.instance?.update) return;
+  var safeDt = (typeof rawDt === 'number' && isFinite(rawDt)) ? rawDt : 0.016;
+  try {
+    this._current.instance.update.call(this._current.instance, safeDt);
+  } catch(e) {
+    if (!this._dtErrN) this._dtErrN = 0;
+    this._dtErrN++;
+    if (this._dtErrN <= 5) console.error('[Scene] update #' + this._dtErrN + ':', e.message, '| instance:', this._current.instance.constructor?.name, '| fn.params:', this._current.instance.update.length);
+  }
+};
 
 // Import audio effects system (optional, graceful fallback)
 let audioEffects;
@@ -448,18 +463,12 @@ async function main() {
       console.log(`[main] Activating ${controllers.length} controllers...`);
       for (const { entry, module } of controllers) {
         if (module.activate || module.deactivate || module.poll) {
-          try {
-            engine.input.registerController(entry.id, module);
-            console.log(`[main] ✓ Controller activated: ${entry.displayName || entry.id}`);
-          } catch (ctrlErr) {
-            console.error(`[main] ✗ Controller "${entry.id}" failed:`, ctrlErr.message);
-            console.error(`[main]   Module type:`, typeof module, Object.keys(module));
-            // Continue activating other controllers - don't let one failure block others
-          }
+          engine.input.registerController(entry.id, module);
+          console.log(`[main] ✓ Controller activated: ${entry.displayName || entry.id}`);
         }
       }
     } catch (err) {
-      trackWarning(`Controller activation loop failed: ${err.message}`);
+      trackWarning(`Controller activation failed: ${err.message}`);
     }
 
     // --- BASIC REGISTRIES (no saveSystem dependency) ---
@@ -589,47 +598,6 @@ async function main() {
       }
     }, 600);
 
-    // === CYCLE 29: Defensive body protection ===
-    // Prevents ANY code from hiding document.body (stale deployed code bug)
-    const _bodyStyleDesc = Object.getOwnPropertyDescriptor(document.body, 'style');
-    const _origBodyStyleSet = CSSStyleDeclaration.prototype.setProperty;
-    document.body.style.__wzk_protected = true;
-    new MutationObserver((mutations) => {
-      for (const m of mutations) {
-        if (m.type === 'attributes' && m.attributeName === 'style') {
-          const el = m.target;
-          if (el === document.body) {
-            const cs = getComputedStyle(el);
-            if (cs.visibility === 'hidden' || cs.display === 'none') {
-              console.warn('[main] Body was hidden — forcing visible');
-              el.style.visibility = 'visible';
-              el.style.display = '';
-              el.style.opacity = '1';
-            }
-          }
-        }
-      }
-    }).observe(document.body, { attributes: true, attributeFilter: ['style'] });
-
-    // === CYCLE 27: Defensive boot-continue listener ===
-    // Ensures UI shell is visible even if boot flow is interrupted.
-    // The index.html boot screen dispatches 'boot-continue' on user interaction.
-    window.addEventListener('boot-continue', () => {
-      const uiShell = document.getElementById('ui-shell');
-      if (uiShell) uiShell.style.visibility = 'visible';
-      const canvas = document.getElementById('game-canvas');
-      if (canvas && window.__raceScene?._state?.running) canvas.style.display = 'block';
-    }, { once: false });
-
-    // === CYCLE 29: Force ui-shell visible after splash → main-menu transition ===
-    setTimeout(() => {
-      const uiShell = document.getElementById('ui-shell');
-      if (uiShell && getComputedStyle(uiShell).visibility === 'hidden') {
-        console.warn('[main] Forcing ui-shell visible after boot');
-        uiShell.style.visibility = 'visible';
-      }
-    }, 3000);
-
     // 9. Initialize save system
     let saveSystem = null;
     try {
@@ -748,16 +716,6 @@ async function main() {
       console.warn('[main] Notification system not available:', e.message);
     }
 
-    // === CYCLE 29: Initialize background music system ===
-    try {
-      const { backgroundMusic } = await import('./ui/background-music.js');
-      backgroundMusic.init();
-      window.__backgroundMusic = backgroundMusic;
-      console.log('[main] Background music system ready');
-    } catch (e) {
-      console.warn('[main] Background music not available:', e.message);
-    }
-
     // 11. Initialize touch controls on mobile devices
     if (features.touch) {
       try {
@@ -792,7 +750,6 @@ async function main() {
     try {
       const { getHUD } = await import('./ui/hud.js');
       hudSystem = getHUD({
-        container: document.createElement('div'), // CYCLE 28: Never default to document.body
         showMinimap: true,
         minimapOptions: {
           rotationMode: 'fixed',
@@ -803,42 +760,10 @@ async function main() {
       window.__hud = hudSystem;
       console.log('[main] HUD system initialized');
       
-      // Wire engine events to HUD updates
-      // Race start → Show HUD, start countdown
-      engine.bus.on('race:start', async (payload) => {
-        if (hudSystem && !hudSystem.isVisible) {
-          hudSystem.show();
-          hudSystem.reset();
-          
-          // Start countdown sequence (3, 2, 1, GO!)
-          await hudSystem.startCountdown(3);
-          
-          // Set track data on minimap if provided
-          if (payload?.trackData) {
-            hudSystem.setTrackData(payload.trackData);
-          }
-        }
-      });
-      
-      // Race end → Hide HUD, stop timer
-      engine.bus.on('race:end', () => {
-        if (hudSystem) {
-          const finalTime = hudSystem.stopRaceTimer();
-          hudSystem.hide();
-          console.log('[HUD] Race ended. Final time:', finalTime);
-        }
-      });
-      
-      // Also handle circuit-specific race end event
-      engine.bus.on('mode:circuit:raceEnd', ({ results }) => {
-        if (hudSystem) {
-          hudSystem.stopRaceTimer();
-          hudSystem.showNotification(`Race Complete! Position: ${results?.playerPosition || '-'}`, {
-            type: results?.playerPosition === 1 ? 'success' : 'info',
-            duration: 3000
-          });
-        }
-      });
+      // NOTE: The race scene (ui/race-scene.js) creates its own HUD with countdown.
+      // The old HUD system is kept for non-race screens only.
+      // Race events are handled by the race scene directly.
+      console.log('[main] Old HUD disabled for race - race-scene creates its own HUD');
       
       // Player speed changed → Update speed display
       engine.bus.on('player:speedChanged', ({ speed, maxSpeed }) => {
@@ -1127,21 +1052,48 @@ async function main() {
     // 19.5 Initialize Race Scene for 3D gameplay
     let raceScene = null;
     try {
-      const { getRaceScene } = await import('./ui/race-scene.js?v=50');
-      raceScene = getRaceScene();
+      const { getRaceScene, createRaceScene, RaceScene } = await import('./ui/race-scene.js?v=51');
+      
+      // Create default instance
+      raceScene = getRaceScene({ 
+        mode: 'track_bound',  // Default to track-bound (NFS style)
+        raceType: 'quick_race',
+        laps: 3 
+      });
       window.__raceScene = raceScene;
-      console.log('[main] Race Scene system ready');
+      window.__createRaceScene = createRaceScene;
+      window.__RaceScene = RaceScene; // Expose class for reference
+      
+      console.log('[main] Race Scene system ready | Default mode: track_bound');
       
       // Wire race:start → mount the 3D race scene
       engine.bus.on('race:start', async (payload) => {
         console.log('[main] Starting 3D race scene with payload:', payload);
         
+        // Extract or build race configuration
+        var raceConfig = (payload && payload.raceConfig) || payload || {};
+        
+        // Ensure required fields with defaults
+        raceConfig = {
+          mode: raceConfig.mode || 'track_bound',        // 'track_bound' | 'open_world'
+          raceType: raceConfig.raceType || 'quick_race',   // 'quick_race' | 'time_trial' | 'career' | 'tournament' | 'online'
+          laps: raceConfig.laps || 3,
+          track: raceConfig.track || 'downtown',
+          vehicle: raceConfig.vehicle || 'spectre',
+          ...raceConfig
+        };
+        
+        console.log('[main] Race Config:', JSON.stringify(raceConfig));
+        
         try {
+          // Create fresh scene instance for this race
+          var sceneInstance = createRaceScene(raceConfig);
+          
           // Mount the race scene via SceneManager
           await engine.scenes.transition(
             { 
               id: 'race-scene', 
-              module: raceScene,
+              module: sceneInstance,
               type: '3d' 
             }, 
             payload
@@ -1152,39 +1104,19 @@ async function main() {
             engine.renderer.show();
           }
           
-          console.log('[main] Race scene mounted successfully');
+          console.log('[main] Race scene mounted successfully | Mode:', raceConfig.mode);
         } catch (sceneErr) {
           console.error('[main] Failed to mount race scene:', sceneErr);
         }
       });
       
-      // Wire race:end → unmount race scene and show results
-      engine.bus.on('race:end', async (payload) => {
-        const result = payload?.result || payload || {};
+      // Wire race:end → unmount race scene
+      engine.bus.on('race:end', async () => {
         if (engine.scenes.getCurrent()?.module?.id === 'race-scene') {
           await engine.scenes.transition({ module: { mount: async () => {}, unmount: async () => {} } }, {});
           if (engine.renderer && engine.renderer.hide) {
             engine.renderer.hide();
           }
-        }
-        // Remove race HUD if present
-        var raceHud = document.getElementById('game-hud-root');
-        if (raceHud && raceHud.parentNode) raceHud.remove();
-        // Hide race HUD overlays that live outside the main HUD element
-        var itemSlot = document.getElementById('powerup-item-slot');
-        if (itemSlot) itemSlot.style.display = 'none';
-        var activeDisplay = document.getElementById('powerup-active-display');
-        if (activeDisplay) activeDisplay.style.display = 'none';
-        var countdown = document.getElementById('hud-countdown');
-        if (countdown) countdown.style.display = 'none';
-        // Show UI shell and navigate to race results
-        var uiShell = document.getElementById('ui-shell');
-        if (uiShell) uiShell.style.display = '';
- try {
-          await uiRouter.push('race-results', { result });
-        } catch (e) {
-          console.warn('[main] Could not navigate to race-results, falling back to results:', e.message);
-          try { await uiRouter.push('results', { result }); } catch (e2) { console.error(e2); }
         }
       });
       
@@ -1325,6 +1257,9 @@ async function main() {
       stats: engine.resolver.stats()
     });
 
+    // Navigate to splash screen (or main-menu if splash unavailable)
+    try { uiRouter.push('splash'); } catch(e) { try { uiRouter.push('main-menu'); } catch(e2) { console.warn('[main] Could not navigate to menu:', e2.message); } }
+
   } catch (err) {
     console.error('[main] BOOT FAILED:', err);
     trackError(err);
@@ -1345,7 +1280,7 @@ function getDefaultEngineConfig() {
         medium: { pixelRatio: 1.0, shadowMapEnabled: true, bloom: false, antialias: true, shadowMapSize: 1024 },
         high: { pixelRatio: 1.5, shadowMapEnabled: true, bloom: true, antialias: true, shadowMapSize: 2048, bloomStrength: 0.6 }
       },
-      defaultPreset: 'medium',
+      defaultPreset: 'high',
       toneMappingExposure: 1.0,
       fog: { enabled: true, color: '#0a0a14', near: 60, far: 320 },
       clearColor: '#05060a'

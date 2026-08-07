@@ -8,7 +8,6 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <title>WARZONE KART — Neon Underground</title>
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏎️</text></svg>" />
 
   <!-- Preconnect to external resources -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -44,37 +43,39 @@
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
 
   <!-- Styles (design tokens first, then animations, components, screens) -->
-  <link rel="stylesheet" href="./ui/styles/tokens.css" />
-  <link rel="stylesheet" href="./ui/styles/animations.css" />
-  <link rel="stylesheet" href="./ui/styles/transitions.css" />
-  <link rel="stylesheet" href="./ui/styles/racing.css" />
-  <link rel="stylesheet" href="./ui/styles/effects.css" />
-  <link rel="stylesheet" href="./ui/styles/components.css" />
-  <link rel="stylesheet" href="./ui/styles/screens.css" />
-  <link rel="stylesheet" href="./ui/styles/ambient.css" />
-  <link rel="stylesheet" href="./ui/styles/particles.css" />
-  <link rel="stylesheet" href="./ui/styles/typography.css" />
-  <link rel="stylesheet" href="./ui/styles/touch-controls.css" />
-  <link rel="stylesheet" href="./ui/styles/main-menu.css" />
-  <link rel="stylesheet" href="./ui/styles/mode-select.css" />
-  <link rel="stylesheet" href="./ui/styles/race-countdown.css" />
-  <link rel="stylesheet" href="./ui/styles/pause-menu.css" />
-  <link rel="stylesheet" href="./ui/styles/race-results.css" />
-  <link rel="stylesheet" href="./ui/styles/tutorial.css" />
-  <link rel="stylesheet" href="./ui/styles/notification-system.css" />
-  <link rel="stylesheet" href="./ui/styles/track-loading.css" />
-  <link rel="stylesheet" href="./ui/styles/race-environment.css" />
-  <link rel="stylesheet" href="./ui/styles/vehicle-controller.css" />
-  <link rel="stylesheet" href="./ui/styles/race-features-cycle46.css" />
-  <link rel="stylesheet" href="./ui/styles/item-boxes.css" />
-  <link rel="stylesheet" href="./ui/styles/speedometer-ring.css" />
-  <link rel="stylesheet" href="./ui/styles/weather-effects.css" />
-  <link rel="stylesheet" href="./ui/styles/race-telemetry.css" />
-  <link rel="stylesheet" href="./ui/styles/hud-enhancements.css" />
-  <link rel="stylesheet" href="./ui/styles/empty-states.css" />
-  <link rel="stylesheet" href="./ui/styles/screen-chrome.css" />
-  <link rel="stylesheet" href="./ui/styles/race-intro.css" />
-  <link rel="stylesheet" href="./style.css" />
+  <link rel="stylesheet" href="./ui/styles/tokens.css?v=51" />
+  <link rel="stylesheet" href="./ui/styles/animations.css?v=51" />
+  <link rel="stylesheet" href="./ui/styles/transitions.css?v=51" />
+  <link rel="stylesheet" href="./ui/styles/racing.css?v=51" />
+  <link rel="stylesheet" href="./ui/styles/effects.css?v=51" />
+  <link rel="stylesheet" href="./ui/styles/components.css?v=51" />
+  <link rel="stylesheet" href="./ui/styles/screens.css?v=51" />
+  <link rel="stylesheet" href="./ui/styles/ambient.css?v=51" />
+  <link rel="stylesheet" href="./ui/styles/particles.css?v=51" />
+  <link rel="stylesheet" href="./ui/styles/typography.css?v=51" />
+  <link rel="stylesheet" href="./ui/styles/touch-controls.css?v=51" />
+  <link rel="stylesheet" href="./ui/styles/main-menu.css?v=51" />
+  <link rel="stylesheet" href="./ui/styles/mode-select.css?v=51" />
+  <link rel="stylesheet" href="./ui/styles/race-countdown.css?v=51" />
+  <link rel="stylesheet" href="./ui/styles/pause-menu.css?v=51" />
+  <link rel="stylesheet" href="./ui/styles/race-results.css?v=51" />
+  <link rel="stylesheet" href="./ui/styles/tutorial.css?v=51" />
+  <link rel="stylesheet" href="./ui/styles/notification-system.css?v=51" />
+  <link rel="stylesheet" href="./ui/styles/track-loading.css?v=51" />
+  <link rel="stylesheet" href="./ui/styles/race-environment.css?v=51" />
+  <link rel="stylesheet" href="./ui/styles/vehicle-controller.css?v=51" />
+  <link rel="stylesheet" href="./ui/styles/minimap.css?v=51" />
+  <link rel="stylesheet" href="./ui/styles/item-boxes.css?v=51" />
+  <link rel="stylesheet" href="./ui/styles/speedometer-ring.css?v=51" />
+  <link rel="stylesheet" href="./ui/styles/weather-effects.css?v=51" />
+  <link rel="stylesheet" href="./ui/styles/race-telemetry.css?v=51" />
+  <link rel="stylesheet" href="./ui/styles/hud-enhancements.css?v=51" />
+  <link rel="stylesheet" href="./ui/styles/hud-dynamic.css?v=51" />
+  <link rel="stylesheet" href="./ui/styles/empty-states.css?v=51" />
+  <link rel="stylesheet" href="./ui/styles/screen-chrome.css?v=51" />
+  <link rel="stylesheet" href="./ui/styles/race-intro.css?v=51" />
+  <link rel="stylesheet" href="./ui/styles/main-menu-enhanced.css?v=51" />
+  <link rel="stylesheet" href="./ui/style.css?v=51" />
 
   <!-- Critical inline styles for enhanced boot screen -->
   <style>
@@ -1868,112 +1869,8 @@
       }
     }
   </style>
-
-  <!-- CYCLE 37: Bulletproof body-protection — runs BEFORE any ES modules or body scripts -->
-  <script>
-  (function() {
-    'use strict';
-    // Fix body immediately — no FIXED flag, runs every time
-    function fixBody() {
-      var b = document.body;
-      if (!b) return;
-      var s = b.style;
-      var dirty = false;
-      if (s.visibility === 'hidden') { s.visibility = 'visible'; dirty = true; }
-      if (s.display === 'none') { s.display = ''; dirty = true; }
-      if (s.opacity === '0') { s.opacity = '1'; dirty = true; }
-      // Also check if cssText contains hiding values
-      if (s.cssText && /(?:visibility\s*:\s*hidden|display\s*:\s*none|opacity\s*:\s*0)/.test(s.cssText)) {
-        s.cssText = s.cssText.replace(/visibility\s*:\s*hidden/g, '').replace(/display\s*:\s*none/g, '').replace(/opacity\s*:\s*0/g, '').replace(/^;+|;+$/g, '').trim();
-        dirty = true;
-      }
-      if (dirty) { console.warn('[body-guard] Body was hidden — forced visible'); }
-    }
-    // 1) MutationObserver — ALWAYS fixes, no one-shot flag
-    var _mo = new MutationObserver(function(mutations) {
-      for (var i = 0; i < mutations.length; i++) {
-        var m = mutations[i];
-        if (m.type === 'attributes' && m.attributeName === 'style' && m.target === document.body) {
-          fixBody();
-        }
-      }
-    });
-    _mo.observe(document.documentElement, { attributes: true, subtree: true, attributeFilter: ['style'] });
-    // 2) DOMContentLoaded: immediate check once body exists
-    document.addEventListener('DOMContentLoaded', fixBody);
-    // 3) Permanent polling — runs every 200ms forever (lightweight, just checks 3 properties)
-    setInterval(function() {
-      if (document.body) fixBody();
-    }, 200);
-    // 4) Intercept CSSStyleDeclaration.setProperty to block bad values on body
-    var _origSetProperty = CSSStyleDeclaration.prototype.setProperty;
-    CSSStyleDeclaration.prototype.setProperty = function(prop, value, priority) {
-      if (this === (document.body && document.body.style)) {
-        if ((prop === 'visibility' && (value === 'hidden' || /hidden/i.test(value))) ||
-            (prop === 'display' && (value === 'none' || /none/i.test(value))) ||
-            (prop === 'opacity' && (value === '0' || value === 0))) {
-          console.warn('[body-guard] Blocked setProperty(' + prop + ', ' + value + ') on body');
-          return;
-        }
-      }
-      return _origSetProperty.call(this, prop, value, priority);
-    };
-    // 5) Intercept setAttribute to block style hiding on body
-    var _origSetAttr = Element.prototype.setAttribute;
-    Element.prototype.setAttribute = function(name, value) {
-      if (this === document.body && name === 'style') {
-        if (/(?:visibility\s*:\s*hidden|display\s*:\s*none|opacity\s*:\s*0)/.test(value)) {
-          console.warn('[body-guard] Blocked setAttribute(style) hiding body');
-          return;
-        }
-      }
-      return _origSetAttr.call(this, name, value);
-    };
-    // 6) Intercept direct style property assignment via Proxy on body.style
-    // This catches: body.style.opacity = '0'; body.style.display = 'none'; etc.
-    document.addEventListener('DOMContentLoaded', function() {
-      var bodyStyle = document.body.style;
-      var _handler = {
-        set: function(target, prop, value) {
-          if (prop === 'visibility' && value === 'hidden') {
-            console.warn('[body-guard] Blocked body.style.visibility = hidden');
-            return true;
-          }
-          if (prop === 'display' && value === 'none') {
-            console.warn('[body-guard] Blocked body.style.display = none');
-            return true;
-          }
-          if (prop === 'opacity' && (value === '0' || value === 0)) {
-            console.warn('[body-guard] Blocked body.style.opacity = 0');
-            return true;
-          }
-          if (prop === 'cssText' && /(?:visibility\s*:\s*hidden|display\s*:\s*none|opacity\s*:\s*0)/.test(value)) {
-            console.warn('[body-guard] Blocked body.style.cssText with hiding values');
-            return true;
-          }
-          return Reflect.set(target, prop, value);
-        },
-        get: function(target, prop) {
-          return Reflect.get(target, prop);
-        }
-      };
-      try {
-        // Try Proxy approach (may not work in all browsers on host objects)
-        var _proxy = new Proxy(bodyStyle, _handler);
-        Object.defineProperty(document.body, 'style', {
-          get: function() { return _proxy; },
-          configurable: true
-        });
-      } catch(e) {
-        // Proxy on host objects may fail — polling + MO + setProperty guard is sufficient
-        console.log('[body-guard] Proxy on body.style not available, using fallback guards');
-      }
-    });
-    console.log('[body-guard] Body protection active (v2-head-inline)');
-  })();
-  </script>
 </head>
-<body style="display:block!important;visibility:visible!important;opacity:1!important;">
+<body>
   <!-- Enhanced Boot Screen -->
   <div id="boot-fallback">
     <!-- Noise texture overlay (via ::after pseudo) -->
@@ -2119,7 +2016,7 @@
       </noscript>
     </div>
     
-    <div class="version-badge">v1.2.0 · Build 2025.01.23</div>
+    <div class="version-badge">v1.2.0 · Build 2026.08.06</div>
     
     <!-- ============================================ -->
     <!-- VIGNETTE EFFECT OVERLAY - Extra depth       -->
@@ -2698,10 +2595,7 @@
     })();
   </script>
 
-  <!-- Debug Console - must load before main.js to catch all errors -->
-  <script src="./ui/debug-console.js"></script>
-
   <!-- main.js is an ES module; loads three.js dynamically and boots the engine -->
-  <script type="module" src="./main.js"></script>
+  <script type="module" src="./main.js?v=51"></script>
 </body>
 </html>

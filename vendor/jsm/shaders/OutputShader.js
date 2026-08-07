@@ -1,6 +1,7 @@
 /**
- * Output Shader - Three.js r160 compatible output shader for RawShaderMaterial
- * Includes #version 300 es directive and all required GLSL declarations
+ * Output Shader - Three.js r160 compatible output shader
+ * Uses ShaderMaterial-compatible GLSL (no #version, no explicit in/out)
+ * ShaderMaterial auto-prepends #version, precision, and built-in uniforms/attributes.
  */
 
 const OutputShader = {
@@ -14,39 +15,27 @@ const OutputShader = {
 
 	},
 
-	vertexShader: /* glsl */`#version 300 es
+	vertexShader: /* glsl */`
 
-		precision highp float;
-
-		uniform mat4 modelViewMatrix;
-		uniform mat4 projectionMatrix;
-
-		in vec3 position;
-		in vec2 uv;
-
-		out vec2 vUv;
-
+		varying vec2 vUv;
 		void main() {
 
 			vUv = uv;
 			gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
 
-		}`,
+		}
 
-	fragmentShader: /* glsl */`#version 300 es
+	`,
 
-		precision highp float;
+	fragmentShader: /* glsl */`
 
 		uniform sampler2D tDiffuse;
 		uniform float toneMappingExposure;
-
-		in vec2 vUv;
-
-		out vec4 fragColor;
+		varying vec2 vUv;
 
 		void main() {
 
-			fragColor = vec4( texture( tDiffuse, vUv ).rgb, 1.0 );
+			gl_FragColor = vec4( texture2D( tDiffuse, vUv ).rgb, 1.0 );
 
 		}`
 

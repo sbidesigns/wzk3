@@ -1,0 +1,353 @@
+/* ui/styles/hud-dynamic.css — Dynamic HUD feedback effects (Cycle 51)
+ * Position change indicators, boost activation flash, lap transition,
+ * item pickup burst, and speed threshold visual feedback.
+ */
+
+/* ==================== POSITION CHANGE INDICATOR ==================== */
+.hud-pos-change {
+  position: fixed;
+  top: 80px;
+  right: 24px;
+  z-index: 102;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 20px;
+  letter-spacing: 2px;
+  opacity: 0;
+  transform: translateX(20px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.hud-pos-change.visible {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.hud-pos-change.gained {
+  color: #00ff88;
+  text-shadow: 0 0 12px rgba(0, 255, 136, 0.6);
+}
+
+.hud-pos-change.lost {
+  color: #ff4d2e;
+  text-shadow: 0 0 12px rgba(255, 77, 46, 0.6);
+}
+
+.hud-pos-change .pos-arrow {
+  display: inline-block;
+  font-size: 16px;
+  animation: posArrowBounce 0.4s ease-out;
+}
+
+@keyframes posArrowBounce {
+  0% { transform: translateY(8px); opacity: 0; }
+  50% { transform: translateY(-3px); opacity: 1; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+
+/* ==================== BOOST ACTIVATION FLASH ==================== */
+.hud-boost-flash {
+  position: fixed;
+  inset: 0;
+  z-index: 92;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+  background: radial-gradient(
+    ellipse 80% 60% at 50% 80%,
+    rgba(0, 229, 255, 0.25) 0%,
+    rgba(0, 255, 136, 0.1) 40%,
+    transparent 70%
+  );
+  mix-blend-mode: screen;
+}
+
+.hud-boost-flash.active {
+  opacity: 1;
+  animation: boostFlashPulse 0.6s ease-out forwards;
+}
+
+@keyframes boostFlashPulse {
+  0% { opacity: 0.9; }
+  30% { opacity: 0.5; }
+  100% { opacity: 0; }
+}
+
+/* Boost pips active glow */
+.boost-pip.active {
+  background: linear-gradient(90deg, #00e5ff, #00ff88) !important;
+  border-color: rgba(0, 229, 255, 0.6) !important;
+  box-shadow: 0 0 8px rgba(0, 229, 255, 0.5), 0 0 16px rgba(0, 255, 136, 0.2);
+}
+
+.boost-pip.charging {
+  animation: boostPipCharge 0.8s ease-out;
+}
+
+@keyframes boostPipCharge {
+  0% { transform: scaleY(1); filter: brightness(1.5); }
+  50% { transform: scaleY(1.8); filter: brightness(2); }
+  100% { transform: scaleY(1); filter: brightness(1); }
+}
+
+/* ==================== ITEM PICKUP BURST ==================== */
+.hud-item-burst {
+  position: fixed;
+  bottom: 80px;
+  right: 180px;
+  z-index: 103;
+  pointer-events: none;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  opacity: 0;
+}
+
+.hud-item-burst.active {
+  animation: itemBurstRing 0.6s ease-out forwards;
+}
+
+@keyframes itemBurstRing {
+  0% {
+    opacity: 0.8;
+    transform: scale(0.5);
+    box-shadow: 0 0 0 0 rgba(0, 229, 255, 0.6);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(2.5);
+    box-shadow: 0 0 0 20px rgba(0, 229, 255, 0);
+  }
+}
+
+/* ==================== SPEED THRESHOLD GLOW ==================== */
+#hud-speed-panel.speed-low {
+  filter: none;
+}
+
+#hud-speed-panel.speed-medium {
+  filter: drop-shadow(0 0 4px rgba(0, 229, 255, 0.2));
+}
+
+#hud-speed-panel.speed-high {
+  filter: drop-shadow(0 0 8px rgba(0, 229, 255, 0.4));
+  animation: speedGlowPulse 1.5s ease-in-out infinite;
+}
+
+#hud-speed-panel.speed-critical {
+  filter: drop-shadow(0 0 12px rgba(255, 77, 46, 0.5));
+  animation: speedCriticalPulse 0.8s ease-in-out infinite;
+}
+
+@keyframes speedGlowPulse {
+  0%, 100% { filter: drop-shadow(0 0 6px rgba(0, 229, 255, 0.3)); }
+  50% { filter: drop-shadow(0 0 14px rgba(0, 229, 255, 0.6)); }
+}
+
+@keyframes speedCriticalPulse {
+  0%, 100% { filter: drop-shadow(0 0 8px rgba(255, 77, 46, 0.3)); }
+  50% { filter: drop-shadow(0 0 20px rgba(255, 77, 46, 0.7)); }
+}
+
+/* ==================== LAP TRANSITION FLASH ==================== */
+.hud-lap-transition {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  z-index: 105;
+  pointer-events: none;
+  opacity: 0;
+}
+
+.hud-lap-transition.active {
+  animation: lapTransitionSweep 1s ease-out forwards;
+}
+
+@keyframes lapTransitionSweep {
+  0% {
+    opacity: 1;
+    background: linear-gradient(90deg, transparent, #00e5ff, transparent);
+    transform: translateX(-100%);
+  }
+  50% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  100% {
+    opacity: 0;
+    background: linear-gradient(90deg, transparent, #00ff88, transparent);
+    transform: translateX(100%);
+  }
+}
+
+/* ==================== DRIFT SCORE COMBO MULTIPLIER ==================== */
+.hud-drift-combo {
+  position: fixed;
+  right: 80px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 102;
+  pointer-events: none;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 14px;
+  letter-spacing: 3px;
+  color: rgba(255, 210, 63, 0.7);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.hud-drift-combo.visible {
+  opacity: 1;
+}
+
+.hud-drift-combo .combo-value {
+  font-size: 28px;
+  color: #ffd23f;
+  text-shadow: 0 0 12px rgba(255, 210, 63, 0.5);
+  display: block;
+}
+
+/* ==================== RACE EVENT NOTIFICATIONS ==================== */
+.hud-race-event {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0.8);
+  z-index: 200;
+  pointer-events: none;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 24px;
+  letter-spacing: 6px;
+  color: #fff;
+  text-shadow: 0 0 20px rgba(0, 229, 255, 0.8), 0 2px 8px rgba(0, 0, 0, 0.5);
+  opacity: 0;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.hud-race-event.visible {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1);
+}
+
+.hud-race-event.overtake {
+  color: #00ff88;
+  text-shadow: 0 0 20px rgba(0, 255, 136, 0.8);
+}
+
+.hud-race-event.overtaken {
+  color: #ff4d2e;
+  text-shadow: 0 0 20px rgba(255, 77, 46, 0.8);
+}
+
+/* ==================== OPPONENT PROXIMITY WARNING ==================== */
+.hud-proximity-indicator {
+  position: fixed;
+  left: 50%;
+  bottom: 120px;
+  transform: translateX(-50%);
+  z-index: 102;
+  pointer-events: none;
+  display: flex;
+  gap: 3px;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.hud-proximity-indicator.active {
+  opacity: 1;
+}
+
+.hud-proximity-indicator .prox-bar {
+  width: 4px;
+  height: 20px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.15);
+  transition: background 0.2s ease, height 0.2s ease;
+}
+
+.hud-proximity-indicator .prox-bar.left {
+  background: rgba(255, 77, 46, 0.7);
+  box-shadow: 0 0 6px rgba(255, 77, 46, 0.4);
+}
+
+.hud-proximity-indicator .prox-bar.right {
+  background: rgba(255, 77, 46, 0.7);
+  box-shadow: 0 0 6px rgba(255, 77, 46, 0.4);
+}
+
+/* ==================== RESPONSIVE ==================== */
+@media (max-width: 640px) {
+  .hud-pos-change {
+    top: 70px;
+    right: 16px;
+    font-size: 16px;
+  }
+
+  .hud-drift-combo {
+    right: 16px;
+  }
+
+  .hud-item-burst {
+    right: 100px;
+    bottom: 70px;
+    width: 48px;
+    height: 48px;
+  }
+}
+
+/* ==================== REDUCED MOTION ==================== */
+@media (prefers-reduced-motion: reduce) {
+  .hud-pos-change .pos-arrow {
+    animation: none;
+  }
+
+  .hud-boost-flash.active {
+    animation: none;
+    opacity: 0.5;
+  }
+
+  .boost-pip.charging {
+    animation: none;
+  }
+
+  .hud-item-burst.active {
+    animation: none;
+    opacity: 0.5;
+  }
+
+  #hud-speed-panel.speed-high,
+  #hud-speed-panel.speed-critical {
+    animation: none;
+  }
+
+  .hud-lap-transition.active {
+    animation: none;
+  opacity: 0.5;
+  }
+}
+
+/* ==================== HIGH CONTRAST ==================== */
+@media (forced-colors: active) {
+  .hud-pos-change.gained { color: Highlight; }
+  .hud-pos-change.lost { color: LinkText; }
+  .boost-pip.active {
+    background: Highlight !important;
+    border: 2px solid CanvasText !important;
+  }
+}
+
+/* ==================== DARK MODE ENFORCEMENT ==================== */
+.hud-pos-change,
+.hud-boost-flash,
+.hud-item-burst,
+.hud-drift-combo,
+.hud-race-event,
+.hud-proximity-indicator,
+.hud-lap-transition {
+  color-scheme: dark;
+}
