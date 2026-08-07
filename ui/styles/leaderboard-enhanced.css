@@ -1,0 +1,346 @@
+/* ui/styles/leaderboard-enhanced.css — Leaderboard & Career Polish (Cycle 51)
+ * Podium spotlight, rank change arrows, XP progress bar, tier progress,
+ * animated stat counters, leaderboard row hover, career track cards.
+ */
+
+/* ==================== PODIUM SPOTLIGHT ==================== */
+.podium-container {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 12px;
+  padding: 40px 20px 24px;
+  perspective: 800px;
+}
+
+.podium-slot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  transition: transform 0.4s ease;
+}
+
+.podium-slot:hover {
+  transform: translateY(-4px);
+}
+
+.podium-bar {
+  width: 80px;
+  border-radius: 12px 12px 0 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding-top: 16px;
+  position: relative;
+  overflow: hidden;
+}
+
+.podium-bar::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(255,255,255,0.08) 0%, transparent 60%);
+  pointer-events: none;
+}
+
+.podium-slot.first .podium-bar {
+  height: 120px;
+  background: linear-gradient(180deg, rgba(255,210,63,0.25), rgba(255,210,63,0.08));
+  border: 1px solid rgba(255,210,63,0.3);
+  border-bottom: none;
+  width: 100px;
+  box-shadow: 0 0 40px rgba(255,210,63,0.12), 0 0 80px rgba(255,210,63,0.05);
+}
+
+.podium-slot.second .podium-bar {
+  height: 90px;
+  background: linear-gradient(180deg, rgba(192,192,192,0.2), rgba(192,192,192,0.06));
+  border: 1px solid rgba(192,192,192,0.2);
+  border-bottom: none;
+  box-shadow: 0 0 30px rgba(192,192,192,0.08);
+}
+
+.podium-slot.third .podium-bar {
+  height: 70px;
+  background: linear-gradient(180deg, rgba(205,127,50,0.2), rgba(205,127,50,0.06));
+  border: 1px solid rgba(205,127,50,0.2);
+  border-bottom: none;
+  box-shadow: 0 0 24px rgba(205,127,50,0.06);
+}
+
+.podium-rank {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 32px;
+  letter-spacing: 2px;
+  position: relative;
+  z-index: 1;
+}
+
+.podium-slot.first .podium-rank { color: #ffd23f; text-shadow: 0 0 16px rgba(255,210,63,0.6); }
+.podium-slot.second .podium-rank { color: #c0c0c0; text-shadow: 0 0 12px rgba(192,192,192,0.5); }
+.podium-slot.third .podium-rank { color: #cd7f32; text-shadow: 0 0 12px rgba(205,127,50,0.5); }
+
+.podium-name {
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.7);
+  letter-spacing: 0.5px;
+  text-align: center;
+  max-width: 100px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.podium-score {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: rgba(255,255,255,0.4);
+}
+
+/* ==================== RANK CHANGE ARROWS ==================== */
+.rank-change {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 11px;
+  font-weight: 600;
+  font-family: 'JetBrains Mono', monospace;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.rank-change.up {
+  color: #00ff88;
+  background: rgba(0,255,136,0.08);
+}
+
+.rank-change.down {
+  color: #ff4d2e;
+  background: rgba(255,77,46,0.08);
+}
+
+.rank-change.same {
+  color: rgba(255,255,255,0.3);
+}
+
+/* ==================== LEADERBOARD ROW HOVER ==================== */
+.lb-row {
+  display: grid;
+  grid-template-columns: 40px 1fr auto auto;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-bottom: 1px solid rgba(255,255,255,0.03);
+  transition: background 0.2s ease, transform 0.15s ease;
+  cursor: default;
+}
+
+.lb-row:hover {
+  background: rgba(0,229,255,0.04);
+  transform: translateX(4px);
+}
+
+.lb-row.self {
+  background: rgba(0,229,255,0.06);
+  border-left: 2px solid rgba(0,229,255,0.4);
+}
+
+.lb-rank {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 18px;
+  color: rgba(255,255,255,0.4);
+  text-align: center;
+}
+
+.lb-rank.top-3 {
+  color: #ffd23f;
+}
+
+.lb-name {
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  color: rgba(255,255,255,0.8);
+}
+
+.lb-score {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  color: var(--accent, #00e5ff);
+}
+
+/* ==================== XP PROGRESS BAR ==================== */
+.xp-bar-container {
+  width: 100%;
+  height: 8px;
+  background: rgba(255,255,255,0.06);
+  border-radius: 4px;
+  overflow: hidden;
+  position: relative;
+}
+
+.xp-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #00e5ff, #00ff88);
+  border-radius: 4px;
+  transition: width 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+ position: relative;
+}
+
+.xp-bar-fill::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 30px;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4));
+  animation: xpShine 2s ease-in-out infinite;
+}
+
+@keyframes xpShine {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 1; }
+}
+
+.xp-label {
+  display: flex;
+  justify-content: space-between;
+  font-family: 'Inter', sans-serif;
+  font-size: 11px;
+  color: rgba(255,255,255,0.35);
+  margin-top: 4px;
+}
+
+.xp-level {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 14px;
+  color: var(--accent, #00e5ff);
+}
+
+/* ==================== CAREER TRACK CARDS ==================== */
+.career-track-card {
+  background: linear-gradient(145deg, rgba(15,18,30,0.9) 0%, rgba(22,26,42,0.85) 100%);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 16px;
+  padding: 20px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.career-track-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--track-color, #00e5ff), transparent);
+  opacity: 0.6;
+  transition: opacity 0.3s ease;
+}
+
+.career-track-card:hover {
+  border-color: rgba(0,229,255,0.2);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+}
+
+.career-track-card:hover::before {
+  opacity: 1;
+}
+
+.career-track-card.completed {
+  border-color: rgba(0,255,136,0.15);
+}
+
+.career-track-card.completed::before {
+  background: linear-gradient(90deg, #00ff88, transparent);
+}
+
+.career-track-card.locked {
+  opacity: 0.4;
+  filter: grayscale(0.5);
+  cursor: not-allowed;
+}
+
+.career-track-card.locked:hover {
+  transform: none;
+  box-shadow: none;
+  border-color: rgba(255,255,255,0.06);
+}
+
+.career-track-name {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 20px;
+  letter-spacing: 2px;
+  color: rgba(255,255,255,0.85);
+  margin-bottom: 4px;
+}
+
+.career-track-desc {
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  color: rgba(255,255,255,0.35);
+  line-height: 1.5;
+}
+
+.career-track-progress {
+  margin-top: 12px;
+}
+
+/* ==================== STAT COUNTER ANIMATION ==================== */
+.stat-counter {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 36px;
+  letter-spacing: 2px;
+  color: rgba(255,255,255,0.9);
+  line-height: 1;
+}
+
+.stat-counter-label {
+  font-family: 'Inter', sans-serif;
+  font-size: 11px;
+  color: rgba(255,255,255,0.35);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-top: 4px;
+}
+
+/* ==================== RESPONSIVE ==================== */
+@media (max-width: 768px) {
+  .podium-container { gap: 8px; padding: 24px 12px 16px; }
+  .podium-bar { width: 60px; }
+  .podium-slot.first .podium-bar { width: 80px; height: 100px; }
+  .podium-slot.second .podium-bar { height: 75px; }
+  .podium-slot.third .podium-bar { height: 58px; }
+  .lb-row { grid-template-columns: 32px 1fr auto; gap: 8px; padding: 10px 12px; }
+}
+
+@media (max-width: 480px) {
+  .podium-slot.first .podium-bar { width: 70px; height: 85px; }
+  .podium-rank { font-size: 24px; }
+  .stat-counter { font-size: 28px; }
+}
+
+/* ==================== REDUCED MOTION ==================== */
+@media (prefers-reduced-motion: reduce) {
+  .podium-slot { transition: none; }
+  .lb-row { transition: none; }
+  .career-track-card { transition: none; }
+  .xp-bar-fill { transition: none; }
+  .xp-bar-fill::after { animation: none; }
+}
+
+/* ==================== HIGH CONTRAST ==================== */
+@media (prefers-contrast: high) {
+ .career-track-card { border-width: 2px; }
+  .lb-row.self { border-left-width: 3px; }
+  .podium-bar { border-width: 2px; }
+}

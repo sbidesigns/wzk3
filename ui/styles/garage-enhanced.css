@@ -1,0 +1,366 @@
+/* ui/styles/garage-enhanced.css — Premium Garage Visual Effects (Cycle 51)
+ * Neon underglow vehicle cards, stat bar shimmer, paint swatch selector,
+ * unlock glass card, tier badge glow, showroom spotlight animation.
+ */
+
+/* ==================== VEHICLE CARD PREMIUM HOVER ==================== */
+.vehicle-card {
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1),
+              box-shadow 0.4s ease,
+              border-color 0.3s ease;
+}
+
+.vehicle-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(0,229,255,0.06) 0%, transparent 50%, rgba(255,77,46,0.04) 100%);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.vehicle-card:hover {
+  transform: translateY(-4px) scale(1.01);
+  box-shadow: 0 8px 40px rgba(0,229,255,0.12), 0 0 0 1px rgba(0,229,255,0.15);
+  border-color: rgba(0,229,255,0.25);
+}
+
+.vehicle-card:hover::before {
+  opacity: 1;
+}
+
+/* ==================== NEON UNDERGLOW (per category) ==================== */
+.vehicle-card[data-category="speed"]::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 10%;
+  right: 10%;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, var(--cat-speed, #ff4d2e), transparent);
+  border-radius: 3px;
+  filter: blur(4px);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: 2;
+}
+
+.vehicle-card[data-category="balanced"]::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 10%;
+  right: 10%;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, var(--cat-balanced, #00e5ff), transparent);
+  border-radius: 3px;
+  filter: blur(4px);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: 2;
+}
+
+.vehicle-card[data-category="heavy"]::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 10%;
+  right: 10%;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, var(--cat-heavy, #aa00ff), transparent);
+  border-radius: 3px;
+  filter: blur(4px);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: 2;
+}
+
+.vehicle-card[data-category="special"]::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 10%;
+  right: 10%;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, var(--cat-special, #ffd23f), transparent);
+  border-radius: 3px;
+  filter: blur(4px);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: 2;
+}
+
+.vehicle-card:hover::after {
+  opacity: 1;
+  animation: underglowPulse 2s ease-in-out infinite;
+}
+
+@keyframes underglowPulse {
+  0%, 100% { opacity: 0.6; filter: blur(4px); }
+  50% { opacity: 1; filter: blur(6px); }
+}
+
+/* ==================== STAT BAR SHIMMER ==================== */
+.stat-bar-fill {
+  position: relative;
+  overflow: hidden;
+}
+
+.stat-bar-fill::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.25) 50%, transparent 100%);
+  animation: statShimmer 3s ease-in-out infinite;
+}
+
+@keyframes statShimmer {
+  0% { left: -100%; }
+  100% { left: 200%; }
+}
+
+/* Per-stat color variants */
+.stat-bar-fill.stat-speed { background: linear-gradient(90deg, #ff4d2e, #ff6b4d); }
+.stat-bar-fill.stat-acceleration { background: linear-gradient(90deg, #00b8d4, #00e5ff); }
+.stat-bar-fill.stat-handling { background: linear-gradient(90deg, #2bbd6e, #3ddc84); }
+.stat-bar-fill.stat-shield { background: linear-gradient(90deg, #e6b800, #ffd23f); }
+.stat-bar-fill.stat-boost { background: linear-gradient(90deg, #aa00ff, #cc44ff); }
+
+/* Stat bar glow on high values */
+.stat-bar-fill.high-value {
+  box-shadow: 0 0 12px currentColor, 0 0 4px currentColor;
+}
+
+.stat-bar-fill.stat-speed.high-value { color: #ff4d2e; }
+.stat-bar-fill.stat-acceleration.high-value { color: #00e5ff; }
+.stat-bar-fill.stat-handling.high-value { color: #3ddc84; }
+.stat-bar-fill.stat-shield.high-value { color: #ffd23f; }
+
+/* ==================== PAINT SWATCH SELECTOR ==================== */
+.paint-swatch-grid {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding: 8px 0;
+}
+
+.paint-swatch {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  cursor: pointer;
+  border: 2px solid rgba(255,255,255,0.1);
+  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+  position: relative;
+}
+
+.paint-swatch:hover {
+  transform: scale(1.2);
+  border-color: rgba(255,255,255,0.4);
+}
+
+.paint-swatch.selected {
+  border-color: #00e5ff;
+  box-shadow: 0 0 12px rgba(0,229,255,0.5), inset 0 0 6px rgba(0,229,255,0.2);
+  transform: scale(1.15);
+}
+
+.paint-swatch.selected::after {
+  content: '\2713'; /* checkmark */
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 700;
+  color: #fff;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+}
+
+/* Metallic paint effect */
+.paint-swatch.metallic {
+  background-image: linear-gradient(135deg, rgba(255,255,255,0.3) 0%, transparent 50%, rgba(255,255,255,0.15) 100%);
+  background-size: 200% 200%;
+}
+
+.paint-swatch.metallic:hover {
+  background-position: 100% 100%;
+}
+
+/* ==================== TIER BADGE GLOW ==================== */
+.tier-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  font-family: 'Inter', sans-serif;
+}
+
+.tier-badge.tier-common {
+  background: rgba(138,138,138,0.15);
+  color: #aaa;
+  border: 1px solid rgba(138,138,138,0.3);
+}
+
+.tier-badge.tier-rare {
+  background: rgba(0,229,255,0.1);
+  color: #00e5ff;
+  border: 1px solid rgba(0,229,255,0.25);
+  text-shadow: 0 0 8px rgba(0,229,255,0.4);
+}
+
+.tier-badge.tier-epic {
+  background: rgba(170,0,255,0.1);
+  color: #cc44ff;
+  border: 1px solid rgba(170,0,255,0.25);
+  text-shadow: 0 0 8px rgba(170,0,255,0.4);
+}
+
+.tier-badge.tier-legendary {
+  background: rgba(255,210,63,0.12);
+  color: #ffd23f;
+  border: 1px solid rgba(255,210,63,0.3);
+  text-shadow: 0 0 10px rgba(255,210,63,0.5);
+  animation: legendaryGlow 2.5s ease-in-out infinite;
+}
+
+@keyframes legendaryGlow {
+  0%, 100% { box-shadow: 0 0 8px rgba(255,210,63,0.15); }
+  50% { box-shadow: 0 0 20px rgba(255,210,63,0.3), 0 0 40px rgba(255,210,63,0.1); }
+}
+
+/* ==================== UNLOCK GLASS CARD ==================== */
+.vehicle-card.locked {
+  opacity: 0.5;
+  filter: saturate(0.3) brightness(0.7);
+  pointer-events: none;
+}
+
+.vehicle-card.locked .lock-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: rgba(10,12,20,0.7);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  border-radius: inherit;
+  z-index: 5;
+  pointer-events: auto;
+}
+
+.vehicle-card.locked .lock-overlay .lock-icon {
+  font-size: 28px;
+  opacity: 0.6;
+}
+
+.vehicle-card.locked .lock-overlay .lock-text {
+  font-family: 'Inter', sans-serif;
+  font-size: 11px;
+  color: rgba(255,255,255,0.5);
+  letter-spacing: 1px;
+}
+
+.vehicle-card.locked .lock-overlay .unlock-req {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 16px;
+  color: var(--accent, #00e5ff);
+  letter-spacing: 1px;
+}
+
+/* ==================== SHOWROOM SPOTLIGHT ==================== */
+.showroom-spotlight {
+  position: absolute;
+  top: -40%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 300px;
+  height: 400px;
+  background: radial-gradient(ellipse at center, rgba(0,229,255,0.08) 0%, transparent 70%);
+  pointer-events: none;
+  animation: spotlightBreathe 4s ease-in-out infinite;
+}
+
+@keyframes spotlightBreathe {
+  0%, 100% { opacity: 0.6; transform: translateX(-50%) scale(1); }
+  50% { opacity: 1; transform: translateX(-50%) scale(1.1); }
+}
+
+/* ==================== UPGRADE NODE CONNECTIONS ==================== */
+.upgrade-node {
+  position: relative;
+}
+
+.upgrade-node.maxed {
+  box-shadow: 0 0 12px rgba(0,255,136,0.3), inset 0 0 8px rgba(0,255,136,0.05);
+}
+
+.upgrade-node.maxed::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: inherit;
+  background: conic-gradient(from 0deg, rgba(0,255,136,0.3), transparent 30%, transparent 70%, rgba(0,255,136,0.3));
+  z-index: -1;
+  animation: maxedSpin 6s linear infinite;
+}
+
+@keyframes maxedSpin {
+  100% { transform: rotate(360deg); }
+}
+
+/* ==================== RESPONSIVE ==================== */
+@media (max-width: 768px) {
+  .paint-swatch {
+    width: 28px;
+    height: 28px;
+  }
+  .showroom-spotlight {
+    width: 200px;
+    height: 280px;
+  }
+}
+
+@media (max-width: 480px) {
+  .paint-swatch-grid {
+    gap: 8px;
+  }
+  .paint-swatch {
+    width: 24px;
+    height: 24px;
+  }
+}
+
+/* ==================== REDUCED MOTION ==================== */
+@media (prefers-reduced-motion: reduce) {
+  .vehicle-card { transition: none; }
+  .vehicle-card:hover { transform: none; }
+  .stat-bar-fill::after { animation: none; }
+  .tier-badge.tier-legendary { animation: none; }
+  .showroom-spotlight { animation: none; }
+  .vehicle-card:hover::after { animation: none; opacity: 0.8; }
+  .upgrade-node.maxed::before { animation: none; }
+}
+
+/* ==================== HIGH CONTRAST ==================== */
+@media (prefers-contrast: high) {
+  .vehicle-card { border-width: 2px; }
+  .tier-badge { border-width: 2px; }
+  .paint-swatch { border-width: 3px; }
+}

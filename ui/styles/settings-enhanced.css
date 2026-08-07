@@ -1,0 +1,333 @@
+/* ui/styles/settings-enhanced.css — Premium Settings UI (Cycle 51)
+ * Custom toggle switches, neon range sliders, section cards,
+ * keyboard shortcut badges, resolution preview chips.
+ */
+
+/* ==================== SETTINGS SECTION CARDS ==================== */
+.settings-section {
+  background: linear-gradient(145deg, rgba(15,18,30,0.9) 0%, rgba(22,26,42,0.85) 100%);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 16px;
+  padding: 24px;
+  margin-bottom: 16px;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.settings-section:hover {
+  border-color: rgba(0,229,255,0.12);
+  box-shadow: 0 4px 24px rgba(0,0,0,0.3);
+}
+
+.settings-section-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+
+.settings-section-icon {
+  font-size: 20px;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0,229,255,0.08);
+  border-radius: 10px;
+  border: 1px solid rgba(0,229,255,0.12);
+}
+
+.settings-section-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 18px;
+  letter-spacing: 2px;
+  color: rgba(255,255,255,0.9);
+}
+
+/* ==================== CUSTOM TOGGLE SWITCH ==================== */
+.toggle-switch {
+  position: relative;
+  width: 48px;
+  height: 26px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.toggle-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+  position: absolute;
+}
+
+.toggle-track {
+  position: absolute;
+  inset: 0;
+  background: rgba(255,255,255,0.08);
+  border-radius: 13px;
+  border: 1px solid rgba(255,255,255,0.1);
+  transition: background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.toggle-thumb {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 20px;
+  height: 20px;
+  background: rgba(255,255,255,0.6);
+  border-radius: 50%;
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.3s ease, box-shadow 0.3s ease;
+}
+
+.toggle-switch input:checked ~ .toggle-track {
+  background: rgba(0,229,255,0.2);
+  border-color: rgba(0,229,255,0.4);
+  box-shadow: 0 0 16px rgba(0,229,255,0.15);
+}
+
+.toggle-switch input:checked ~ .toggle-thumb {
+  transform: translateX(22px);
+  background: #00e5ff;
+  box-shadow: 0 0 8px rgba(0,229,255,0.6);
+}
+
+.toggle-switch input:focus-visible ~ .toggle-track {
+  outline: 2px solid #00e5ff;
+  outline-offset: 2px;
+}
+
+/* ==================== NEON RANGE SLIDER ==================== */
+.neon-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 6px;
+  border-radius: 3px;
+  background: rgba(255,255,255,0.08);
+  outline: none;
+  cursor: pointer;
+}
+
+.neon-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #00e5ff;
+  cursor: pointer;
+  box-shadow: 0 0 10px rgba(0,229,255,0.5), 0 0 3px rgba(0,229,255,0.8);
+  border: 2px solid rgba(255,255,255,0.2);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.neon-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
+  box-shadow: 0 0 16px rgba(0,229,255,0.7), 0 0 4px rgba(0,229,255,1);
+}
+
+.neon-slider::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #00e5ff;
+  cursor: pointer;
+  box-shadow: 0 0 10px rgba(0,229,255,0.5);
+  border: 2px solid rgba(255,255,255,0.2);
+}
+
+.neon-slider:focus-visible {
+  outline: 2px solid #00e5ff;
+  outline-offset: 4px;
+}
+
+/* Slider with fill color (use JS to set --fill-pct) */
+.neon-slider.has-fill {
+  background: linear-gradient(90deg, rgba(0,229,255,0.4) 0%, rgba(0,229,255,0.4) var(--fill-pct, 50%), rgba(255,255,255,0.08) var(--fill-pct, 50%));
+}
+
+/* ==================== KEYBOARD SHORTCUT BADGE ==================== */
+.kbd {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 28px;
+  height: 26px;
+  padding: 0 6px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 6px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: rgba(255,255,255,0.6);
+  box-shadow: 0 2px 0 rgba(0,0,0,0.3);
+  line-height: 1;
+}
+
+.kbd.pressed {
+  background: rgba(0,229,255,0.15);
+  border-color: rgba(0,229,255,0.4);
+  color: #00e5ff;
+  transform: translateY(1px);
+  box-shadow: none;
+}
+
+.key-combo {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.key-combo .kbd-sep {
+  font-size: 10px;
+  color: rgba(255,255,255,0.25);
+}
+
+/* ==================== RESOLUTION CHIP ==================== */
+.resolution-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 20px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  color: rgba(255,255,255,0.5);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.resolution-chip:hover {
+  background: rgba(0,229,255,0.08);
+  border-color: rgba(0,229,255,0.2);
+  color: rgba(255,255,255,0.8);
+}
+
+.resolution-chip.active {
+  background: rgba(0,229,255,0.12);
+  border-color: rgba(0,229,255,0.35);
+  color: #00e5ff;
+  box-shadow: 0 0 12px rgba(0,229,255,0.1);
+}
+
+.resolution-chip .res-icon {
+  font-size: 14px;
+}
+
+/* ==================== SETTING ROW ==================== */
+.setting-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  gap: 16px;
+}
+
+.setting-row:last-child {
+  border-bottom: none;
+}
+
+.setting-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.setting-label {
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  color: rgba(255,255,255,0.85);
+  margin-bottom: 2px;
+}
+
+.setting-desc {
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  color: rgba(255,255,255,0.35);
+  line-height: 1.4;
+}
+
+.setting-control {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* ==================== SLIDER VALUE DISPLAY ==================== */
+.slider-value {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  color: var(--accent, #00e5ff);
+  min-width: 36px;
+  text-align: right;
+}
+
+/* ==================== DANGER ZONE ==================== */
+.settings-section.danger-zone {
+  border-color: rgba(255,77,46,0.15);
+}
+
+.settings-section.danger-zone:hover {
+  border-color: rgba(255,77,46,0.3);
+  box-shadow: 0 4px 24px rgba(255,77,46,0.06);
+}
+
+.settings-section.danger-zone .settings-section-icon {
+  background: rgba(255,77,46,0.1);
+  border-color: rgba(255,77,46,0.2);
+}
+
+.danger-btn {
+  padding: 8px 20px;
+  border-radius: 8px;
+  background: rgba(255,77,46,0.1);
+  border: 1px solid rgba(255,77,46,0.25);
+  color: #ff4d2e;
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.danger-btn:hover {
+  background: rgba(255,77,46,0.2);
+  border-color: rgba(255,77,46,0.4);
+  box-shadow: 0 0 16px rgba(255,77,46,0.15);
+}
+
+/* ==================== RESPONSIVE ==================== */
+@media (max-width: 768px) {
+  .settings-section { padding: 16px; border-radius: 12px; }
+  .setting-row { flex-direction: column; align-items: flex-start; gap: 10px; }
+  .setting-control { width: 100%; justify-content: space-between; }
+}
+
+@media (max-width: 480px) {
+  .settings-section { padding: 12px; margin-bottom: 12px; }
+  .toggle-switch { width: 42px; height: 24px; }
+  .toggle-thumb { width: 18px; height: 18px; }
+  .toggle-switch input:checked ~ .toggle-thumb { transform: translateX(18px); }
+}
+
+/* ==================== REDUCED MOTION ==================== */
+@media (prefers-reduced-motion: reduce) {
+  .toggle-thumb { transition: none; }
+  .neon-slider::-webkit-slider-thumb { transition: none; }
+  .resolution-chip { transition: none; }
+}
+
+/* ==================== HIGH CONTRAST ==================== */
+@media (prefers-contrast: high) {
+  .settings-section { border-width: 2px; }
+  .toggle-track { border-width: 2px; }
+  .kbd { border-width: 2px; }
+  .resolution-chip { border-width: 2px; }
+}

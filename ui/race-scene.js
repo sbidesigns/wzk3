@@ -807,6 +807,8 @@ export class RaceScene {
     }
     this._minimapCanvas = hud.querySelector('#hud-minimap-canvas');
     if (this._minimapCanvas) this._minimapCtx = this._minimapCanvas.getContext('2d');
+    // Cycle 51: Screen chrome — vignette + ambient overlay
+    this._createScreenChrome();
     this._rearViewCanvas = hud.querySelector('#hud-rearview-canvas');
     if (this._rearViewCanvas) this._rearViewCtx = this._rearViewCanvas.getContext('2d');
     this._gaugeCanvas = hud.querySelector('#hud-speed-gauge');
@@ -992,7 +994,7 @@ export class RaceScene {
     // Cleanup weather controller (Cycle 51)
     if (this._weatherController) { this._weatherController.destroy(); this._weatherController = null; }
     // Cleanup dynamic HUD elements (Cycle 51)
-    document.querySelectorAll('.hud-boost-flash,.hud-pos-change,.hud-lap-transition,.hud-race-event,.hud-proximity-indicator').forEach(function(el) { el.remove(); });
+    document.querySelectorAll('.hud-boost-flash,.hud-pos-change,.hud-lap-transition,.hud-race-event,.hud-proximity-indicator,#race-vignette,#race-ambient').forEach(function(el) { el.remove(); });
     document.body.classList.remove('weather-rain','weather-sandstorm','weather-fog','weather-snow','weather-wind','weather-clear');
     // Hide canvas
     var canvas = document.getElementById('game-canvas');
@@ -1237,6 +1239,7 @@ export class RaceScene {
     this._updateItemPickupFlash(dt);
     this._updateSkyGradient(dt);
     this._updateHUD(dt);
+    this._updateScreenChrome();
     this._updateMinimap(dt);
     this._updateSpeedGauge();
     this._updateSpeedVisuals(dt);
@@ -1935,6 +1938,37 @@ export class RaceScene {
 
   // ==================== CLEANUP ====================
 
+  // === Cycle 51: Screen Chrome — Vignette + Ambient Overlay ===
+  _createScreenChrome() {
+    // Cinematic vignette (from screen-chrome.css)
+    var vig = document.createElement('div');
+    vig.className = 'screen-vignette';
+    vig.id = 'race-vignette';
+    document.body.appendChild(vig);
+    this._vignetteEl = vig;
+    // Ambient color temperature overlay (neutral by default)
+    var amb = document.createElement('div');
+    amb.className = 'screen-ambient-temp neutral';
+    amb.id = 'race-ambient';
+    document.body.appendChild(amb);
+    this._ambientEl = amb;
+    // Speed-adaptive vignette: update class based on speed
+    this._lastVignetteClass = '';
+  }
+
+  _updateScreenChrome() {
+    if (!this._vignetteEl) return;
+    var spd = this._state.speed;
+    var cls = '';
+    if (spd >= 180) cls = 'intense';
+    else if (spd >= 130) cls = 'speed-adaptive';
+    if (cls !== this._lastVignetteClass) {
+      if (this._lastVignetteClass) this._vignetteEl.classList.remove(this._lastVignetteClass);
+      if (cls) this._vignetteEl.classList.add(cls);
+      this._lastVignetteClass = cls;
+    }
+  }
+
   // === Cycle 51: Weather Controller (CSS-based effects + physics) ===
   async _initWeatherController() {
     try {
@@ -1948,7 +1982,19 @@ export class RaceScene {
         if (type === 'rain' || type === 'sandstorm') this._setWeather('rain');
         else if (type === 'snow') this._setWeather('snow');
         else this._setWeather('clear');
+        // Cycle 51: Update ambient temperature overlay
+        if (this._ambientEl) {
+          this._ambientEl.className = 'screen-ambient-temp';
+          if (type === 'sandstorm') this._ambientEl.classList.add('warm');
+          else if (type === 'rain' || type === 'snow' || type === 'fog') this._ambientEl.classList.add('cool');
+          else this._ambientEl.classList.add('neutral');
+        }
       });
+      // Cycle 51: Enable auto weather cycle in debug mode
+      if (new URLSearchParams(window.location.search).has('debug')) {
+        this._weatherController.setAutoWeather(true, 20);
+        console.log('[RaceScene] Auto weather cycle enabled (debug mode, 20s interval)');
+      }
       console.log('[RaceScene] Weather controller initialized');
     } catch (e) {
       console.warn('[RaceScene] Weather controller not available:', e.message);
