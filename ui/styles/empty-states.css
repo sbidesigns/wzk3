@@ -1,0 +1,246 @@
+/* ui/styles/empty-states.css — Empty state displays, loading skeletons, and placeholder UI
+ * Features: Skeleton shimmer, empty illustrations, zero-state messages,
+ *          coming soon cards, locked content overlays
+ */
+
+/* ==================== SKELETON SHIMMER BASE ==================== */
+.skeleton {
+  background: linear-gradient(90deg, var(--surface-glass) 25%, var(--surface-glass-hover) 50%, var(--surface-glass) 75%);
+  background-size: 200% 100%;
+  animation: skeletonShimmer 1.5s ease-in-out infinite;
+  border-radius: var(--radius-s);
+  pointer-events: none;
+}
+
+@keyframes skeletonShimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+.skeleton-text { height: 14px; margin-bottom: var(--space-s); width: 80%; }
+.skeleton-text.short { width: 50%; }
+.skeleton-text.long { width: 95%; }
+.skeleton-title { height: 28px; margin-bottom: var(--space-m); width: 60%; }
+.skeleton-avatar { width: 48px; height: 48px; border-radius: 50%; }
+.skeleton-card { height: 120px; border-radius: var(--radius-m); }
+.skeleton-circle { width: 80px; height: 80px; border-radius: 50%; }
+.skeleton-bar { height: 8px; border-radius: var(--radius-pill); }
+
+/* ==================== EMPTY STATE CONTAINER ==================== */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-2xl) var(--space-l);
+  text-align: center;
+  gap: var(--space-m);
+  min-height: 200px;
+}
+
+.empty-state-icon {
+  font-size: 48px;
+  opacity: 0.6;
+  filter: grayscale(0.3);
+  animation: emptyIconFloat 3s ease-in-out infinite;
+}
+
+@keyframes emptyIconFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+.empty-state-title {
+  font-family: var(--font-heading);
+  font-size: var(--text-heading-s);
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.empty-state-desc {
+  font-size: var(--text-body-s);
+  color: var(--text-secondary);
+  max-width: 320px;
+  line-height: 1.5;
+}
+
+.empty-state-action {
+  margin-top: var(--space-s);
+}
+
+/* ==================== ZERO RESULTS ==================== */
+.zero-results {
+  composes: empty-state;
+}
+
+.zero-results .empty-state-icon::after {
+  content: '';
+  display: block;
+  width: 80px;
+  height: 2px;
+  background: var(--border-subtle);
+  margin: var(--space-s) auto 0;
+  border-radius: var(--radius-pill);
+}
+
+/* ==================== LOCKED CONTENT OVERLAY ==================== */
+.locked-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-s);
+  background: rgba(5, 6, 10, 0.75);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-radius: inherit;
+  z-index: 5;
+  cursor: not-allowed;
+  transition: opacity 0.3s ease;
+}
+
+.locked-overlay .lock-icon {
+  font-size: 28px;
+  opacity: 0.7;
+  filter: drop-shadow(0 0 6px rgba(var(--accent-secondary-rgb), 0.3));
+}
+
+.locked-overlay .lock-label {
+  font-family: var(--font-mono);
+  font-size: var(--text-caption);
+  color: var(--text-secondary);
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+}
+
+.locked-overlay .lock-requirement {
+  font-size: var(--text-caption);
+  color: var(--accent-tertiary);
+  opacity: 0.8;
+}
+
+/* Hover effect on locked parent */
+.locked-overlay:hover {
+  background: rgba(5, 6, 10, 0.82);
+}
+
+.locked-overlay:hover .lock-icon {
+  opacity: 1;
+  transform: scale(1.05);
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+/* ==================== COMING SOON BADGE ==================== */
+.coming-soon-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  padding: 3px 10px;
+  border-radius: var(--radius-pill);
+  background: rgba(var(--accent-secondary-rgb), 0.1);
+  border: 1px solid rgba(var(--accent-secondary-rgb), 0.25);
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: var(--accent-secondary);
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  animation: comingSoonPulse 2s ease-in-out infinite;
+}
+
+@keyframes comingSoonPulse {
+  0%, 100% { opacity: 0.8; box-shadow: 0 0 8px rgba(var(--accent-secondary-rgb), 0.1); }
+  50% { opacity: 1; box-shadow: 0 0 16px rgba(var(--accent-secondary-rgb), 0.2); }
+}
+
+/* ==================== OFFLINE STATE ==================== */
+.offline-state {
+  position: fixed;
+  top: 12px;
+  right: 12px;
+  z-index: var(--z-toast);
+  display: flex;
+  align-items: center;
+  gap: var(--space-s);
+  padding: var(--space-s) var(--space-m);
+  border-radius: var(--radius-m);
+  background: var(--surface-elevated);
+  border: 1px solid rgba(var(--danger-rgb), 0.3);
+  box-shadow: var(--shadow-md);
+  font-family: var(--font-mono);
+  font-size: var(--text-caption);
+  color: var(--danger);
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  opacity: 0;
+  transform: translateY(-10px);
+  transition: opacity 0.3s ease, transform 0.3s var(--ease-out-expo);
+  pointer-events: none;
+}
+
+.offline-state.visible {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.offline-state .offline-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--danger);
+  animation: offlineBlink 1s ease-in-out infinite;
+}
+
+@keyframes offlineBlink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+/* ==================== NO SAVES STATE ==================== */
+.no-saves-state {
+  composes: empty-state;
+}
+
+.no-saves-state .save-icon-row {
+  display: flex;
+  gap: var(--space-s);
+  font-size: 32px;
+  opacity: 0.4;
+}
+
+/* ==================== RESPONSIVE ==================== */
+@media (max-width: 768px) {
+  .empty-state { padding: var(--space-xl) var(--space-m); min-height: 150px; }
+  .empty-state-icon { font-size: 36px; }
+  .empty-state-title { font-size: var(--text-body); }
+  .locked-overlay .lock-icon { font-size: 22px; }
+}
+
+@media (max-width: 480px) {
+  .empty-state { padding: var(--space-l) var(--space-m); }
+  .empty-state-icon { font-size: 28px; }
+}
+
+/* ==================== REDUCED MOTION ==================== */
+@media (prefers-reduced-motion: reduce) {
+  .skeleton { animation: none; background: var(--surface-glass-hover); }
+  .empty-state-icon { animation: none; }
+  .coming-soon-badge { animation: none; }
+  .offline-state .offline-dot { animation: none; }
+}
+
+/* ==================== HIGH CONTRAST ==================== */
+@media (forced-colors: active) or (-ms-high-contrast: active) {
+  .skeleton { background: CanvasText; opacity: 0.2; border: 1px solid CanvasText; }
+  .locked-overlay { background: GrayText; backdrop-filter: none; }
+  .coming-soon-badge { border: 2px solid ButtonText; background: ButtonFace; color: ButtonText; }
+  .offline-state { border: 2px solid CanvasText; background: ButtonFace; backdrop-filter: none; }
+  .offline-state .offline-dot { background: CanvasText; }
+}
+
+/* ==================== DARK MODE ==================== */
+.empty-state, .locked-overlay, .coming-soon-badge, .offline-state, .no-saves-state {
+  color-scheme: dark;
+}

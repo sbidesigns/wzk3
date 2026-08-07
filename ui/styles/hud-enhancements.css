@@ -1,0 +1,325 @@
+/* ui/styles/hud-enhancements.css — Additional HUD micro-interactions, polish, and empty states
+ * Features: Speed zone text effects, boost pips glow, position medal shimmer,
+ *          nitro recharge animation, rivals list enhancement, combo multiplier display
+ */
+
+/* ==================== SPEED ZONE TEXT EFFECTS ==================== */
+#hud-speed.speed-zone-low { color: var(--success); text-shadow: 0 0 20px rgba(var(--success-rgb), 0.5); }
+#hud-speed.speed-zone-mid { color: var(--accent-tertiary); text-shadow: 0 0 20px rgba(var(--accent-tertiary-rgb), 0.5), 0 0 40px rgba(var(--accent-tertiary-rgb), 0.2); }
+#hud-speed.speed-zone-high { color: var(--accent-primary); text-shadow: 0 0 20px rgba(var(--accent-primary-rgb), 0.6), 0 0 40px rgba(var(--accent-primary-rgb), 0.3); }
+#hud-speed.speed-zone-critical { color: #ff1744; text-shadow: 0 0 20px rgba(255,23,68,0.7), 0 0 40px rgba(255,23,68,0.4); animation: criticalSpeedText 0.3s ease-in-out infinite alternate; }
+
+@keyframes criticalSpeedText {
+  0% { transform: scale(1); filter: brightness(1); }
+  100% { transform: scale(1.02); filter: brightness(1.15); }
+}
+
+/* ==================== BOOST PIPS ENHANCED ==================== */
+.boost-pip {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s var(--ease-out-expo);
+}
+
+.boost-pip::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+  transform: translateX(-100%);
+  transition: none;
+}
+
+.boost-pip.filled::before {
+  animation: pipShimmer 2s ease-in-out infinite;
+}
+
+@keyframes pipShimmer {
+  0% { transform: translateX(-100%); }
+  50% { transform: translateX(100%); }
+  100% { transform: translateX(100%); }
+}
+
+.boost-pip.filled {
+  background: linear-gradient(90deg, #00e5ff, #00ff88) !important;
+  border-color: rgba(0,229,255,0.4) !important;
+  box-shadow: 0 0 8px rgba(0,229,255,0.4), 0 0 16px rgba(0,229,255,0.15);
+}
+
+.boost-pip.recharging {
+  animation: pipRecharge 0.6s var(--ease-out-expo);
+}
+
+@keyframes pipRecharge {
+  0% { transform: scaleY(0.5); opacity: 0.5; }
+  60% { transform: scaleY(1.15); }
+  100% { transform: scaleY(1); opacity: 1; }
+}
+
+/* ==================== POSITION MEDAL SHIMMER ==================== */
+#hud-pos-num {
+  position: relative;
+  display: inline-block;
+}
+
+#hud-pos-num.position-1st {
+  background: linear-gradient(135deg, #ffd700, #ffaa00, #ffd700);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 0 8px rgba(255,215,0,0.5));
+  animation: medalShimmer 2s linear infinite;
+  background-size: 200% 100%;
+}
+
+@keyframes medalShimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+#hud-pos-num.position-2nd {
+  color: #c0c0c0;
+  text-shadow: 0 0 8px rgba(192,192,192,0.4);
+}
+
+#hud-pos-num.position-3rd {
+  color: #cd7f32;
+  text-shadow: 0 0 8px rgba(205,127,50,0.4);
+}
+
+/* ==================== LAP PANEL ENHANCED ==================== */
+#hud-lap-panel {
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+#hud-lap-panel.lap-final {
+  border-color: rgba(var(--accent-tertiary-rgb), 0.4) !important;
+  box-shadow: 0 0 12px rgba(var(--accent-tertiary-rgb), 0.15);
+}
+
+#hud-lap-panel.lap-complete {
+  animation: lapPanelPulse 0.6s ease-out;
+}
+
+@keyframes lapPanelPulse {
+  0% { transform: scale(1); }
+  30% { transform: scale(1.08); border-color: rgba(var(--accent-secondary-rgb), 0.6); }
+  100% { transform: scale(1); }
+}
+
+/* ==================== TIMER PANEL ==================== */
+#hud-time-panel {
+  transition: opacity 0.3s ease;
+}
+
+#hud-time-panel.timer-hidden {
+  opacity: 0.3;
+}
+
+#hud-best-lap {
+  transition: color 0.3s ease, text-shadow 0.3s ease;
+}
+
+#hud-best-lap.new-record {
+  color: #ffd700 !important;
+  text-shadow: 0 0 8px rgba(255,215,0,0.5);
+  animation: newRecordBounce 0.5s var(--ease-back-out);
+}
+
+@keyframes newRecordBounce {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.2); }
+  100% { transform: scale(1); }
+}
+
+/* ==================== DRIFT POPUP ENHANCED ==================== */
+#hud-drift-popup {
+  transition: opacity 0.3s ease, transform 0.3s var(--ease-back-out);
+}
+
+#hud-drift-popup.drift-active {
+  opacity: 1 !important;
+  transform: translateY(-50%) scale(1.05) !important;
+}
+
+#hud-drift-popup.drift-scoring {
+  animation: driftScorePulse 0.15s ease-in-out infinite alternate;
+}
+
+@keyframes driftScorePulse {
+  0% { filter: brightness(1); }
+  100% { filter: brightness(1.3); }
+}
+
+/* ==================== PROGRESS BAR ENHANCED ==================== */
+#hud-progress-fill {
+  position: relative;
+  transition: width 0.5s var(--ease-out-expo);
+}
+
+#hud-progress-fill::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: -1px;
+  width: 12px;
+  height: 6px;
+  background: #fff;
+  border-radius: 3px;
+  box-shadow: 0 0 8px rgba(var(--accent-secondary-rgb), 0.8);
+  opacity: 0.9;
+}
+
+/* ==================== ITEM FLASH ENHANCED ==================== */
+#hud-item-flash {
+  transition: opacity 0.15s ease;
+}
+
+#hud-item-flash.flash-boost { background: radial-gradient(circle at center, rgba(0,255,136,0.25), transparent 70%) !important; }
+#hud-item-flash.flash-shield { background: radial-gradient(circle at center, rgba(68,136,255,0.25), transparent 70%) !important; }
+#hud-item-flash.flash-missile { background: radial-gradient(circle at center, rgba(255,77,46,0.25), transparent 70%) !important; }
+#hud-item-flash.flash-speed { background: radial-gradient(circle at center, rgba(255,210,63,0.25), transparent 70%) !important; }
+
+/* ==================== RIVALS LIST ENHANCED ==================== */
+.hud-rivals-row {
+  transition: background 0.2s ease, transform 0.2s ease;
+  border-radius: var(--radius-xs);
+}
+
+.hud-rivals-row.position-gained {
+  background: rgba(var(--success-rgb), 0.08);
+}
+
+.hud-rivals-row.position-lost {
+  background: rgba(var(--danger-rgb), 0.08);
+}
+
+.hud-rivals-row.is-player {
+  border-left: 2px solid var(--accent-secondary);
+  padding-left: 6px;
+}
+
+/* ==================== COMBO MULTIPLIER DISPLAY ==================== */
+.hud-combo-display {
+  position: fixed;
+  bottom: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: calc(var(--z-hud) + 1);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  font-family: var(--font-display);
+  font-size: 20px;
+  letter-spacing: 4px;
+  text-align: center;
+}
+
+.hud-combo-display.active {
+  opacity: 1;
+}
+
+.hud-combo-display .combo-count {
+  color: var(--accent-secondary);
+  text-shadow: 0 0 16px rgba(var(--accent-secondary-rgb), 0.6);
+}
+
+.hud-combo-display .combo-label {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: var(--text-tertiary);
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  margin-top: -2px;
+}
+
+/* ==================== FINISH LINE OVERLAY ==================== */
+.hud-finish-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: calc(var(--z-hud) + 20);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+
+.hud-finish-overlay.active {
+  opacity: 1;
+}
+
+.hud-finish-overlay::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: -10%;
+  right: -10%;
+  height: 4px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.8), transparent);
+  box-shadow: 0 0 30px rgba(255,255,255,0.4), 0 0 60px rgba(var(--accent-secondary-rgb), 0.2);
+  animation: finishLineSweep 1.5s ease-in-out infinite alternate;
+}
+
+@keyframes finishLineSweep {
+  0% { transform: translateY(-20px) scaleX(0.8); opacity: 0.5; }
+  100% { transform: translateY(20px) scaleX(1.1); opacity: 1; }
+}
+
+/* ==================== RACE START OVERLAY ==================== */
+.hud-start-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: calc(var(--z-hud) + 15);
+  pointer-events: none;
+  background: radial-gradient(ellipse at center, rgba(0,229,255,0.15) 0%, transparent 60%);
+  opacity: 0;
+  animation: startOverlayFlash 1s ease-out forwards;
+}
+
+@keyframes startOverlayFlash {
+  0% { opacity: 1; transform: scale(0.9); }
+  30% { opacity: 0.8; transform: scale(1.02); }
+  100% { opacity: 0; transform: scale(1.1); }
+}
+
+/* ==================== RESPONSIVE ==================== */
+@media (max-width: 768px) {
+  #hud-speed { font-size: 48px !important; }
+  #hud-speed-gauge { width: 60px !important; height: 60px !important; }
+  .hud-combo-display { font-size: 16px; bottom: 70px; }
+}
+
+@media (max-width: 480px) {
+  #hud-speed { font-size: 40px !important; }
+  #hud-speed-gauge { display: none !important; }
+  .hud-combo-display { font-size: 14px; bottom: 60px; }
+}
+
+/* ==================== REDUCED MOTION ==================== */
+@media (prefers-reduced-motion: reduce) {
+  #hud-speed.speed-zone-critical { animation: none; }
+  .boost-pip.filled::before { animation: none; }
+  .boost-pip.recharging { animation: none; }
+  #hud-pos-num.position-1st { animation: none; }
+  #hud-lap-panel.lap-complete { animation: none; }
+  #hud-best-lap.new-record { animation: none; }
+  #hud-drift-popup.drift-scoring { animation: none; }
+  .hud-finish-overlay::before { animation: none; }
+  .hud-start-overlay { animation: none; opacity: 0; }
+}
+
+/* ==================== HIGH CONTRAST ==================== */
+@media (forced-colors: active) or (-ms-high-contrast: active) {
+  #hud-pos-num.position-1st { color: Yellow; filter: none; -webkit-text-fill-color: initial; background: none; }
+  .boost-pip.filled { border: 2px solid Highlight; background: Highlight !important; box-shadow: none; }
+  .hud-finish-overlay::before { background: CanvasText; box-shadow: none; }
+}
+
+/* ==================== DARK MODE ==================== */
+#hud-speed-panel, #hud-lap-panel, #hud-pos-panel, #hud-time-panel,
+#hud-boost-pips, #hud-progress-container, #hud-drift-popup,
+#hud-minimap-container, .hud-combo-display, .hud-finish-overlay,
+.hud-start-overlay, #hud-rivals-row {
+  color-scheme: dark;
+}

@@ -1,40 +1,54 @@
 /**
- * Output Shader - Standard Three.js output shader for tone mapping
+ * Output Shader - Three.js r160 compatible output shader for RawShaderMaterial
+ * Includes proper GLSL 300 es declarations (precision, uniforms, attributes)
  */
 
 const OutputShader = {
 
-        name: 'OutputShader',
+	name: 'OutputShader',
 
-        uniforms: {
+	uniforms: {
 
-                'tDiffuse': { value: null },
-                'toneMappingExposure': { value: 1.0 }
+		'tDiffuse': { value: null },
+		'toneMappingExposure': { value: 1.0 }
 
-        },
+	},
 
-        vertexShader: /* glsl */`
+	vertexShader: /* glsl */`
 
-                varying vec2 vUv;
+		precision highp float;
 
-                void main() {
+		uniform mat4 modelViewMatrix;
+		uniform mat4 projectionMatrix;
 
-                        vUv = uv;
-                        gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
+		in vec3 position;
+		in vec2 uv;
 
-                }`,
+		out vec2 vUv;
 
-        fragmentShader: /* glsl */`
+		void main() {
 
-                uniform sampler2D tDiffuse;
+			vUv = uv;
+			gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
 
-                varying vec2 vUv;
+		}`,
 
-                void main() {
+	fragmentShader: /* glsl */`
 
-                        gl_FragColor = texture2D( tDiffuse, vUv );
+		precision highp float;
 
-                }`
+		uniform sampler2D tDiffuse;
+		uniform float toneMappingExposure;
+
+		in vec2 vUv;
+
+		out vec4 fragColor;
+
+		void main() {
+
+			fragColor = vec4( texture( tDiffuse, vUv ).rgb, 1.0 );
+
+		}`
 
 };
 

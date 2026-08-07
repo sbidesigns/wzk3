@@ -719,9 +719,10 @@ export class RaceScene {
     s += '<div id="hud-progress-fill" style="width:0%;height:100%;background:linear-gradient(90deg,#00e5ff,#00ff88);border-radius:2px;transition:width 0.5s ease;"></div></div>';
     s += '<div id="hud-progress-text" style="font-family:JetBrains Mono,monospace;font-size:10px;color:rgba(255,255,255,0.35);text-align:center;margin-top:4px;">0%</div></div>';
     // Minimap
-    s += '<div id="hud-minimap-container" style="position:fixed;bottom:24px;right:24px;z-index:100;background:rgba(10,12,20,0.75);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:8px;overflow:hidden;">';
-    s += '<canvas id="hud-minimap-canvas" width="140" height="140" style="display:block;border-radius:8px;"></canvas></div>';
-    // Drift popup
+    s += '<div id="hud-minimap-container" class="minimap-wrapper" style="position:fixed;bottom:24px;right:24px;z-index:100;background:rgba(10,12,20,0.75);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid rgba(0,229,255,0.25);border-radius:12px;padding:8px;overflow:hidden;">';
+    s += '<div class="minimap-radar-sweep"></div>';
+    s += '<span class="minimap-label">RADAR</span>';
+    s += '<canvas id="hud-minimap-canvas" width="140" height="140" style="display:block;border-radius:8px;"></canvas></div>';    // Drift popup
     s += '<div id="hud-drift-popup" style="position:fixed;right:24px;top:50%;transform:translateY(-50%);z-index:100;text-align:right;pointer-events:none;opacity:0;transition:opacity 0.3s;">';
     s += '<div id="hud-drift-score" style="font-family:Bebas Neue,sans-serif;font-size:48px;color:#ffd23f;text-shadow:0 0 20px rgba(255,210,63,0.6);">0</div>';
     s += '<div style="font-family:Inter,sans-serif;font-size:12px;color:rgba(255,210,63,0.6);letter-spacing:3px;">DRIFT SCORE</div></div>';
