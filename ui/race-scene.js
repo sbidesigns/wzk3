@@ -99,10 +99,13 @@ export class RaceScene {
     this._positionArrowTimer = 0;
     // === Boost Chain Bonus ===
     this._boostChainCount = 0;
+    this._bestBoostChain = 0;
     this._boostChainTimer = 0;
     this._boostChainWindow = 8; // seconds to chain next boost
     // === Race Stats Tracker ===
-    this._raceStats = { topSpeed: 0, totalDriftTime: 0, isDrifting: false, driftStartTime: 0, boostsUsed: 0, itemsCollected: 0, nearMisses: 0, distanceTraveled: 0 };
+    this._raceStats = { topSpeed: 0, totalDriftTime: 0, isDrifting: false, driftStartTime: 0, boostsUsed: 0, itemsCollected: 0, nearMisses: 0, distanceTraveled: 0, speedHistory: [] };
+    this._speedHistoryInterval = 0.5; // Record speed every 0.5s
+    this._speedHistoryTimer = 0;
   }
 
   _setupInputListeners() {
@@ -960,11 +963,13 @@ export class RaceScene {
       // === Cycle 47: Boost Chain Bonus ===
       if (this._boostChainTimer > 0) {
         this._boostChainCount++;
+        if (this._boostChainCount > this._bestBoostChain) this._bestBoostChain = this._boostChainCount;
         var chainBonus = this._boostChainCount * 500;
         this._showChainPopup(this._boostChainCount, chainBonus);
         this._driftScore += chainBonus; // Add chain bonus to score
       } else {
         this._boostChainCount = 1;
+        if (this._bestBoostChain < 1) this._bestBoostChain = 1;
       }
       this._boostChainTimer = this._boostChainWindow;
       if (window.__engine && window.__engine.bus) window.__engine.bus.emit('player:boostStart', { charges: this._boostCharges });
@@ -984,6 +989,16 @@ export class RaceScene {
   _updateRaceStats(dt) {
     if (this._state.speed > this._raceStats.topSpeed) this._raceStats.topSpeed = this._state.speed;
     if (this._vehicle) this._raceStats.distanceTraveled += this._state.speed * dt * 0.5;
+    // Speed history recording (every 0.5s)
+    this._speedHistoryTimer += dt;
+    if (this._speedHistoryTimer >= this._speedHistoryInterval) {
+      this._speedHistoryTimer = 0;
+      this._raceStats.speedHistory.push(this._state.speed);
+      // Keep last 200 samples (100 seconds of data)
+      if (this._raceStats.speedHistory.length > 200) {
+        this._raceStats.speedHistory.shift();
+      }
+    }
     // Boost chain timer
     if (this._boostChainTimer > 0) {
       this._boostChainTimer -= dt;

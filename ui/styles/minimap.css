@@ -9,11 +9,18 @@
   border-radius: var(--radius-l);
   overflow: hidden;
   
-  /* Outer glow effect */
+  /* Multi-layered neon glow border */
   box-shadow:
-    0 0 0 1px rgba(0, 229, 255, 0.2),
+    0 0 0 1px rgba(0, 229, 255, 0.25),
+    0 0 0 3px rgba(0, 229, 255, 0.06),
     0 4px 20px rgba(0, 0, 0, 0.5),
-    0 0 40px -10px rgba(0, 229, 255, 0.15);
+    0 0 40px -10px rgba(0, 229, 255, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  
+  /* Glassmorphism background */
+  background: var(--surface-card);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   
   /* Visibility transition */
   opacity: 1;
@@ -30,13 +37,43 @@
   pointer-events: none;
 }
 
+/* Animated neon border glow */
+.minimap-wrapper::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  background: conic-gradient(
+    from var(--minimap-border-angle, 0deg),
+    transparent 0%,
+    rgba(0, 229, 255, 0.4) 10%,
+    transparent 20%,
+    transparent 80%,
+    rgba(var(--accent-primary-rgb), 0.3) 90%,
+    transparent 100%
+  );
+  z-index: -1;
+  animation: minimapBorderSpin 4s linear infinite;
+  opacity: 0.6;
+}
+
+@keyframes minimapBorderSpin {
+  to { --minimap-border-angle: 360deg; }
+}
+
 /* Hover effect for desktop */
 @media (hover: hover) and (pointer: fine) {
   .minimap-wrapper:hover {
     box-shadow:
-      0 0 0 1px rgba(0, 229, 255, 0.4),
+      0 0 0 1px rgba(0, 229, 255, 0.5),
+      0 0 0 4px rgba(0, 229, 255, 0.1),
       0 6px 30px rgba(0, 0, 0, 0.6),
-      0 0 50px -5px rgba(0, 229, 255, 0.25);
+      0 0 50px -5px rgba(0, 229, 255, 0.25),
+      inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    transform: scale(1.02);
+  }
+  .minimap-wrapper:hover::before {
+    opacity: 1;
   }
 }
 
@@ -254,10 +291,63 @@
   left: 4px;
 }
 
+/* ==================== RADAR SWEEP OVERLAY ==================== */
+.minimap-radar-sweep {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 2;
+  overflow: hidden;
+}
+
+.minimap-radar-sweep::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 70%;
+  height: 70%;
+  margin-top: -35%;
+  margin-left: -35%;
+  border-radius: 50%;
+  background: conic-gradient(
+    from 0deg,
+    transparent 0deg,
+    rgba(0, 229, 255, 0.12) 30deg,
+    rgba(0, 229, 255, 0.04) 60deg,
+    transparent 90deg
+  );
+  animation: radarSweep 3s linear infinite;
+}
+
+@keyframes radarSweep {
+  to { transform: rotate(360deg); }
+}
+
+/* Proximity alert — pulsing red border when enemy is near */
+.minimap-wrapper.proximity-alert {
+  animation: proximityPulse 0.8s ease-in-out infinite alternate;
+}
+
+@keyframes proximityPulse {
+  0% {
+    box-shadow:
+      0 0 0 1px rgba(255, 77, 46, 0.4),
+      0 0 20px rgba(255, 77, 46, 0.2),
+      0 4px 20px rgba(0, 0, 0, 0.5);
+  }
+  100% {
+    box-shadow:
+      0 0 0 2px rgba(255, 77, 46, 0.7),
+      0 0 35px rgba(255, 77, 46, 0.35),
+      0 4px 20px rgba(0, 0, 0, 0.5);
+  }
+}
+
 /* ==================== TOUCH FEEDBACK ==================== */
 @media (hover: none) and (pointer: coarse) {
   .minimap-wrapper {
-    /* Larger touch target area */
     padding: 8px;
     margin: -8px;
   }
@@ -268,8 +358,31 @@
   }
   
   .zoom-btn {
-    min-height: 44px; /* iOS touch target minimum */
+    min-height: 44px;
     min-width: 44px;
+  }
+}
+
+/* ==================== RESPONSIVE SIZING ==================== */
+@media (max-width: 1024px) {
+  .minimap-wrapper {
+    border-radius: var(--radius-m);
+  }
+  .minimap-label {
+    font-size: 8px;
+    padding: 2px 6px;
+  }
+}
+
+@media (max-width: 768px) {
+  .minimap-wrapper {
+    border-radius: var(--radius-m);
+  }
+  .minimap-radar-sweep::after {
+    width: 60%;
+    height: 60%;
+    margin-top: -30%;
+    margin-left: -30%;
   }
 }
 
@@ -280,7 +393,10 @@
   .minimap-wrapper {
     border: 2px solid CanvasText;
     box-shadow: none;
+    backdrop-filter: none;
   }
+  
+  .minimap-radar-sweep { display: none; }
   
   .zoom-btn {
     border: 2px solid ButtonText;
@@ -291,7 +407,7 @@
 
 /* Focus visible for keyboard navigation */
 .minimap-canvas:focus-visible {
-  outline: 2px solid var(--accent-secondary);
+  outline: var(--focus-ring);
   outline-offset: 2px;
   border-radius: var(--radius-l);
 }
@@ -316,8 +432,35 @@
   }
 }
 
+/* ==================== REDUCED MOTION ==================== */
+@media (prefers-reduced-motion: reduce) {
+  .minimap-wrapper::before {
+    animation: none;
+    opacity: 0.3;
+  }
+  .minimap-wrapper::after {
+    animation: none;
+    opacity: 0.3;
+    transform: scale(1);
+  }
+  .minimap-radar-sweep::after {
+    animation: none;
+  }
+  .minimap-wrapper.proximity-alert {
+    animation: none;
+    box-shadow: 0 0 0 2px rgba(255, 77, 46, 0.7);
+  }
+  .minimap-loading-spinner {
+    animation-duration: 2s;
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .minimap-wrapper:hover {
+      transform: none;
+    }
+  }
+}
+
 /* ==================== DARK MODE ENFORCEMENT ==================== */
-/* Since game UI should always be dark regardless of system theme */
 .minimap-wrapper,
 .minimap-canvas,
 .zoom-btn,

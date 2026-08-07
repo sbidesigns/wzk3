@@ -1,0 +1,298 @@
+/* ui/styles/race-telemetry.css — In-pause race statistics & telemetry panel
+ * Features: Mini bar charts, stat cards, speed graph, session summary
+ * Used in the pause menu STATISTICS tab
+ */
+
+/* ==================== TELEMETRY PANEL ==================== */
+.telemetry-panel {
+  padding: var(--space-m);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-m);
+  max-height: 50vh;
+  overflow-y: auto;
+}
+
+/* ==================== STAT CARDS GRID ==================== */
+.telemetry-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-s);
+}
+
+.telemetry-stat-card {
+  background: var(--surface-glass);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-m);
+  padding: var(--space-s) var(--space-m);
+  text-align: center;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.telemetry-stat-card:hover {
+  border-color: rgba(var(--accent-secondary-rgb), 0.3);
+  box-shadow: 0 0 12px rgba(var(--accent-secondary-rgb), 0.08);
+}
+
+.telemetry-stat-label {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: var(--text-caption);
+  color: var(--text-tertiary);
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.telemetry-stat-value {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 22px;
+  color: var(--text-primary);
+  line-height: 1.1;
+}
+
+.telemetry-stat-value.accent-cyan { color: var(--accent-secondary); }
+.telemetry-stat-value.accent-red { color: var(--accent-primary); }
+.telemetry-stat-value.accent-gold { color: var(--accent-tertiary); }
+.telemetry-stat-value.success { color: var(--success); }
+
+.telemetry-stat-unit {
+  font-family: var(--font-mono);
+  font-size: var(--text-caption);
+  color: var(--text-tertiary);
+  margin-left: 2px;
+}
+
+/* ==================== MINI SPEED GRAPH ==================== */
+.telemetry-speed-graph {
+  background: var(--surface-glass);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-m);
+  padding: var(--space-m);
+  position: relative;
+}
+
+.telemetry-speed-graph .graph-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-s);
+}
+
+.telemetry-speed-graph .graph-title {
+  font-family: var(--font-mono);
+  font-size: var(--text-caption);
+  color: var(--text-tertiary);
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+}
+
+.telemetry-speed-graph .graph-peak {
+  font-family: var(--font-display);
+  font-size: 16px;
+  color: var(--accent-primary);
+}
+
+.telemetry-bar-chart {
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 60px;
+  padding-top: 4px;
+}
+
+.telemetry-bar {
+  flex: 1;
+  min-width: 3px;
+  border-radius: 2px 2px 0 0;
+  background: var(--accent-secondary);
+  opacity: 0.7;
+  transition: height 0.3s var(--ease-out-expo), background 0.3s ease;
+  position: relative;
+}
+
+.telemetry-bar.peak {
+  background: var(--accent-primary);
+  opacity: 1;
+}
+
+.telemetry-bar.average {
+  background: var(--accent-tertiary);
+  opacity: 0.8;
+}
+
+.telemetry-bar.boost {
+  background: var(--success);
+  opacity: 0.9;
+}
+
+/* Bar glow on hover */
+.telemetry-bar:hover {
+  opacity: 1;
+  box-shadow: 0 0 6px rgba(var(--accent-secondary-rgb), 0.4);
+}
+
+/* ==================== DRIFT & COMBO STATS ==================== */
+.telemetry-drift-section {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-s);
+}
+
+.telemetry-drift-card {
+  background: var(--surface-glass);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-m);
+  padding: var(--space-m);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.telemetry-drift-card .drift-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.telemetry-drift-card .drift-title {
+  font-family: var(--font-mono);
+  font-size: var(--text-caption);
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wide);
+}
+
+.telemetry-drift-card .drift-value {
+  font-family: var(--font-display);
+  font-size: 28px;
+  color: var(--accent-tertiary);
+  line-height: 1;
+}
+
+.telemetry-drift-card .drift-sub {
+  font-size: var(--text-caption);
+  color: var(--text-secondary);
+}
+
+/* Drift progress bar */
+.telemetry-drift-bar {
+  width: 100%;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: var(--radius-pill);
+  overflow: hidden;
+  margin-top: var(--space-xs);
+}
+
+.telemetry-drift-bar .fill {
+  height: 100%;
+  border-radius: var(--radius-pill);
+  background: linear-gradient(90deg, var(--accent-tertiary), var(--accent-primary));
+  transition: width 0.5s var(--ease-out-expo);
+  box-shadow: 0 0 8px rgba(var(--accent-tertiary-rgb), 0.4);
+}
+
+/* ==================== RACE SUMMARY TABLE ==================== */
+.telemetry-summary-table {
+ width: 100%;
+  border-collapse: collapse;
+  font-size: var(--text-body-s);
+}
+
+.telemetry-summary-table tr {
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.telemetry-summary-table tr:last-child {
+  border-bottom: none;
+}
+
+.telemetry-summary-table td {
+  padding: var(--space-s) var(--space-m);
+}
+
+.telemetry-summary-table td:first-child {
+  color: var(--text-tertiary);
+  font-family: var(--font-mono);
+  font-size: var(--text-caption);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wide);
+  width: 40%;
+}
+
+.telemetry-summary-table td:last-child {
+  text-align: right;
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+  font-weight: 600;
+}
+
+/* Highlight best values */
+.telemetry-summary-table tr.best td:last-child {
+  color: var(--success);
+  text-shadow: 0 0 8px rgba(var(--success-rgb), 0.4);
+}
+
+/* ==================== ENHANCED PAUSE TAB BUTTON ==================== */
+.pause-menu-btn.telemetry-btn {
+  border-left: 3px solid rgba(var(--accent-tertiary-rgb), 0.5);
+}
+
+.pause-menu-btn.telemetry-btn:hover {
+  border-left-color: var(--accent-tertiary);
+  background: rgba(var(--accent-tertiary-rgb), 0.06);
+}
+
+/* ==================== RESPONSIVE ==================== */
+@media (max-width: 768px) {
+  .telemetry-stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .telemetry-drift-section {
+    grid-template-columns: 1fr;
+  }
+  .telemetry-stat-value {
+    font-size: 18px;
+  }
+  .telemetry-drift-card .drift-value {
+    font-size: 22px;
+  }
+}
+
+@media (max-width: 480px) {
+  .telemetry-stats-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-xs);
+  }
+  .telemetry-stat-card {
+    padding: var(--space-xs) var(--space-s);
+  }
+  .telemetry-bar-chart {
+    height: 40px;
+  }
+}
+
+/* ==================== REDUCED MOTION ==================== */
+@media (prefers-reduced-motion: reduce) {
+  .telemetry-bar { transition: none; }
+  .telemetry-drift-bar .fill { transition: none; }
+  .telemetry-stat-card { transition: none; }
+}
+
+/* ==================== HIGH CONTRAST ==================== */
+@media (forced-colors: active) or (-ms-high-contrast: active) {
+  .telemetry-stat-card, .telemetry-speed-graph, .telemetry-drift-card {
+    border: 2px solid CanvasText;
+    background: ButtonFace;
+  }
+  .telemetry-bar { border: 1px solid CanvasText; }
+  .telemetry-drift-bar .fill { background: Highlight; box-shadow: none; }
+  .telemetry-stat-card:hover, .telemetry-bar:hover { box-shadow: none; }
+}
+
+/* ==================== DARK MODE ==================== */
+.telemetry-panel, .telemetry-stat-card, .telemetry-speed-graph, .telemetry-drift-card {
+  color-scheme: dark;
+}

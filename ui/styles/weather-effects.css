@@ -1,0 +1,320 @@
+/* ui/styles/weather-effects.css — In-race weather visual overlays
+ * Features: Rain drops, sand particles, fog layers, snow flakes
+ * Applied as overlay elements on the race canvas
+ */
+
+/* ==================== WEATHER OVERLAY BASE ==================== */
+.weather-overlay {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: calc(var(--z-hud) - 5);
+  opacity: 0;
+  transition: opacity 1.5s ease;
+}
+
+.weather-overlay.active {
+  opacity: 1;
+}
+
+/* ==================== RAIN EFFECT ==================== */
+.weather-rain .raindrop {
+  position: absolute;
+  top: -20px;
+  width: 1px;
+  background: linear-gradient(to bottom, transparent, rgba(174, 194, 224, 0.4));
+  border-radius: 0 0 1px 1px;
+  animation: rainFall linear infinite;
+}
+
+@keyframes rainFall {
+  0% { transform: translateY(0) translateX(0); opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { transform: translateY(105vh) translateX(-30px); opacity: 0; }
+}
+
+/* Rain splash on screen bottom */
+.weather-rain::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 80px;
+  background: linear-gradient(to top, rgba(174, 194, 224, 0.06), transparent);
+  pointer-events: none;
+}
+
+/* Heavy rain variant */
+.weather-rain.heavy .raindrop {
+  width: 2px;
+  background: linear-gradient(to bottom, transparent, rgba(174, 194, 224, 0.5));
+}
+
+.weather-rain.heavy::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 50% 30%, rgba(100, 120, 160, 0.08), transparent 70%);
+  animation: heavyRainFlicker 0.1s ease-in-out infinite alternate;
+}
+
+@keyframes heavyRainFlicker {
+  0% { opacity: 0.8; }
+  100% { opacity: 1; }
+}
+
+/* ==================== SAND / DUST EFFECT ==================== */
+.weather-sand .sand-particle {
+  position: absolute;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(210, 180, 140, 0.5), rgba(210, 180, 140, 0.1));
+  animation: sandDrift linear infinite;
+}
+
+@keyframes sandDrift {
+  0% { transform: translate(100vw, 0) rotate(0deg); opacity: 0; }
+  10% { opacity: 0.8; }
+  90% { opacity: 0.6; }
+  100% { transform: translate(-20vw, 30vh) rotate(360deg); opacity: 0; }
+}
+
+/* Sand haze overlay */
+.weather-sand::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(210, 180, 140, 0.08), rgba(180, 150, 100, 0.04));
+  animation: sandHazeShift 8s ease-in-out infinite alternate;
+}
+
+@keyframes sandHazeShift {
+  0% { background: linear-gradient(135deg, rgba(210, 180, 140, 0.08), rgba(180, 150, 100, 0.04)); }
+  100% { background: linear-gradient(225deg, rgba(210, 180, 140, 0.1), rgba(180, 150, 100, 0.06)); }
+}
+
+/* Sandstorm heavy variant */
+.weather-sand.storm::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(210, 180, 140, 0.12);
+  animation: sandstormPulse 2s ease-in-out infinite alternate;
+}
+
+@keyframes sandstormPulse {
+  0% { opacity: 0.6; }
+  100% { opacity: 1; }
+}
+
+/* ==================== FOG EFFECT ==================== */
+.weather-fog .fog-layer {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 50% 50%, rgba(180, 190, 210, 0.12), rgba(100, 110, 130, 0.06));
+}
+
+.weather-fog .fog-layer:nth-child(1) {
+  animation: fogDrift1 20s ease-in-out infinite alternate;
+}
+
+.weather-fog .fog-layer:nth-child(2) {
+  animation: fogDrift2 25s ease-in-out infinite alternate;
+  background: radial-gradient(ellipse at 30% 60%, rgba(160, 170, 190, 0.1), transparent 60%);
+}
+
+.weather-fog .fog-layer:nth-child(3) {
+  animation: fogDrift3 18s ease-in-out infinite alternate;
+  background: radial-gradient(ellipse at 70% 40%, rgba(170, 180, 200, 0.08), transparent 50%);
+}
+
+@keyframes fogDrift1 {
+  0% { transform: translateX(-5%) scale(1); opacity: 0.8; }
+  100% { transform: translateX(5%) scale(1.1); opacity: 1; }
+}
+
+@keyframes fogDrift2 {
+  0% { transform: translateX(3%) translateY(2%); opacity: 0.6; }
+  100% { transform: translateX(-4%) translateY(-3%); opacity: 0.9; }
+}
+
+@keyframes fogDrift3 {
+  0% { transform: translateX(-2%) translateY(-1%); opacity: 0.7; }
+  100% { transform: translateX(6%) translateY(2%); opacity: 0.5; }
+}
+
+/* Dense fog */
+.weather-fog.dense::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 50% 50%, rgba(150, 160, 180, 0.18), rgba(80, 90, 110, 0.1) 60%, transparent);
+}
+
+/* ==================== SNOW EFFECT ==================== */
+.weather-snow .snowflake {
+  position: absolute;
+  top: -10px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.8);
+  box-shadow: 0 0 4px rgba(255, 255, 255, 0.3);
+  animation: snowFall linear infinite;
+}
+
+@keyframes snowFall {
+  0% { transform: translateY(0) translateX(0) rotate(0deg); opacity: 0; }
+  5% { opacity: 1; }
+  95% { opacity: 0.8; }
+  100% { transform: translateY(105vh) translateX(var(--snow-drift, 20px)) rotate(360deg); opacity: 0; }
+}
+
+/* Snow ground accumulation at bottom */
+.weather-snow::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 40px;
+  background: linear-gradient(to top, rgba(255, 255, 255, 0.04), transparent);
+}
+
+/* Blizzard variant */
+.weather-snow.blizzard::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 50% 40%, rgba(200, 210, 230, 0.12), transparent 70%);
+  animation: blizzardSweep 3s ease-in-out infinite alternate;
+}
+
+@keyframes blizzardSweep {
+  0% { transform: translateX(-3%) skewX(-2deg); }
+  100% { transform: translateX(3%) skewX(2deg); }
+}
+
+/* ==================== WIND STREAKS (shared) ==================== */
+.wind-streak {
+  position: absolute;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
+  animation: windStreakMove linear infinite;
+  pointer-events: none;
+}
+
+@keyframes windStreakMove {
+  0% { transform: translateX(-100%); opacity: 0; }
+  20% { opacity: 1; }
+  80% { opacity: 1; }
+  100% { transform: translateX(100vw); opacity: 0; }
+}
+
+/* ==================== WEATHER HUD INDICATOR ==================== */
+.weather-hud-indicator {
+ position: fixed;
+ top: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: calc(var(--z-hud) + 1);
+  display: flex;
+  align-items: center;
+  gap: var(--space-s);
+  padding: 4px 14px;
+  border-radius: var(--radius-pill);
+  background: var(--surface-card);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  font-family: var(--font-mono);
+  font-size: var(--text-caption);
+  color: var(--text-secondary);
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+  pointer-events: none;
+}
+
+.weather-hud-indicator.visible {
+  opacity: 1;
+}
+
+.weather-hud-indicator .weather-icon {
+  font-size: 14px;
+}
+
+.weather-hud-indicator .weather-name {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+/* Weather change notification */
+.weather-change-toast {
+  position: fixed;
+  top: 50px;
+  left: 50%;
+  transform: translateX(-50%) translateY(-20px);
+  z-index: calc(var(--z-hud) + 2);
+  padding: var(--space-s) var(--space-l);
+  border-radius: var(--radius-m);
+  background: var(--surface-elevated);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(var(--accent-secondary-rgb), 0.3);
+  box-shadow: var(--shadow-neon-cyan);
+  font-family: var(--font-mono);
+  font-size: var(--text-body-s);
+  color: var(--accent-secondary);
+  opacity: 0;
+  animation: weatherToastIn 0.4s var(--ease-out-expo) forwards, weatherToastOut 0.4s ease 2.5s forwards;
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+@keyframes weatherToastIn {
+  0% { opacity: 0; transform: translateX(-50%) translateY(-20px) scale(0.95); }
+  100% { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
+}
+
+@keyframes weatherToastOut {
+  0% { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
+  100% { opacity: 0; transform: translateX(-50%) translateY(-10px) scale(0.98); }
+}
+
+/* ==================== RESPONSIVE ==================== */
+@media (max-width: 768px) {
+  .weather-hud-indicator {
+  top: 8px;
+  padding: 3px 10px;
+  font-size: 9px;
+  }
+}
+
+/* ==================== REDUCED MOTION ==================== */
+@media (prefers-reduced-motion: reduce) {
+  .weather-rain .raindrop { animation-duration: 0.01s !important; }
+  .weather-sand .sand-particle { animation-duration: 0.01s !important; }
+  .weather-fog .fog-layer { animation: none; }
+  .weather-snow .snowflake { animation-duration: 0.01s !important; }
+  .wind-streak { animation: none; }
+  .weather-rain.heavy::before { animation: none; }
+  .weather-sand.storm::after { animation: none; }
+  .weather-snow.blizzard::before { animation: none; }
+  .weather-change-toast { animation: none; opacity: 1; }
+}
+
+/* ==================== HIGH CONTRAST ==================== */
+@media (forced-colors: active) or (-ms-high-contrast: active) {
+  .weather-overlay { display: none; }
+  .weather-hud-indicator {
+    border: 2px solid CanvasText;
+    background: ButtonFace;
+    backdrop-filter: none;
+  }
+}
+
+/* ==================== DARK MODE ==================== */
+.weather-overlay, .weather-hud-indicator, .weather-change-toast {
+  color-scheme: dark;
+}

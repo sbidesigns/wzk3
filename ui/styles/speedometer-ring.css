@@ -1,0 +1,246 @@
+/* ui/styles/speedometer-ring.css — Circular speed gauge with animated arc
+ * Features: SVG-based arc, color transitions, critical speed glow, needle animation
+ * Integrates with the existing speed HUD element
+ */
+
+/* ==================== SPEEDOMETER CONTAINER ==================== */
+.hud-speed-group {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ==================== SVG ARC RING ==================== */
+.speedometer-ring {
+  position: absolute;
+  inset: -12px;
+  pointer-events: none;
+  z-index: -1;
+}
+
+.speedometer-ring svg {
+  width: 100%;
+  height: 100%;
+  transform: rotate(-135deg);
+}
+
+.speedometer-ring .track-bg {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.06);
+  stroke-width: 4;
+  stroke-linecap: round;
+}
+
+.speedometer-ring .track-fill {
+  fill: none;
+  stroke: var(--accent-secondary);
+  stroke-width: 4;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.15s ease-out, stroke 0.4s ease;
+  filter: drop-shadow(0 0 4px rgba(var(--accent-secondary-rgb), 0.5));
+}
+
+/* Speed zones — arc color changes with speed */
+.speedometer-ring.speed-low .track-fill {
+  stroke: var(--success);
+  filter: drop-shadow(0 0 4px rgba(var(--success-rgb), 0.5));
+}
+
+.speedometer-ring.speed-mid .track-fill {
+  stroke: var(--accent-tertiary);
+  filter: drop-shadow(0 0 6px rgba(var(--accent-tertiary-rgb), 0.6));
+}
+
+.speedometer-ring.speed-high .track-fill {
+  stroke: var(--accent-primary);
+  filter: drop-shadow(0 0 8px rgba(var(--accent-primary-rgb), 0.7));
+}
+
+.speedometer-ring.speed-critical .track-fill {
+  stroke: #ff1744;
+  filter: drop-shadow(0 0 12px rgba(255, 23, 68, 0.8));
+  animation: criticalArcPulse 0.5s ease-in-out infinite alternate;
+}
+
+@keyframes criticalArcPulse {
+  0% { stroke-width: 4; filter: drop-shadow(0 0 8px rgba(255, 23, 68, 0.6)); }
+  100% { stroke-width: 6; filter: drop-shadow(0 0 16px rgba(255, 23, 68, 0.9)); }
+}
+
+/* ==================== NEEDLE ==================== */
+.speedometer-needle {
+  position: absolute;
+  bottom: 50%;
+  left: 50%;
+  width: 2px;
+  height: 40%;
+  margin-left: -1px;
+  transform-origin: bottom center;
+  transform: rotate(-135deg);
+  transition: transform 0.15s ease-out;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.speedometer-needle::before {
+  content: '';
+  display: block;
+  width: 2px;
+  height: 100%;
+  background: linear-gradient(to top, var(--accent-secondary), rgba(var(--accent-secondary-rgb), 0.3));
+  border-radius: 1px;
+  box-shadow: 0 0 6px rgba(var(--accent-secondary-rgb), 0.6);
+}
+
+.speedometer-needle::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 50%;
+  width: 8px;
+  height: 8px;
+  margin-left: -4px;
+  border-radius: 50%;
+  background: var(--accent-secondary);
+  box-shadow: 0 0 8px rgba(var(--accent-secondary-rgb), 0.8);
+}
+
+/* Critical needle glow */
+.speedometer-ring.speed-critical ~ .speedometer-needle::before {
+  background: linear-gradient(to top, #ff1744, rgba(255, 23, 68, 0.4));
+  box-shadow: 0 0 10px rgba(255, 23, 68, 0.8);
+}
+
+.speedometer-ring.speed-critical ~ .speedometer-needle::after {
+  background: #ff1744;
+  box-shadow: 0 0 12px rgba(255, 23, 68, 0.9);
+}
+
+/* ==================== TICK MARKS ==================== */
+.speedometer-ticks {
+  position: absolute;
+  inset: -18px;
+  pointer-events: none;
+}
+
+.speedometer-tick {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 1px;
+  height: 6px;
+  margin-top: -3px;
+  transform-origin: center -40px;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 1px;
+}
+
+.speedometer-tick.major {
+  height: 10px;
+  margin-top: -5px;
+  background: rgba(255, 255, 255, 0.35);
+  width: 2px;
+  margin-left: -1px;
+}
+
+.speedometer-tick-label {
+  position: absolute;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: var(--text-tertiary);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+/* ==================== GEAR INDICATOR ==================== */
+.speedometer-gear {
+  position: absolute;
+  bottom: -24px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: var(--font-display);
+  font-size: 14px;
+  color: var(--accent-secondary);
+  text-shadow: 0 0 8px rgba(var(--accent-secondary-rgb), 0.5);
+  letter-spacing: 0.05em;
+  transition: color 0.2s, text-shadow 0.2s;
+}
+
+.speedometer-gear.shift-flash {
+  animation: gearShiftFlash 0.3s ease-out;
+}
+
+@keyframes gearShiftFlash {
+  0% { transform: translateX(-50%) scale(1.3); color: #fff; }
+  100% { transform: translateX(-50%) scale(1); }
+}
+
+/* ==================== SPEED ZONE LABEL ==================== */
+.speedometer-zone-label {
+  position: absolute;
+  top: -20px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  opacity: 0;
+  transition: opacity 0.3s ease, color 0.3s ease;
+}
+
+.speedometer-zone-label.visible {
+  opacity: 1;
+}
+
+.speedometer-zone-label.zone-low { color: var(--success); }
+.speedometer-zone-label.zone-mid { color: var(--accent-tertiary); }
+.speedometer-zone-label.zone-high { color: var(--accent-primary); }
+.speedometer-zone-label.zone-critical { color: #ff1744; animation: criticalLabelPulse 0.4s ease-in-out infinite alternate; }
+
+@keyframes criticalLabelPulse {
+  0% { opacity: 0.7; }
+  100% { opacity: 1; text-shadow: 0 0 10px rgba(255, 23, 68, 0.8); }
+}
+
+/* ==================== RESPONSIVE ==================== */
+@media (max-width: 768px) {
+  .speedometer-ring {
+    inset: -8px;
+  }
+  .speedometer-needle { height: 35%; }
+  .speedometer-ticks { inset: -12px; }
+  .speedometer-tick { transform-origin: center -28px; height: 4px; }
+  .speedometer-tick.major { height: 7px; }
+}
+
+@media (max-width: 480px) {
+  .speedometer-ring { inset: -6px; }
+  .speedometer-ring svg { stroke-width: 3; }
+  .speedometer-ring .track-bg, .speedometer-ring .track-fill { stroke-width: 3; }
+}
+
+/* ==================== REDUCED MOTION ==================== */
+@media (prefers-reduced-motion: reduce) {
+  .speedometer-ring .track-fill { transition: none; }
+  .speedometer-needle { transition: none; }
+  .speedometer-ring.speed-critical .track-fill { animation: none; stroke-width: 5; }
+  .speedometer-zone-label.zone-critical { animation: none; }
+  .speedometer-gear.shift-flash { animation: none; }
+}
+
+/* ==================== HIGH CONTRAST ==================== */
+@media (forced-colors: active) or (-ms-high-contrast: active) {
+  .speedometer-ring .track-bg { stroke: CanvasText; opacity: 0.3; }
+  .speedometer-ring .track-fill { stroke: Highlight; filter: none; }
+  .speedometer-needle::before { background: CanvasText; box-shadow: none; }
+  .speedometer-needle::after { background: CanvasText; box-shadow: none; }
+  .speedometer-tick { background: CanvasText; }
+  .speedometer-tick.major { background: CanvasText; }
+}
+
+/* ==================== DARK MODE ==================== */
+.speedometer-ring, .speedometer-needle, .speedometer-ticks, .speedometer-gear, .speedometer-zone-label {
+  color-scheme: dark;
+}

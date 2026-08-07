@@ -154,10 +154,10 @@ export class Renderer {
         { UnrealBloomPass },
         { OutputPass }
       ] = await Promise.all([
-        import('../../vendor/jsm/postprocessing/EffectComposer.js'),
-        import('../../vendor/jsm/postprocessing/RenderPass.js'),
-        import('../../vendor/jsm/postprocessing/UnrealBloomPass.js'),
-        import('../../vendor/jsm/postprocessing/OutputPass.js')
+        import('../vendor/jsm/postprocessing/EffectComposer.js'),
+        import('../vendor/jsm/postprocessing/RenderPass.js'),
+        import('../vendor/jsm/postprocessing/UnrealBloomPass.js'),
+        import('../vendor/jsm/postprocessing/OutputPass.js')
       ]);
       
       this._composer = new EffectComposer(this._renderer);

@@ -19,6 +19,7 @@ export const PAUSE_TAB = {
   MAIN: 'main',
   SETTINGS: 'settings',
   HELP: 'help',
+  STATISTICS: 'statistics',
   CONFIRM: 'confirm'
 };
 
@@ -216,6 +217,12 @@ class PauseMenuSystem {
                   <span class="btn-arrow">→</span>
                 </button>
                 
+                <button class="pause-menu-btn telemetry-btn" data-action="statistics">
+                  <span class="btn-icon">◉</span>
+                  <span class="btn-text">STATISTICS</span>
+                  <span class="btn-arrow">→</span>
+                </button>
+                
                 <div class="menu-divider"></div>
                 
                 <button class="pause-menu-btn danger" data-action="quit">
@@ -335,6 +342,73 @@ class PauseMenuSystem {
                     <div class="control-item"><kbd>R</kbd> Restart (when paused)</div>
                     <div class="control-item"><kbd>F11</kbd> Fullscreen</div>
                   </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- STATISTICS / TELEMETRY TAB -->
+            <div class="panel-statistics tab-panel" data-tab="${PAUSE_TAB.STATISTICS}">
+              <div class="panel-header">
+                <button class="back-btn" data-action="back">← Back</button>
+                <h2>Race Telemetry</h2>
+              </div>
+              
+              <div class="telemetry-panel" id="telemetry-content">
+                <!-- Stats grid -->
+                <div class="telemetry-stats-grid">
+                  <div class="telemetry-stat-card">
+                    <span class="telemetry-stat-label">Top Speed</span>
+                    <span class="telemetry-stat-value accent-red" id="tel-top-speed">--</span>
+                  </div>
+                  <div class="telemetry-stat-card">
+                    <span class="telemetry-stat-label">Avg Speed</span>
+                    <span class="telemetry-stat-value accent-cyan" id="tel-avg-speed">--</span>
+                  </div>
+                  <div class="telemetry-stat-card">
+                    <span class="telemetry-stat-label">Distance</span>
+                    <span class="telemetry-stat-value accent-gold" id="tel-distance">--</span>
+                  </div>
+                  <div class="telemetry-stat-card">
+                    <span class="telemetry-stat-label">Boosts</span>
+                    <span class="telemetry-stat-value success" id="tel-boosts">0</span>
+                  </div>
+                  <div class="telemetry-stat-card">
+                    <span class="telemetry-stat-label">Items</span>
+                    <span class="telemetry-stat-value accent-cyan" id="tel-items">0</span>
+                  </div>
+                  <div class="telemetry-stat-card">
+                    <span class="telemetry-stat-label">Near Misses</span>
+                    <span class="telemetry-stat-value accent-gold" id="tel-near-misses">0</span>
+                  </div>
+                </div>
+                
+                <!-- Drift section -->
+                <div class="telemetry-drift-section">
+                  <div class="telemetry-drift-card">
+                    <div class="drift-header">
+                      <span class="drift-title">Drift Score</span>
+                    </div>
+                    <span class="drift-value" id="tel-drift-score">0</span>
+                    <span class="drift-sub" id="tel-drift-time">0.0s total drift</span>
+                    <div class="telemetry-drift-bar"><div class="fill" id="tel-drift-bar" style="width: 0%"></div></div>
+                  </div>
+                  <div class="telemetry-drift-card">
+                    <div class="drift-header">
+                      <span class="drift-title">Boost Chain</span>
+                    </div>
+                    <span class="drift-value" id="tel-best-chain">x0</span>
+                    <span class="drift-sub" id="tel-chain-info">No chains yet</span>
+                    <div class="telemetry-drift-bar"><div class="fill" id="tel-chain-bar" style="width: 0%"></div></div>
+                  </div>
+                </div>
+                
+                <!-- Speed graph -->
+                <div class="telemetry-speed-graph">
+                  <div class="graph-header">
+                    <span class="graph-title">Speed History</span>
+                    <span class="graph-peak" id="tel-peak-label">PEAK: --</span>
+                  </div>
+                  <div class="telemetry-bar-chart" id="tel-speed-chart"></div>
                 </div>
               </div>
             </div>
@@ -462,6 +536,11 @@ class PauseMenuSystem {
         this._showTab(PAUSE_TAB.HELP);
         break;
         
+      case 'statistics':
+        this._showTab(PAUSE_TAB.STATISTICS);
+        this._populateTelemetry();
+        break;
+        
       case 'quit':
         this._showConfirmation(
           'Quit to Menu?',
@@ -579,6 +658,129 @@ class PauseMenuSystem {
     if (pos === 1) return '🏆 Leading!';
     if (pos <= 3) return '⭐ Podium Position';
     return '';
+  }
+
+  /**
+   * Populate telemetry panel with live race data
+   */
+  _populateTelemetry() {
+    // Try to get race stats from the RaceScene instance
+    var raceScene = window.__raceScene;
+    var stats = (raceScene && raceScene._raceStats) ? raceScene._raceStats : null;
+    
+    if (!stats) {
+      // If no live data, show placeholder values
+      this._setText('tel-top-speed', '--');
+      this._setText('tel-avg-speed', '--');
+      this._setText('tel-distance', '--');
+      this._setText('tel-boosts', '0');
+      this._setText('tel-items', '0');
+      this._setText('tel-near-misses', '0');
+      this._setText('tel-drift-score', '0');
+      this._setText('tel-drift-time', '0.0s total drift');
+      this._setText('tel-best-chain', 'x0');
+      this._setText('tel-chain-info', 'No chains yet');
+      this._setText('tel-peak-label', 'PEAK: --');
+      return;
+    }
+    
+    // Top speed
+    var topSpeed = Math.round(stats.topSpeed || 0);
+    this._setText('tel-top-speed', topSpeed + '<span class="telemetry-stat-unit">km/h</span>');
+    
+    // Average speed (rough estimate from distance and time)
+    var avgSpeed = stats.distanceTraveled > 0 ? Math.round(stats.distanceTraveled * 3.6) : 0;
+    this._setText('tel-avg-speed', avgSpeed + '<span class="telemetry-stat-unit">km/h</span>');
+    
+    // Distance
+    var dist = Math.round(stats.distanceTraveled || 0);
+    this._setText('tel-distance', dist + '<span class="telemetry-stat-unit">m</span>');
+    
+    // Boosts used
+    this._setText('tel-boosts', String(stats.boostsUsed || 0));
+    
+    // Items collected
+    this._setText('tel-items', String(stats.itemsCollected || 0));
+    
+    // Near misses
+    this._setText('tel-near-misses', String(stats.nearMisses || 0));
+    
+    // Drift score
+    var driftScore = raceScene._totalDriftScore || 0;
+    this._setText('tel-drift-score', String(Math.floor(driftScore)));
+    
+    // Drift time
+    var driftTime = stats.totalDriftTime || 0;
+    this._setText('tel-drift-time', driftTime.toFixed(1) + 's total drift');
+    
+    // Drift progress bar (capped at 10000 for visual)
+    var driftPct = Math.min(100, (driftScore / 10000) * 100);
+    var driftBar = this._container.querySelector('#tel-drift-bar');
+    if (driftBar) driftBar.style.width = driftPct + '%';
+    
+    // Boost chain
+    var bestChain = raceScene._bestBoostChain || 0;
+    this._setText('tel-best-chain', 'x' + bestChain);
+    this._setText('tel-chain-info', bestChain > 0 ? 'Best chain this race' : 'No chains yet');
+    
+    // Chain bar
+    var chainPct = Math.min(100, (bestChain / 5) * 100);
+    var chainBar = this._container.querySelector('#tel-chain-bar');
+    if (chainBar) chainBar.style.width = chainPct + '%';
+    
+    // Peak label
+    this._setText('tel-peak-label', 'PEAK: ' + topSpeed + ' km/h');
+    
+    // Build mini speed chart from speed history if available
+    this._buildSpeedChart(stats);
+  }
+  
+  /**
+   * Build mini bar chart for speed history
+   */
+  _buildSpeedChart(stats) {
+    var chartEl = this._container.querySelector('#tel-speed-chart');
+    if (!chartEl) return;
+    
+    var history = (stats.speedHistory && stats.speedHistory.length > 0) ? stats.speedHistory : [];
+    
+    // If no history, generate from top speed as a static display
+    if (history.length === 0) {
+      var peak = stats.topSpeed || 100;
+      history = [];
+      for (var i = 0; i < 30; i++) {
+        history.push(peak * (0.3 + Math.random() * 0.7));
+      }
+    }
+    
+    // Sample down to max 40 bars
+    var maxBars = 40;
+    var step = Math.max(1, Math.floor(history.length / maxBars));
+    var sampled = [];
+    for (var i = 0; i < history.length; i += step) {
+      sampled.push(history[i]);
+    }
+    
+    var maxVal = Math.max.apply(null, sampled.concat([1]));
+    var html = '';
+    
+    for (var i = 0; i < sampled.length; i++) {
+      var pct = (sampled[i] / maxVal) * 100;
+      var cls = 'telemetry-bar';
+      if (sampled[i] >= maxVal * 0.95) cls += ' peak';
+      else if (sampled[i] >= maxVal * 0.7) cls += ' average';
+      html += '<div class="' + cls + '" style="height:' + Math.max(4, pct) + '%" title="' + Math.round(sampled[i]) + ' km/h"></div>';
+    }
+    
+    chartEl.innerHTML = html;
+  }
+  
+  /**
+   * Safe text setter for telemetry elements
+   */
+  _setText(id, html) {
+    var el = this._container.querySelector('#' + id);
+    if (el) el.innerHTML = html;
   }
 
   /**
