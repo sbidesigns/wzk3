@@ -1,0 +1,317 @@
+/* ui/styles/tutorial-enhanced.css — Tutorial & Onboarding Polish (Cycle 52)
+ * Step indicators, spotlight overlay, tooltip arrows, progress dots,
+ * skip button, key illustration, completion checkmark.
+ */
+
+/* ==================== TUTORIAL OVERLAY ==================== */
+.tutorial-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 800;
+  background: rgba(5,6,10,0.8);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  pointer-events: none;
+}
+
+.tutorial-overlay.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* ==================== SPOTLIGHT EFFECT ==================== */
+.tutorial-spotlight {
+  position: fixed;
+  z-index: 801;
+  border-radius: 12px;
+  box-shadow: 0 0 0 9999px rgba(5,6,10,0.85);
+  pointer-events: none;
+  transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+  border: 2px solid rgba(0,229,255,0.4);
+}
+
+.tutorial-spotlight::after {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border-radius: 14px;
+  border: 1px solid rgba(0,229,255,0.15);
+  animation: spotlightPulse 2s ease-in-out infinite;
+}
+
+@keyframes spotlightPulse {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; }
+}
+
+/* ==================== TOOLTIP ==================== */
+.tutorial-tooltip {
+  position: fixed;
+  z-index: 810;
+  width: 320px;
+  background: linear-gradient(145deg, rgba(15,18,30,0.97), rgba(22,26,42,0.95));
+  border: 1px solid rgba(0,229,255,0.2);
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 12px 48px rgba(0,0,0,0.5), 0 0 24px rgba(0,229,255,0.06);
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity 0.4s ease, transform 0.4s ease;
+}
+
+.tutorial-tooltip.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Arrow variants */
+.tutorial-tooltip.arrow-top::before {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0; height: 0;
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  border-top: 8px solid rgba(15,18,30,0.97);
+}
+
+.tutorial-tooltip.arrow-bottom::before {
+  content: '';
+  position: absolute;
+  top: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0; height: 0;
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  border-bottom: 8px solid rgba(15,18,30,0.97);
+}
+
+.tutorial-tooltip.arrow-left::before {
+  content: '';
+  position: absolute;
+  right: -8px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 0; height: 0;
+  border-top: 8px solid transparent;
+  border-bottom: 8px solid transparent;
+  border-left: 8px solid rgba(15,18,30,0.97);
+}
+
+.tutorial-tooltip.arrow-right::before {
+  content: '';
+  position: absolute;
+  left: -8px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 0; height: 0;
+  border-top: 8px solid transparent;
+  border-bottom: 8px solid transparent;
+  border-right: 8px solid rgba(15,18,30,0.97);
+}
+
+/* ==================== TOOLTIP CONTENT ==================== */
+.tutorial-step-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: var(--accent, #00e5ff);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.tutorial-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 22px;
+  color: rgba(255,255,255,0.9);
+  letter-spacing: 1px;
+  margin-bottom: 8px;
+}
+
+.tutorial-body {
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  color: rgba(255,255,255,0.55);
+  line-height: 1.6;
+  margin-bottom: 16px;
+}
+
+/* ==================== KEY ILLUSTRATION ==================== */
+.tutorial-key-illustration {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 12px 0;
+}
+
+.tutorial-key {
+ display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 36px;
+  height: 36px;
+  padding: 0 10px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.03) 100%);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-bottom: 3px solid rgba(255,255,255,0.1);
+  border-radius: 8px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  color: rgba(255,255,255,0.7);
+ box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+}
+
+.tutorial-key.highlight {
+  border-color: rgba(0,229,255,0.4);
+  color: #00e5ff;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.3), 0 0 12px rgba(0,229,255,0.15);
+}
+
+.tutorial-key-plus {
+  font-size: 12px;
+  color: rgba(255,255,255,0.25);
+}
+
+/* ==================== PROGRESS DOTS ==================== */
+.tutorial-progress-dots {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 20px;
+}
+
+.tutorial-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.12);
+  transition: all 0.3s ease;
+}
+
+.tutorial-dot.active {
+  background: var(--accent, #00e5ff);
+  box-shadow: 0 0 8px rgba(0,229,255,0.4);
+  transform: scale(1.2);
+}
+
+.tutorial-dot.completed {
+  background: #00ff88;
+}
+
+/* ==================== NAVIGATION BUTTONS ==================== */
+.tutorial-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 20px;
+}
+
+.tutorial-skip {
+  background: none;
+  border: none;
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  color: rgba(255,255,255,0.3);
+  cursor: pointer;
+  padding: 6px 12px;
+  border-radius: 6px;
+  transition: color 0.2s, background 0.2s;
+}
+
+.tutorial-skip:hover {
+  color: rgba(255,255,255,0.6);
+  background: rgba(255,255,255,0.04);
+}
+
+.tutorial-next {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 20px;
+  background: linear-gradient(135deg, rgba(0,229,255,0.15), rgba(0,229,255,0.06));
+  border: 1px solid rgba(0,229,255,0.3);
+  border-radius: 10px;
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: #00e5ff;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.tutorial-next:hover {
+  background: linear-gradient(135deg, rgba(0,229,255,0.25), rgba(0,229,255,0.12));
+  box-shadow: 0 0 16px rgba(0,229,255,0.15);
+  transform: translateY(-1px);
+}
+
+.tutorial-next .arrow {
+  transition: transform 0.2s ease;
+}
+
+.tutorial-next:hover .arrow {
+  transform: translateX(3px);
+}
+
+/* ==================== COMPLETION ==================== */
+.tutorial-complete-icon {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, rgba(0,255,136,0.15), rgba(0,255,136,0.05));
+  border: 2px solid rgba(0,255,136,0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 16px;
+  font-size: 28px;
+  animation: completeBounce 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 0.3s both;
+}
+
+@keyframes completeBounce {
+  from { transform: scale(0); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+.tutorial-complete-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 28px;
+  color: #00ff88;
+  text-align: center;
+  letter-spacing: 2px;
+  text-shadow: 0 0 16px rgba(0,255,136,0.3);
+}
+
+/* ==================== RESPONSIVE ==================== */
+@media (max-width: 768px) {
+  .tutorial-tooltip { width: 280px; padding: 20px; }
+  .tutorial-key { min-width: 32px; height: 32px; font-size: 12px; }
+}
+
+@media (max-width: 480px) {
+  .tutorial-tooltip { width: calc(100vw - 32px); left: 16px !important; }
+}
+
+/* ==================== REDUCED MOTION ==================== */
+@media (prefers-reduced-motion: reduce) {
+  .tutorial-spotlight { transition: none; }
+  .tutorial-tooltip { transition: none; }
+  .tutorial-dot { transition: none; }
+  .tutorial-spotlight::after { animation: none; }
+  .tutorial-complete-icon { animation: none; }
+  .tutorial-next { transition: none; }
+  .tutorial-next .arrow { transition: none; }
+}
+
+/* ==================== HIGH CONTRAST ==================== */
+@media (prefers-contrast: high) {
+  .tutorial-tooltip { border-width: 2px; }
+  .tutorial-key { border-width: 2px; }
+  .tutorial-next { border-width: 2px; }
+  .tutorial-spotlight { border-width: 3px; }
+}

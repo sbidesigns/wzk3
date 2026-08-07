@@ -727,6 +727,10 @@ export class RaceScene {
 
     this._updateCamera(dt);
     this._updateHUDDirect();
+    // === CYCLE 52: SPEEDOMETER RING UPDATE ===
+    if (this._speedometerRing) this._speedometerRing.update(dt);
+    // === CYCLE 52: WEATHER CONTROLLER UPDATE ===
+    if (this._weatherController) this._weatherController.update(dt);
     
     // WRAP: All remaining update logic in try/catch to prevent cascade failures
     try {
@@ -2850,6 +2854,10 @@ export class RaceScene {
         this._offTrackWarningEl.classList.remove('active');
       }
     }
+
+    // === CYCLE 52: SCREEN CHROME UPDATE ===
+    this._updateScreenChrome();
+
     // === CYCLE 29: WEATHER INDICATOR ===
     if (this._weatherIndicatorEl) {
       if (this._weather === 'rain') this._weatherIndicatorEl.classList.add('active');
@@ -3729,6 +3737,15 @@ export class RaceScene {
     this._bestLapTime = Infinity;
 
     window.__hud = { element: hud, refs: this._hudRefs, update: function(d) { this._updateHUDData(d); }.bind(this), showCountdown: function(v) { this._showCountdown(v); }.bind(this), hideCountdown: function() { this._hideCountdown(); }.bind(this), showNotification: function(m, t) { this._showNotification(m, t); }.bind(this), setItem: function(it) { this._setItem(it); }.bind(this) };
+
+    // === CYCLE 52: SCREEN CHROME (Vignette + Ambient) ===
+    this._createScreenChrome();
+
+    // === CYCLE 52: WEATHER CONTROLLER ===
+    this._initWeatherController();
+
+    // === CYCLE 52: SPEEDOMETER RING ===
+    this._initSpeedometerRing();
   }
   
   _updateHUDDirect() {
@@ -3755,6 +3772,11 @@ export class RaceScene {
 
     if (this._hudRefs.speedValue) { this._hudRefs.speedValue.textContent = String(Math.round(speedKmh)); var cls = speedKmh < 20 ? 'low' : speedKmh < 40 ? 'medium' : speedKmh < 55 ? 'high' : 'critical'; this._hudRefs.speedValue.className = 'speed-value ' + cls; }
     if (this._hudRefs.speedBar) { var pct = Math.min(100, (speedKmh / maxSpeed) * 100); this._hudRefs.speedBar.style.width = pct + '%'; }
+    // === CYCLE 52: UPDATE SPEEDOMETER RING ===
+    if (this._speedometerRing) {
+      var gear = this._currentGear || 1;
+      this._speedometerRing.setSpeed(speedKmh, gear);
+    }
     // Speed panel critical state
     var sp = document.querySelector('.hud-speed-panel');
     if (sp) { if (speedKmh >= 55) sp.classList.add('speed-critical'); else sp.classList.remove('speed-critical'); }
@@ -4648,6 +4670,72 @@ export class RaceScene {
     this._steerAngle = 0; this._steerInput = 0; this._heading = 0; this._vehicleRoll = 0; this._minimapUpdateTimer = 0;
     if (this._useBarrelVehicle && this._barrelVehicle && this._barrelVehicle.physicsBody) { this._barrelVehicle.physicsBody.position.set(0, 1, -this._trackLength / 2 + 15); this._barrelVehicle.physicsBody.velocity.set(0, 0, 0); }
     else if (this._vehicle) { this._vehicle.position.set(0, 0.5, -this._trackLength / 2 + 15); this._vehicle.rotation.y = 0; this._vehicle.rotation.z = 0; }
+  }
+
+  // ==================== CYCLE 52: SCREEN CHROME ====================
+  _createScreenChrome() {
+    var vig = document.createElement('div');
+    vig.className = 'screen-vignette';
+    vig.id = 'race-vignette';
+    document.body.appendChild(vig);
+    this._vignetteEl = vig;
+    var amb = document.createElement('div');
+    amb.className = 'screen-ambient-temp neutral';
+    amb.id = 'race-ambient';
+    document.body.appendChild(amb);
+    this._ambientEl = amb;
+    this._lastVignetteClass = '';
+  }
+
+  _updateScreenChrome() {
+    if (!this._vignetteEl) return;
+    var speedKmh = Math.abs(this._state.speed) * 3.6;
+    var cls = '';
+    if (speedKmh >= 180) cls = 'intense';
+    else if (speedKmh >= 120) cls = 'speed-adaptive';
+    if (cls !== this._lastVignetteClass) {
+      if (this._lastVignetteClass) this._vignetteEl.classList.remove(this._lastVignetteClass);
+      if (cls) this._vignetteEl.classList.add(cls);
+      this._lastVignetteClass = cls;
+    }
+  }
+
+  // ==================== CYCLE 52: WEATHER CONTROLLER ====================
+  async _initWeatherController() {
+    try {
+      const { getWeatherController } = await import('./weather-controller.js?v=52');
+      this._weatherController = getWeatherController();
+      this._weatherController.init();
+      document.addEventListener('weather:change', (e) => {
+        var type = e.detail.type;
+        if (this._ambientEl) {
+          this._ambientEl.className = 'screen-ambient-temp';
+          if (type === 'sandstorm') this._ambientEl.classList.add('warm');
+          else if (type === 'rain' || type === 'snow' || type === 'fog') this._ambientEl.classList.add('cool');
+          else this._ambientEl.classList.add('neutral');
+        }
+      });
+      if (new URLSearchParams(window.location.search).has('debug')) {
+        this._weatherController.setAutoWeather(true, 20);
+        console.log('[RaceScene] Auto weather cycle enabled (debug, 20s)');
+      }
+      console.log('[RaceScene] Weather controller initialized');
+    } catch (e) {
+      console.warn('[RaceScene] Weather controller not available:', e.message);
+    }
+  }
+
+  // ==================== CYCLE 52: SPEEDOMETER RING ====================
+  async _initSpeedometerRing() {
+    try {
+      const { getSpeedometerRing } = await import('./speedometer-ring.js?v=52');
+      this._speedometerRing = getSpeedometerRing();
+      this._speedometerRing.init();
+      this._speedometerRing.show();
+      console.log('[RaceScene] Speedometer ring initialized');
+    } catch (e) {
+      console.warn('[RaceScene] Speedometer ring not available:', e.message);
+    }
   }
 }
 
